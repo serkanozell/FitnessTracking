@@ -1,0 +1,36 @@
+﻿using FitnessTracking.Domain.Entity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class ExerciseConfiguration : IEntityTypeConfiguration<Exercise>
+{
+    public void Configure(EntityTypeBuilder<Exercise> builder)
+    {
+        builder.ToTable("Exercises");
+
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Name)
+               .IsRequired()
+               .HasMaxLength(150);
+
+        builder.Property(x => x.MuscleGroup)
+               .IsRequired()
+               .HasMaxLength(100);
+
+        builder.Property(x => x.Description)
+               .HasMaxLength(500);
+
+        // Audit
+        //builder.Property(x => x.CreatedDate)
+        //    .IsRequired();
+
+        //builder.Property(x => x.UpdatedDate);
+
+        //builder.Property(x => x.CreatedBy)
+        //    .HasMaxLength(100);
+
+        //builder.Property(x => x.UpdatedBy)
+        //    .HasMaxLength(100);
+    }
+}
