@@ -4,5 +4,6 @@
     <Project Path="src/FitnessTracking.Application/FitnessTracking.Application.csproj" />
     <Project Path="src/FitnessTracking.Domain/FitnessTracking.Domain.csproj" />
     <Project Path="src/FitnessTracking.Infrastructure/FitnessTracking.Infrastructure.csproj" />
+    <Project Path="src/FitnessTracking.Web/FitnessTracking.Web.csproj" Id="42e34512-7154-4d4e-8d2a-5c4ea4621f2f" />
   </Folder>
 </Solution>

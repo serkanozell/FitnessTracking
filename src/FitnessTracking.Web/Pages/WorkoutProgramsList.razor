@@ -1,0 +1,193 @@
+@page "/workoutprograms"
+
+@using FitnessTracking.Web.Models
+@using FitnessTracking.Web.Services
+@inject IWorkoutProgramsService WorkoutProgramsService
+@inject NavigationManager Navigation
+
+<h3>Workout Programs</h3>
+
+@if (_isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <button class="btn btn-primary mb-3" @onclick="ShowCreateForm">
+        Add Program
+    </button>
+
+    @if (_showForm)
+    {
+        <EditForm Model="_editModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="col-md-4">
+                <label class="form-label">Name</label>
+                <InputText class="form-control" @bind-Value="_editModel.Name" />
+                <ValidationMessage For="@(() => _editModel.Name)" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Start Date</label>
+                <InputDate class="form-control" @bind-Value="_editModel.StartDate" />
+                <ValidationMessage For="@(() => _editModel.StartDate)" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">End Date</label>
+                <InputDate class="form-control" @bind-Value="_editModel.EndDate" />
+                <ValidationMessage For="@(() => _editModel.EndDate)" />
+            </div>
+
+            <button type="submit" class="btn btn-success me-2">
+                @(_editingId is null ? "Create" : "Save")
+            </button>
+            <button type="button" class="btn btn-secondary" @onclick="CancelEdit">
+                Cancel
+            </button>
+        </EditForm>
+    }
+
+    @if (_programs.Count == 0)
+    {
+        <p>No programs yet.</p>
+    }
+    else
+    {
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th style="width: 200px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in _programs)
+                {
+                    <tr>
+                        <td>@p.Name</td>
+                        <td>@p.StartDate.ToShortDateString()</td>
+                        <td>@p.EndDate.ToShortDateString()</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-secondary me-1"
+                                    @onclick="@(() => Navigation.NavigateTo($"/workoutprograms/{p.Id}"))">
+                                Details
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary me-1"
+                                    @onclick="() => StartEdit(p)">
+                                Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => DeleteAsync(p.Id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private readonly List<WorkoutProgramDto> _programs = new();
+    private bool _isLoading;
+
+    // Exercises.razor’daki pattern ile ayný mantýk:
+    // - _editingId null => create
+    // - _editingId dolu => update
+    private Guid? _editingId;
+    private WorkoutProgramEditModel _editModel = new();
+    private bool _showForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var list = await WorkoutProgramsService.GetAllAsync();
+            _programs.Clear();
+            _programs.AddRange(list);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void ShowCreateForm()
+    {
+        _editingId = null;
+        _editModel = new WorkoutProgramEditModel
+        {
+            StartDate = DateTime.Today,
+            EndDate = DateTime.Today
+        };
+        _showForm = true;
+    }
+
+    private void StartEdit(WorkoutProgramDto dto)
+    {
+        _editingId = dto.Id;
+        _editModel = new WorkoutProgramEditModel
+        {
+            Name = dto.Name,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate
+        };
+        _showForm = true;
+    }
+
+    private void CancelEdit()
+    {
+        _showForm = false;
+        _editingId = null;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // Create
+        if (_editingId is null)
+        {
+            var request = new CreateWorkoutProgramRequest
+            {
+                Name = _editModel.Name,
+                StartDate = _editModel.StartDate,
+                EndDate = _editModel.EndDate
+            };
+
+            await WorkoutProgramsService.CreateAsync(request);
+        }
+        // Update
+        else
+        {
+            var request = new UpdateWorkoutProgramRequest
+            {
+                Name = _editModel.Name,
+                StartDate = _editModel.StartDate,
+                EndDate = _editModel.EndDate
+            };
+
+            await WorkoutProgramsService.UpdateAsync(_editingId.Value, request);
+        }
+
+        await LoadAsync();
+        _showForm = false;
+        _editingId = null;
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        await WorkoutProgramsService.DeleteAsync(id);
+        await LoadAsync();
+    }
+
+
+}

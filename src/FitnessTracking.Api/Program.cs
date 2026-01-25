@@ -1,7 +1,6 @@
 using FitnessTracking.Application;
 using FitnessTracking.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +22,19 @@ builder.Services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>(
 
 builder.Services.AddApplicationServices();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:7073") // FitnessTracking.Web dev URL’i
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("BlazorClient");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

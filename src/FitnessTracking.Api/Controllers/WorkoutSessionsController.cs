@@ -33,8 +33,8 @@ namespace FitnessTracking.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            // TODO: _mediator.Send(new GetAllWorkoutSessionsQuery(), cancellationToken);
-            return Ok();
+            var result = await _mediator.Send(new GetWorkoutSessionsQuery(), cancellationToken);
+            return Ok(result);
         }
 
         // GET: api/workoutsessions/{id}
@@ -168,6 +168,19 @@ namespace FitnessTracking.Api.Controllers
                cancellationToken);
 
             return NoContent();
+        }
+
+        // GET: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
+        [HttpGet("{sessionId:guid}/exercises/")]
+        public async Task<IActionResult> GetWorkoutExercises(
+            Guid sessionId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(
+                new GetWorkoutExercisesBySessionQuery { WorkoutSessionId = sessionId },
+                cancellationToken);
+
+            return Ok(result);
         }
 
         // DELETE: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}

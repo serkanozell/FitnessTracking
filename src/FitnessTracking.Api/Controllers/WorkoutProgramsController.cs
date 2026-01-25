@@ -50,6 +50,28 @@ namespace FitnessTracking.Api.Controllers
             return Ok(result);
         }
 
+        public sealed class WorkoutProgramExerciseDto
+        {
+            public Guid WorkoutProgramExerciseId { get; init; }
+            public Guid ExerciseId { get; init; }
+            public string ExerciseName { get; init; } = default!;
+            public int Sets { get; init; }
+            public int TargetReps { get; init; }
+        }
+
+        // GET: api/workoutprograms/{programId}/exercises
+        [HttpGet("{programId:guid}/exercises")]
+        public async Task<IActionResult> GetProgramExercises(
+            Guid programId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(
+                new GetWorkoutProgramExercisesQuery { WorkoutProgramId = programId },
+                cancellationToken);
+
+            return Ok(result);
+        }
+
         // POST: api/workoutprograms
         [HttpPost]
         public async Task<IActionResult> Create(

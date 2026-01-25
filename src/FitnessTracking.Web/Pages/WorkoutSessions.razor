@@ -1,0 +1,411 @@
+@page "/workoutsessions"
+@using FitnessTracking.Web.Models
+@using FitnessTracking.Web.Services
+@inject WorkoutSessionsApiClient SessionsApi
+@inject ExercisesApiClient ExercisesApiClient
+@inject IWorkoutProgramsService WorkoutProgramsService
+
+<h3>Workout Sessions</h3>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else
+{
+    <button class="btn btn-primary mb-3" @onclick="ShowCreateForm">Add Session</button>
+
+    @if (showForm)
+    {
+        <EditForm Model="editModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label class="form-label">Workout Program</label>
+                <InputSelect class="form-select" @bind-Value="selectedProgramId">
+                    <option value="">-- select program --</option>
+                    @foreach (var p in allPrograms)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <InputDate class="form-control" @bind-Value="editModel.Date" />
+            </div>
+
+            <button type="submit" class="btn btn-success me-2">
+                @(editingId is null ? "Create" : "Save")
+            </button>
+            <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+        </EditForm>
+    }
+
+    @if (selectedSessionId is not null)
+    {
+        <div class="card mt-4">
+            <div class="card-header">
+                Add Workout Exercise to Session (@selectedSessionDate?.ToShortDateString())
+            </div>
+            <div class="card-body">
+
+                @if (selectedSessionExercises.Count == 0)
+                {
+                    <p>No exercises recorded for this session.</p>
+                }
+                else
+                {
+                    <table class="table table-sm mb-3">
+                        <thead>
+                            <tr>
+                                <th>Exercise</th>
+                                <th>Set #</th>
+                                <th>Weight</th>
+                                <th>Reps</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var e in selectedSessionExercises.OrderBy(x => x.SetNumber))
+                            {
+                                var exerciseName = allExercises.FirstOrDefault(x => x.Id == e.ExerciseId)?.Name
+                                ?? e.ExerciseId.ToString();
+
+                                <tr>
+                                    <td>@exerciseName</td>
+                                    <td>@e.SetNumber</td>
+                                    <td>@e.Weight</td>
+                                    <td>@e.Reps</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                <EditForm Model="workoutExerciseEditModel" OnValidSubmit="HandleWorkoutExerciseSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Exercise</label>
+                            <InputSelect class="form-select" @bind-Value="selectedExerciseId">
+                                <option value="">-- select exercise --</option>
+                                @foreach (var ex in allExercises)
+                                {
+                                    <option value="@ex.Id">@ex.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Set #</label>
+                            <InputNumber class="form-control" @bind-Value="workoutExerciseEditModel.SetNumber" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Weight</label>
+                            <InputNumber class="form-control" @bind-Value="workoutExerciseEditModel.Weight" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Reps</label>
+                            <InputNumber class="form-control" @bind-Value="workoutExerciseEditModel.Reps" />
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100">
+                                Add Set
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+    @if (sessions.Count == 0)
+    {
+        <p>No sessions found.</p>
+    }
+    else
+    {
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Program</th>
+                    <th>Date</th>
+                    <th style="width: 240px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in sessions)
+                {
+                    var programName = allPrograms.FirstOrDefault(p => p.Id == s.WorkoutProgramId)?.Name
+                    ?? s.WorkoutProgramId.ToString();
+                    var isSelected = selectedSessionId == s.Id;
+
+                    <tr class="@(isSelected ? "table-active" : string.Empty)">
+                        <td>@programName</td>
+                        <td>@s.Date.ToShortDateString()</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-secondary me-1"
+                                    @onclick="() => SelectSession(s)">
+                                @(isSelected ? "Selected" : "Select")
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary me-1"
+                                    @onclick="() => StartEdit(s)">
+                                Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => Delete(s.Id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private readonly List<WorkoutSessionDto> sessions = [];
+    private WorkoutSessionEditModel editModel = new();
+    private Guid? editingId;
+    private bool isLoading;
+    private bool showForm;
+    private string? errorMessage;
+
+    // Dropdown için program listesi ve seçili program
+    private List<WorkoutProgramDto> allPrograms = new();
+    private string? selectedProgramId;
+
+    // --- Workout exercise ekleme için state ---
+    private Guid? selectedSessionId;
+    private DateTime? selectedSessionDate;
+    private readonly List<WorkoutExerciseDto> selectedSessionExercises = [];
+
+    // Exercise dropdown + add form
+    private List<ExerciseDto> allExercises = new();
+    private string? selectedExerciseId;
+    private WorkoutExerciseEditModel workoutExerciseEditModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            // session listesi
+            var list = await SessionsApi.GetAllAsync();
+            sessions.Clear();
+            sessions.AddRange(list);
+
+            // program listesi
+            var programs = await WorkoutProgramsService.GetAllAsync();
+            allPrograms = programs.ToList();
+
+            // exercises listesi
+            var exercises = await ExercisesApiClient.GetAllAsync();
+            allExercises = exercises.ToList();
+
+            // Eðer seçili session varsa, exercise listesini de güncelle
+            if (selectedSessionId is not null)
+            {
+                await LoadSelectedSessionExercisesAsync(selectedSessionId.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load sessions: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowCreateForm()
+    {
+        editingId = null;
+        editModel = new WorkoutSessionEditModel
+        {
+            Date = DateTime.Today
+        };
+        selectedProgramId = null;
+        showForm = true;
+        errorMessage = null;
+    }
+
+    private void StartEdit(WorkoutSessionDto dto)
+    {
+        editingId = dto.Id;
+        editModel = new WorkoutSessionEditModel
+        {
+            WorkoutProgramId = dto.WorkoutProgramId,
+            Date = dto.Date
+        };
+        selectedProgramId = dto.WorkoutProgramId.ToString();
+        showForm = true;
+        errorMessage = null;
+    }
+
+    private void CancelEdit()
+    {
+        showForm = false;
+        editingId = null;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(selectedProgramId) ||
+                !Guid.TryParse(selectedProgramId, out var programId))
+            {
+                errorMessage = "Please select a workout program.";
+                return;
+            }
+
+            editModel.WorkoutProgramId = programId;
+
+            if (editingId is null)
+            {
+                // Create
+                await SessionsApi.CreateAsync(editModel);
+            }
+            else
+            {
+                // Update
+                var ok = await SessionsApi.UpdateAsync(editingId.Value, editModel);
+                if (!ok)
+                {
+                    errorMessage = "Session not found (might have been deleted).";
+                }
+            }
+
+            await LoadAsync();
+            showForm = false;
+            editingId = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Save failed: {ex.Message}";
+        }
+    }
+
+    private async Task Delete(Guid id)
+    {
+        try
+        {
+            errorMessage = null;
+            var ok = await SessionsApi.DeleteAsync(id);
+            if (!ok)
+            {
+                errorMessage = "Session not found (already deleted?).";
+            }
+            await LoadAsync();
+
+            if (selectedSessionId == id)
+            {
+                selectedSessionId = null;
+                selectedSessionDate = null;
+                selectedSessionExercises.Clear();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Delete failed: {ex.Message}";
+        }
+    }
+
+    private async Task LoadSelectedSessionExercisesAsync(Guid sessionId)
+    {
+        var exercises = await SessionsApi.GetWorkoutExercisesAsync(sessionId);
+        selectedSessionExercises.Clear();
+        selectedSessionExercises.AddRange(exercises);
+    }
+
+    private async void SelectSession(WorkoutSessionDto dto)
+    {
+        if (selectedSessionId == dto.Id)
+        {
+            // tekrar týklayýnca seçimi kaldýr
+            selectedSessionId = null;
+            selectedSessionDate = null;
+            selectedSessionExercises.Clear();
+            StateHasChanged();
+            return;
+        }
+
+        selectedSessionId = dto.Id;
+        selectedSessionDate = dto.Date;
+
+        await LoadSelectedSessionExercisesAsync(dto.Id);
+
+        // set formunu resetle
+        selectedExerciseId = null;
+        workoutExerciseEditModel = new WorkoutExerciseEditModel
+        {
+            SetNumber = selectedSessionExercises.Count == 0
+                ? 1
+                : selectedSessionExercises.Max(x => x.SetNumber) + 1,
+            Weight = 0,
+            Reps = 0
+        };
+
+        StateHasChanged();
+    }
+
+    private async Task HandleWorkoutExerciseSubmit()
+    {
+        try
+        {
+            errorMessage = null;
+
+            if (selectedSessionId is null)
+            {
+                errorMessage = "Please select a session first.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(selectedExerciseId) ||
+                !Guid.TryParse(selectedExerciseId, out var exerciseId))
+            {
+                errorMessage = "Please select an exercise.";
+                return;
+            }
+
+            workoutExerciseEditModel.ExerciseId = exerciseId;
+
+            await SessionsApi.AddWorkoutExerciseAsync(selectedSessionId.Value, workoutExerciseEditModel);
+
+            // listeyi yenile
+            await LoadSelectedSessionExercisesAsync(selectedSessionId.Value);
+
+            // formu güncelle: otomatik bir sonraki set numarasý
+            workoutExerciseEditModel = new WorkoutExerciseEditModel
+            {
+                ExerciseId = exerciseId,
+                SetNumber = selectedSessionExercises.Max(x => x.SetNumber) + 1,
+                Weight = workoutExerciseEditModel.Weight,
+                Reps = workoutExerciseEditModel.Reps
+            };
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to add workout exercise: {ex.Message}";
+        }
+    }
+}

@@ -1,0 +1,252 @@
+﻿@page "/workoutprograms/{Id:guid}"
+
+@using FitnessTracking.Web.Models
+@using FitnessTracking.Web.Services
+@inject IWorkoutProgramsService WorkoutProgramsService
+@inject ExercisesApiClient ExercisesApiClient
+@inject NavigationManager Navigation
+
+<h3>Workout Program Details</h3>
+
+@if (_isLoading)
+{
+    <p>Loading...</p>
+}
+else if (_program is null)
+{
+    <p class="text-danger">Program not found.</p>
+}
+else
+{
+    <div class="mb-3">
+        <h4>@_program.Name</h4>
+        <p>
+            <strong>Start:</strong> @_program.StartDate.ToShortDateString() <br />
+            <strong>End:</strong> @_program.EndDate.ToShortDateString()
+        </p>
+    </div>
+
+    <div class="mb-4">
+        <h5>Add Exercise</h5>
+        <EditForm Model="_newExercise" OnValidSubmit="OnAddExerciseAsync">
+            <DataAnnotationsValidator />
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="form-label">Exercise</label>
+                    <InputSelect class="form-select" @bind-Value="_selectedExerciseId">
+                        <option value="">-- select exercise --</option>
+                        @foreach (var ex in _allExercises)
+                        {
+                            <option value="@ex.Id">@ex.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Sets</label>
+                    <InputNumber class="form-control" @bind-Value="_newExercise.Sets" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Target Reps</label>
+                    <InputNumber class="form-control" @bind-Value="_newExercise.TargetReps" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Add</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+
+    <h5>Exercises</h5>
+
+    @if (_exercises.Count == 0)
+    {
+        <p>No exercises in this program.</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Target Reps</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in _exercises)
+                {
+                    var isEditing = _editingExerciseId == e.WorkoutProgramExerciseId;
+
+                    <tr>
+                        <td>@e.ExerciseName</td>
+                        <td>
+                            @if (isEditing)
+                            {
+                                <InputNumber class="form-control form-control-sm"
+                                             @bind-Value="_editExercise.Sets" />
+                            }
+                            else
+                            {
+                                @e.Sets
+                            }
+                        </td>
+                        <td>
+                            @if (isEditing)
+                            {
+                                <InputNumber class="form-control form-control-sm"
+                                             @bind-Value="_editExercise.TargetReps" />
+                            }
+                            else
+                            {
+                                @e.TargetReps
+                            }
+                        </td>
+                        <td class="text-end">
+                            @if (isEditing)
+                            {
+                                <button class="btn btn-sm btn-success me-2"
+                                        @onclick="() => OnSaveExerciseAsync(e.WorkoutProgramExerciseId)">
+                                    Save
+                                </button>
+                                <button class="btn btn-sm btn-secondary"
+                                        @onclick="CancelEdit">
+                                    Cancel
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-secondary me-2"
+                                        @onclick="() => StartEdit(e)">
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger"
+                                        @onclick="() => OnDeleteExerciseAsync(e.WorkoutProgramExerciseId)">
+                                    Delete
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+       
+    <button class="btn btn-secondary" @onclick="GoBack">
+        Back to list
+    </button>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private WorkoutProgramDto? _program;
+    private List<WorkoutProgramExerciseDto> _exercises = new();
+    private bool _isLoading;
+
+    // Dropdown için tüm egzersizler
+    private List<ExerciseDto> _allExercises = new();
+    private string? _selectedExerciseId;
+
+    // Add exercise
+    private AddProgramExerciseRequest _newExercise = new();
+    private string _newExerciseExerciseIdText = string.Empty;
+
+    // Edit exercise
+    private Guid? _editingExerciseId;
+    private UpdateProgramExerciseRequest _editExercise = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            _program = await WorkoutProgramsService.GetByIdAsync(Id);
+            var exercises = await WorkoutProgramsService.GetProgramExercisesAsync(Id);
+            _exercises = exercises.ToList();
+
+            var allExercises = await ExercisesApiClient.GetAllAsync();
+            _allExercises = allExercises.ToList();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/workoutprograms");
+    }
+
+    private async Task OnAddExerciseAsync()
+    {
+        if (!Guid.TryParse(_newExerciseExerciseIdText, out var exerciseId))
+        {
+            // Basit validasyon, istersen burada hata mesajı gösterebilirsin
+            return;
+        }
+
+        var request = new AddProgramExerciseRequest
+        {
+            ExerciseId = exerciseId,
+            Sets = _newExercise.Sets,
+            TargetReps = _newExercise.TargetReps
+        };
+
+        await WorkoutProgramsService.AddExerciseAsync(Id, request);
+
+        // Listeyi yenile
+        await LoadDataAsync();
+
+        // Formu sıfırla
+        _newExercise = new AddProgramExerciseRequest();
+        _newExerciseExerciseIdText = string.Empty;
+    }
+
+    private void StartEdit(WorkoutProgramExerciseDto exercise)
+    {
+        _editingExerciseId = exercise.WorkoutProgramExerciseId;
+        _editExercise = new UpdateProgramExerciseRequest
+        {
+            Sets = exercise.Sets,
+            TargetReps = exercise.TargetReps
+        };
+    }
+
+    private void CancelEdit()
+    {
+        _editingExerciseId = null;
+        _editExercise = new UpdateProgramExerciseRequest();
+    }
+
+    private async Task OnSaveExerciseAsync(Guid workoutProgramExerciseId)
+    {
+        if (_editingExerciseId is null)
+        {
+            return;
+        }
+
+        await WorkoutProgramsService.UpdateExerciseAsync(
+        Id,
+        workoutProgramExerciseId,
+        _editExercise);
+
+        _editingExerciseId = null;
+        _editExercise = new UpdateProgramExerciseRequest();
+
+        await LoadDataAsync();
+    }
+
+    private async Task OnDeleteExerciseAsync(Guid workoutProgramExerciseId)
+    {
+        await WorkoutProgramsService.RemoveExerciseAsync(Id, workoutProgramExerciseId);
+        await LoadDataAsync();
+    }
+}

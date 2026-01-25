@@ -19,6 +19,15 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<WorkoutSession>> GetAllAsync(
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.WorkoutSessions.Include(x => x.WorkoutExercises)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+
     public Task<WorkoutSession?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return _context.WorkoutSessions.Include(x => x.WorkoutExercises)

@@ -1,0 +1,200 @@
+@page "/exercises"
+@using FitnessTracking.Web.Models
+@using FitnessTracking.Web.Services
+@inject ExercisesApiClient ExercisesApi
+
+<h3>Exercises</h3>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else
+{
+    <button class="btn btn-primary mb-3" @onclick="ShowCreateForm">Add Exercise</button>
+
+    @if (showForm)
+    {
+        <EditForm Model="editModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <InputText class="form-control" @bind-Value="editModel.Name" />
+                <ValidationMessage For="@(() => editModel.Name)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Muscle Group</label>
+                <InputText class="form-control" @bind-Value="editModel.MuscleGroup" />
+                <ValidationMessage For="@(() => editModel.MuscleGroup)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <InputTextArea class="form-control" @bind-Value="editModel.Description" />
+                <ValidationMessage For="@(() => editModel.Description)" />
+            </div>
+
+            <button type="submit" class="btn btn-success me-2">
+                @(editingId is null ? "Create" : "Save")
+            </button>
+            <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+        </EditForm>
+    }
+
+    @if (exercises.Count == 0)
+    {
+        <p>No exercises found.</p>
+    }
+    else
+    {
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Muscle Group</th>
+                    <th>Description</th>
+                    <th style="width: 150px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var exercise in exercises)
+            {
+                <tr>
+                    <td>@exercise.Name</td>
+                    <td>@exercise.MuscleGroup</td>
+                    <td>@exercise.Description</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1"
+                                @onclick="() => StartEdit(exercise)">
+                            Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick="() => Delete(exercise.Id)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private readonly List<ExerciseDto> exercises = [];
+    private ExerciseEditModel editModel = new();
+    private Guid? editingId;
+    private bool isLoading;
+    private bool showForm;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var list = await ExercisesApi.GetAllAsync();
+            exercises.Clear();
+            exercises.AddRange(list);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load exercises: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowCreateForm()
+    {
+        editingId = null;
+        editModel = new ExerciseEditModel();
+        showForm = true;
+        errorMessage = null;
+    }
+
+    private void StartEdit(ExerciseDto dto)
+    {
+        editingId = dto.Id;
+        editModel = new ExerciseEditModel
+        {
+            Name = dto.Name,
+            MuscleGroup = dto.MuscleGroup,
+            Description = dto.Description
+        };
+        showForm = true;
+        errorMessage = null;
+    }
+
+    private void CancelEdit()
+    {
+        showForm = false;
+        editingId = null;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            errorMessage = null;
+
+            if (editingId is null)
+            {
+                // Create
+                var id = await ExercisesApi.CreateAsync(editModel);
+                // Ýstersen tek item GET ile çekebilirsin, burada listeyi baþtan yüklüyoruz:
+            }
+            else
+            {
+                // Update
+                var ok = await ExercisesApi.UpdateAsync(editingId.Value, editModel);
+                if (!ok)
+                {
+                    errorMessage = "Exercise not found (might have been deleted).";
+                }
+            }
+
+            await LoadAsync();
+            showForm = false;
+            editingId = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Save failed: {ex.Message}";
+        }
+    }
+
+    private async Task Delete(Guid id)
+    {
+        try
+        {
+            errorMessage = null;
+            var ok = await ExercisesApi.DeleteAsync(id);
+            if (!ok)
+            {
+                errorMessage = "Exercise not found (already deleted?).";
+            }
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Delete failed: {ex.Message}";
+        }
+    }
+}

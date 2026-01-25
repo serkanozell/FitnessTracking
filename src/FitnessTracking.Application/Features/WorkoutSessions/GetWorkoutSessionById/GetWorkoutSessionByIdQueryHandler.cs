@@ -21,6 +21,19 @@ public sealed class GetWorkoutSessionByIdQueryHandler
             return null;
         }
 
+        //var exercises = session.WorkoutExercises
+        //                                        .OrderBy(x => x.SetNumber)
+        //                                        .Select(x => new WorkoutExerciseDto
+        //                                        {
+        //                                            Id = x.Id,
+        //                                            ExerciseId = x.ExerciseId,
+        //                                            SetNumber = x.SetNumber,
+        //                                            Weight = x.Weight,
+        //                                            Reps = x.Reps
+        //                                        })
+        //                                        .ToList()
+        //                                        .AsReadOnly();
+
         return WorkoutSessionDetailDto.FromEntity(session);
     }
 }
