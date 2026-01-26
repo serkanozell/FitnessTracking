@@ -13,8 +13,8 @@ builder.Services.AddScoped(sp =>
         BaseAddress = new Uri("https://localhost:7211/") // FitnessTracking.Api URL
     });
 
-builder.Services.AddScoped<ExercisesApiClient>();
+builder.Services.AddScoped<IExercisesService, ExercisesService>();
 builder.Services.AddScoped<IWorkoutProgramsService, WorkoutProgramsService>();
-builder.Services.AddScoped<WorkoutSessionsApiClient>();
+builder.Services.AddScoped<IWorkoutSessionsService, WorkoutSessionsService>();
 
 await builder.Build().RunAsync();

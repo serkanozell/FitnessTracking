@@ -33,7 +33,7 @@ public class WorkoutProgramConfiguration : IEntityTypeConfiguration<WorkoutProgr
         //    .HasMaxLength(100);
 
         builder.OwnsMany(
-            x => x.Exercises,
+            x => x.WorkoutProgramExercises,
             pe =>
             {
                 pe.ToTable("WorkoutProgramExercises");

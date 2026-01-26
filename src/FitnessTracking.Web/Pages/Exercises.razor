@@ -1,7 +1,7 @@
 @page "/exercises"
 @using FitnessTracking.Web.Models
 @using FitnessTracking.Web.Services
-@inject ExercisesApiClient ExercisesApi
+@inject IExercisesService ExercisesService
 
 <h3>Exercises</h3>
 
@@ -64,24 +64,24 @@ else
                 </tr>
             </thead>
             <tbody>
-            @foreach (var exercise in exercises)
-            {
-                <tr>
-                    <td>@exercise.Name</td>
-                    <td>@exercise.MuscleGroup</td>
-                    <td>@exercise.Description</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary me-1"
-                                @onclick="() => StartEdit(exercise)">
-                            Edit
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger"
-                                @onclick="() => Delete(exercise.Id)">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            }
+                @foreach (var exercise in exercises)
+                {
+                    <tr>
+                        <td>@exercise.Name</td>
+                        <td>@exercise.MuscleGroup</td>
+                        <td>@exercise.Description</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"
+                                    @onclick="() => StartEdit(exercise)">
+                                Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => Delete(exercise.Id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     }
@@ -107,7 +107,7 @@ else
             isLoading = true;
             errorMessage = null;
 
-            var list = await ExercisesApi.GetAllAsync();
+            var list = await ExercisesService.GetAllAsync();
             exercises.Clear();
             exercises.AddRange(list);
         }
@@ -157,13 +157,13 @@ else
             if (editingId is null)
             {
                 // Create
-                var id = await ExercisesApi.CreateAsync(editModel);
+                var id = await ExercisesService.CreateAsync(editModel);
                 // Ýstersen tek item GET ile çekebilirsin, burada listeyi baþtan yüklüyoruz:
             }
             else
             {
                 // Update
-                var ok = await ExercisesApi.UpdateAsync(editingId.Value, editModel);
+                var ok = await ExercisesService.UpdateAsync(editingId.Value, editModel);
                 if (!ok)
                 {
                     errorMessage = "Exercise not found (might have been deleted).";
@@ -185,7 +185,7 @@ else
         try
         {
             errorMessage = null;
-            var ok = await ExercisesApi.DeleteAsync(id);
+            var ok = await ExercisesService.DeleteAsync(id);
             if (!ok)
             {
                 errorMessage = "Exercise not found (already deleted?).";

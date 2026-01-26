@@ -1,14 +1,15 @@
+﻿using FitnessTracking.Web.Models;
 using System.Net;
 using System.Net.Http.Json;
-using FitnessTracking.Web.Models;
 
 namespace FitnessTracking.Web.Services
 {
-    public sealed class WorkoutSessionsApiClient
+    public sealed class WorkoutSessionsService : IWorkoutSessionsService
     {
         private readonly HttpClient _httpClient;
+        private const string BaseUrl = "api/workoutsessions";
 
-        public WorkoutSessionsApiClient(HttpClient httpClient)
+        public WorkoutSessionsService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
@@ -19,7 +20,7 @@ namespace FitnessTracking.Web.Services
         {
             var result = await _httpClient
                 .GetFromJsonAsync<IReadOnlyList<WorkoutSessionDto>>(
-                    "api/workoutsessions",
+                    BaseUrl,
                     cancellationToken);
 
             return result ?? Array.Empty<WorkoutSessionDto>();
@@ -30,7 +31,7 @@ namespace FitnessTracking.Web.Services
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            var response = await _httpClient.GetAsync($"api/workoutsessions/{id}", cancellationToken);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -39,7 +40,8 @@ namespace FitnessTracking.Web.Services
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<WorkoutSessionDto>(cancellationToken: cancellationToken);
+            return await response.Content.ReadFromJsonAsync<WorkoutSessionDto>(
+                cancellationToken: cancellationToken);
         }
 
         // POST: api/workoutsessions
@@ -55,7 +57,7 @@ namespace FitnessTracking.Web.Services
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                "api/workoutsessions",
+                BaseUrl,
                 payload,
                 cancellationToken);
 
@@ -78,7 +80,7 @@ namespace FitnessTracking.Web.Services
             };
 
             var response = await _httpClient.PutAsJsonAsync(
-                $"api/workoutsessions/{id}",
+                $"{BaseUrl}/{id}",
                 payload,
                 cancellationToken);
 
@@ -97,7 +99,7 @@ namespace FitnessTracking.Web.Services
             CancellationToken cancellationToken = default)
         {
             var response = await _httpClient.DeleteAsync(
-                $"api/workoutsessions/{id}",
+                $"{BaseUrl}/{id}",
                 cancellationToken);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -109,25 +111,12 @@ namespace FitnessTracking.Web.Services
             return true;
         }
 
-        public async Task<Guid> AddWorkoutExerciseAsync(Guid sessionId, object request, CancellationToken cancellationToken = default)
-        {
-            var response = await _httpClient.PostAsJsonAsync(
-                $"api/workoutsessions/{sessionId}/exercises",
-                request,
-                cancellationToken);
-
-            response.EnsureSuccessStatusCode();
-
-            // controller CreatedAtAction body: workoutExerciseId (Guid)
-            var id = await response.Content.ReadFromJsonAsync<Guid>(cancellationToken: cancellationToken);
-            return id;
-        }
-
+        // GET: api/workoutsessions/{id} (details dto)
         public async Task<WorkoutSessionDetailsDto?> GetDetailsAsync(
             Guid id,
             CancellationToken cancellationToken = default)
         {
-            var response = await _httpClient.GetAsync($"api/workoutsessions/{id}", cancellationToken);
+            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -140,27 +129,30 @@ namespace FitnessTracking.Web.Services
                 cancellationToken: cancellationToken);
         }
 
+        // GET: api/workoutsessions/{sessionId}/exercises
         public async Task<IReadOnlyList<WorkoutExerciseDto>> GetWorkoutExercisesAsync(
             Guid sessionId,
             CancellationToken cancellationToken = default)
         {
-            var url = $"api/workoutsessions/{sessionId}/exercises";
+            var url = $"{BaseUrl}/{sessionId}/exercises";
 
             using var response = await _httpClient.GetAsync(url, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
-                // log or surface a friendly message to the UI
-                var msg = $"Failed to load exercises for session {sessionId}. " +
-                          $"Status: {(int)response.StatusCode} {response.ReasonPhrase}";
-                // e.g. _logger.LogError(msg);
+                // log or surface a friendly message to the UI if needed
+                // var msg = $"Failed to load exercises for session {sessionId}. " +
+                //           $"Status: {(int)response.StatusCode} {response.ReasonPhrase}";
                 return Array.Empty<WorkoutExerciseDto>();
             }
 
-            var result = await response.Content.ReadFromJsonAsync<IReadOnlyList<WorkoutExerciseDto>>(cancellationToken: cancellationToken);
+            var result = await response.Content.ReadFromJsonAsync<IReadOnlyList<WorkoutExerciseDto>>(
+                cancellationToken: cancellationToken);
+
             return result ?? Array.Empty<WorkoutExerciseDto>();
         }
 
+        // POST: api/workoutsessions/{sessionId}/exercises
         public async Task<Guid> AddWorkoutExerciseAsync(
             Guid sessionId,
             WorkoutExerciseEditModel model,
@@ -175,7 +167,7 @@ namespace FitnessTracking.Web.Services
             };
 
             var response = await _httpClient.PostAsJsonAsync(
-                $"api/workoutsessions/{sessionId}/exercises",
+                $"{BaseUrl}/{sessionId}/exercises",
                 payload,
                 cancellationToken);
 
@@ -185,6 +177,7 @@ namespace FitnessTracking.Web.Services
             return id;
         }
 
+        // PUT: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
         public async Task<bool> UpdateWorkoutExerciseAsync(
             Guid sessionId,
             Guid workoutExerciseId,
@@ -199,7 +192,7 @@ namespace FitnessTracking.Web.Services
             };
 
             var response = await _httpClient.PutAsJsonAsync(
-                $"api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}",
+                $"{BaseUrl}/{sessionId}/exercises/{workoutExerciseId}",
                 payload,
                 cancellationToken);
 
@@ -212,13 +205,14 @@ namespace FitnessTracking.Web.Services
             return true;
         }
 
+        // DELETE: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
         public async Task<bool> DeleteWorkoutExerciseAsync(
             Guid sessionId,
             Guid workoutExerciseId,
             CancellationToken cancellationToken = default)
         {
             var response = await _httpClient.DeleteAsync(
-                $"api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}",
+                $"{BaseUrl}/{sessionId}/exercises/{workoutExerciseId}",
                 cancellationToken);
 
             if (response.StatusCode == HttpStatusCode.NotFound)

@@ -22,7 +22,7 @@ internal sealed class GetWorkoutProgramExercisesQueryHandler
             request.WorkoutProgramId,
             cancellationToken);
 
-        if (program is null || program.Exercises is null)
+        if (program is null || program.WorkoutProgramExercises is null)
         {
             return Array.Empty<WorkoutProgramExerciseDto>();
         }
@@ -31,7 +31,7 @@ internal sealed class GetWorkoutProgramExercisesQueryHandler
         var allExercises = await _exerciseRepository.GetAllAsync(cancellationToken);
         var exerciseLookup = allExercises.ToDictionary(x => x.Id, x => x.Name);
 
-        var result = program.Exercises
+        var result = program.WorkoutProgramExercises
             .Select(x => new WorkoutProgramExerciseDto
             {
                 WorkoutProgramExerciseId = x.Id,

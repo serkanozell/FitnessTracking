@@ -1,8 +1,8 @@
 @page "/workoutsessions"
 @using FitnessTracking.Web.Models
 @using FitnessTracking.Web.Services
-@inject WorkoutSessionsApiClient SessionsApi
-@inject ExercisesApiClient ExercisesApiClient
+@inject IWorkoutSessionsService WorkoutSessionsService
+@inject IExercisesService ExercisesService
 @inject IWorkoutProgramsService WorkoutProgramsService
 
 <h3>Workout Sessions</h3>
@@ -206,7 +206,7 @@ else
             errorMessage = null;
 
             // session listesi
-            var list = await SessionsApi.GetAllAsync();
+            var list = await WorkoutSessionsService.GetAllAsync();
             sessions.Clear();
             sessions.AddRange(list);
 
@@ -215,7 +215,7 @@ else
             allPrograms = programs.ToList();
 
             // exercises listesi
-            var exercises = await ExercisesApiClient.GetAllAsync();
+            var exercises = await ExercisesService.GetAllAsync();
             allExercises = exercises.ToList();
 
             // Eðer seçili session varsa, exercise listesini de güncelle
@@ -283,12 +283,12 @@ else
             if (editingId is null)
             {
                 // Create
-                await SessionsApi.CreateAsync(editModel);
+                await WorkoutSessionsService.CreateAsync(editModel);
             }
             else
             {
                 // Update
-                var ok = await SessionsApi.UpdateAsync(editingId.Value, editModel);
+                var ok = await WorkoutSessionsService.UpdateAsync(editingId.Value, editModel);
                 if (!ok)
                 {
                     errorMessage = "Session not found (might have been deleted).";
@@ -310,7 +310,7 @@ else
         try
         {
             errorMessage = null;
-            var ok = await SessionsApi.DeleteAsync(id);
+            var ok = await WorkoutSessionsService.DeleteAsync(id);
             if (!ok)
             {
                 errorMessage = "Session not found (already deleted?).";
@@ -332,7 +332,7 @@ else
 
     private async Task LoadSelectedSessionExercisesAsync(Guid sessionId)
     {
-        var exercises = await SessionsApi.GetWorkoutExercisesAsync(sessionId);
+        var exercises = await WorkoutSessionsService.GetWorkoutExercisesAsync(sessionId);
         selectedSessionExercises.Clear();
         selectedSessionExercises.AddRange(exercises);
     }
@@ -389,7 +389,7 @@ else
 
             workoutExerciseEditModel.ExerciseId = exerciseId;
 
-            await SessionsApi.AddWorkoutExerciseAsync(selectedSessionId.Value, workoutExerciseEditModel);
+            await WorkoutSessionsService.AddWorkoutExerciseAsync(selectedSessionId.Value, workoutExerciseEditModel);
 
             // listeyi yenile
             await LoadSelectedSessionExercisesAsync(selectedSessionId.Value);

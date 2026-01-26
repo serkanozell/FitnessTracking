@@ -5,7 +5,7 @@
         public string Name { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
-        public List<WorkoutProgramExercise> Exercises { get; private set; } = new();
+        public List<WorkoutProgramExercise> WorkoutProgramExercises { get; private set; } = new();
 
         private WorkoutProgram() { }
 
@@ -26,7 +26,7 @@
 
         public WorkoutProgramExercise AddExercise(Guid exerciseId, int sets, int targetReps)
         {
-            if (Exercises.Any(x => x.ExerciseId == exerciseId))
+            if (WorkoutProgramExercises.Any(x => x.ExerciseId == exerciseId))
             {
                 throw new InvalidOperationException(
                     $"Exercise ({exerciseId}) is already part of workout program {Id}.");
@@ -37,14 +37,14 @@
                                                                     sets,
                                                                     targetReps);
 
-            Exercises.Add(workoutProgramExercise);
+            WorkoutProgramExercises.Add(workoutProgramExercise);
 
             return workoutProgramExercise;
         }
 
         public void UpdateExercise(Guid workoutProgramExerciseId, int sets, int targetReps)
         {
-            var item = Exercises.SingleOrDefault(x => x.Id == workoutProgramExerciseId)
+            var item = WorkoutProgramExercises.SingleOrDefault(x => x.Id == workoutProgramExerciseId)
                        ?? throw new KeyNotFoundException(
                            $"WorkoutProgramExercise ({workoutProgramExerciseId}) not found in program {Id}.");
 
@@ -53,18 +53,18 @@
 
         public void RemoveExercise(Guid workoutProgramExerciseId)
         {
-            var item = Exercises.SingleOrDefault(x => x.Id == workoutProgramExerciseId);
+            var item = WorkoutProgramExercises.SingleOrDefault(x => x.Id == workoutProgramExerciseId);
             if (item is null)
             {
                 return;
             }
 
-            Exercises.Remove(item);
+            WorkoutProgramExercises.Remove(item);
         }
 
         public bool ContainsExercise(Guid exerciseId)
         {
-            return Exercises.Any(x => x.ExerciseId == exerciseId);
+            return WorkoutProgramExercises.Any(x => x.ExerciseId == exerciseId);
         }
     }
 }

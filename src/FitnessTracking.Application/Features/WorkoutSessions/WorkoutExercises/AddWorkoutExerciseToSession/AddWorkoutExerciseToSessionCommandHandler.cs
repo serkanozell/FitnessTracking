@@ -37,11 +37,21 @@ public sealed class AddWorkoutExerciseToSessionCommandHandler
                 $"Exercise ({request.ExerciseId}) is not part of workout program {program.Id}.");
         }
 
-        var workoutExercise = session.AddEntry(
-            request.ExerciseId,
-            request.SetNumber,
-            request.Weight,
-            request.Reps);
+        // Programda bu exercise için tanımlı max set sayısı
+        var programExercise = program.WorkoutProgramExercises.FirstOrDefault(x => x.ExerciseId == request.ExerciseId);
+
+        // Session'da şu anki set sayısı
+        var currentSetCountInSession = session.WorkoutExercises.Count(x => x.ExerciseId == request.ExerciseId);
+
+        if (currentSetCountInSession >= programExercise!.Sets)
+        {
+            throw new InvalidOperationException($"Exercise ({request.ExerciseId}) for program {program.Id} is limited to {programExercise.Sets} sets. " + $"Session {session.Id} already has {currentSetCountInSession} sets.");
+        }
+
+        var workoutExercise = session.AddEntry(request.ExerciseId,
+                                               request.SetNumber,
+                                               request.Weight,
+                                               request.Reps);
 
         await _sessionRepository.UpdateAsync(session, cancellationToken);
 

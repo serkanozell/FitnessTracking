@@ -3,7 +3,7 @@
 @using FitnessTracking.Web.Models
 @using FitnessTracking.Web.Services
 @inject IWorkoutProgramsService WorkoutProgramsService
-@inject ExercisesApiClient ExercisesApiClient
+@inject IExercisesService ExercisesService
 @inject NavigationManager Navigation
 
 <h3>Workout Program Details</h3>
@@ -131,7 +131,7 @@ else
             </tbody>
         </table>
     }
-       
+
     <button class="btn btn-secondary" @onclick="GoBack">
         Back to list
     </button>
@@ -150,7 +150,6 @@ else
 
     // Add exercise
     private AddProgramExerciseRequest _newExercise = new();
-    private string _newExerciseExerciseIdText = string.Empty;
 
     // Edit exercise
     private Guid? _editingExerciseId;
@@ -171,7 +170,7 @@ else
             var exercises = await WorkoutProgramsService.GetProgramExercisesAsync(Id);
             _exercises = exercises.ToList();
 
-            var allExercises = await ExercisesApiClient.GetAllAsync();
+            var allExercises = await ExercisesService.GetAllAsync();
             _allExercises = allExercises.ToList();
         }
         finally
@@ -187,7 +186,7 @@ else
 
     private async Task OnAddExerciseAsync()
     {
-        if (!Guid.TryParse(_newExerciseExerciseIdText, out var exerciseId))
+        if (!Guid.TryParse(_selectedExerciseId, out var exerciseId))
         {
             // Basit validasyon, istersen burada hata mesajı gösterebilirsin
             return;
@@ -207,7 +206,7 @@ else
 
         // Formu sıfırla
         _newExercise = new AddProgramExerciseRequest();
-        _newExerciseExerciseIdText = string.Empty;
+        _selectedExerciseId = null;
     }
 
     private void StartEdit(WorkoutProgramExerciseDto exercise)
