@@ -1,0 +1,15 @@
+﻿using MediatR;
+
+public sealed class AddWorkoutProgramSplitCommand : IRequest<Guid>
+{
+    public Guid WorkoutProgramId { get; }
+    public string Name { get; }
+    public int Order { get; }
+
+    public AddWorkoutProgramSplitCommand(Guid workoutProgramId, string name, int order)
+    {
+        WorkoutProgramId = workoutProgramId;
+        Name = name;
+        Order = order;
+    }
+}

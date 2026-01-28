@@ -38,10 +38,10 @@ public sealed class AddWorkoutExerciseToSessionCommandHandler
         }
 
         // Programda bu exercise için tanımlı max set sayısı
-        var programExercise = program.WorkoutProgramExercises.FirstOrDefault(x => x.ExerciseId == request.ExerciseId);
+        var programExercise = program.Splits.SelectMany(s => s.Exercises).FirstOrDefault(x => x.ExerciseId == request.ExerciseId);
 
         // Session'da şu anki set sayısı
-        var currentSetCountInSession = session.WorkoutExercises.Count(x => x.ExerciseId == request.ExerciseId);
+        var currentSetCountInSession = session.SessionExercises.Count(x => x.ExerciseId == request.ExerciseId);
 
         if (currentSetCountInSession >= programExercise!.Sets)
         {

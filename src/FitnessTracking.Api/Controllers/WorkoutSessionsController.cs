@@ -177,7 +177,7 @@ namespace FitnessTracking.Api.Controllers
             CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(
-                new GetWorkoutExercisesBySessionQuery { WorkoutSessionId = sessionId },
+                new GetSessionExercisesBySessionQuery { WorkoutSessionId = sessionId },
                 cancellationToken);
 
             return Ok(result);

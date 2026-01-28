@@ -13,7 +13,7 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
 
     public async Task<IReadOnlyList<WorkoutSession>> GetListByProgramAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.WorkoutSessions.Include(x => x.WorkoutExercises)
+        return await _context.WorkoutSessions.Include(x => x.SessionExercises)
             .AsNoTracking()
             .Where(x => x.WorkoutProgramId == id)
             .ToListAsync(cancellationToken);
@@ -22,7 +22,7 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
     public async Task<IReadOnlyList<WorkoutSession>> GetAllAsync(
     CancellationToken cancellationToken = default)
     {
-        return await _context.WorkoutSessions.Include(x => x.WorkoutExercises)
+        return await _context.WorkoutSessions.Include(x => x.SessionExercises)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
@@ -30,13 +30,13 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
 
     public Task<WorkoutSession?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _context.WorkoutSessions.Include(x => x.WorkoutExercises)
+        return _context.WorkoutSessions.Include(x => x.SessionExercises)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     }
 
     public Task<List<WorkoutSession>> GetByProgramIdAsync(Guid programId, CancellationToken cancellationToken = default)
     {
-        return _context.WorkoutSessions.Include(x => x.WorkoutExercises)
+        return _context.WorkoutSessions.Include(x => x.SessionExercises)
             .AsNoTracking()
             .Where(s => s.WorkoutProgramId == programId)
             .ToListAsync(cancellationToken);

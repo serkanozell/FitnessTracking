@@ -13,19 +13,23 @@ public class WorkoutProgramRepository : IWorkoutProgramRepository
 
     public async Task<IReadOnlyList<WorkoutProgram>> GetListAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.WorkoutPrograms.Include(x => x.WorkoutProgramExercises).ToListAsync();
+        return await _context.WorkoutPrograms.Include(x => x.Splits)
+                                             .ThenInclude(x => x.Exercises)
+                                             .ToListAsync();
     }
 
     public async Task<WorkoutProgram?> GetByIdWithExercisesAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.WorkoutPrograms
-            .Include(x => x.WorkoutProgramExercises)
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        return await _context.WorkoutPrograms.Include(x => x.Splits)
+                                             .ThenInclude(x => x.Exercises)
+                                             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
     public Task<WorkoutProgram?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _context.WorkoutPrograms.Include(x => x.WorkoutProgramExercises).FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        return _context.WorkoutPrograms.Include(x => x.Splits)
+                                       .ThenInclude(x => x.Exercises)
+                                       .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
     public async Task AddAsync(WorkoutProgram program, CancellationToken cancellationToken = default)

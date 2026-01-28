@@ -66,7 +66,7 @@ namespace FitnessTracking.Api.Controllers
             CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(
-                new GetWorkoutProgramExercisesQuery { WorkoutProgramId = programId },
+                new GetWorkoutProgramSplitExercisesQuery { WorkoutProgramId = programId },
                 cancellationToken);
 
             return Ok(result);
@@ -121,6 +121,103 @@ namespace FitnessTracking.Api.Controllers
             return NoContent();
         }
 
+        // ---------- Program Splits (child entity of WorkoutProgram) ----------
+
+        public sealed class AddSplitRequest
+        {
+            public string Name { get; init; } = default!;
+            public int Order { get; init; }
+        }
+
+        public sealed class UpdateSplitRequest
+        {
+            public string Name { get; init; } = default!;
+            public int Order { get; init; }
+        }
+
+        // GET: api/workoutprograms/{programId}/splits
+        [HttpGet("{programId:guid}/splits")]
+        public async Task<IActionResult> GetSplits(
+            Guid programId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(
+                new GetWorkoutProgramSplitsQuery { WorkoutProgramId = programId },
+                cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{programId:guid}/splits")]
+        public async Task<ActionResult<Guid>> AddSplit(
+            Guid programId,
+            [FromBody] AddSplitRequest request,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var command = new AddWorkoutProgramSplitCommand(programId, request.Name, request.Order);
+            var splitId = await _mediator.Send(command, cancellationToken);
+            return CreatedAtAction(nameof(GetSplits), new { programId }, splitId);
+        }
+
+        // PUT: api/workoutprograms/{programId}/splits/{splitId}
+        [HttpPut("{programId:guid}/splits/{splitId:guid}")]
+        public async Task<IActionResult> UpdateSplit(
+            Guid programId,
+            Guid splitId,
+            [FromBody] UpdateSplitRequest request,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var success = await _mediator.Send(
+                new UpdateWorkoutProgramSplitCommand
+                {
+                    WorkoutProgramId = programId,
+                    SplitId = splitId,
+                    Name = request.Name,
+                    Order = request.Order
+                },
+                cancellationToken);
+
+            if (!success)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        // DELETE: api/workoutprograms/{programId}/splits/{splitId}
+        [HttpDelete("{programId:guid}/splits/{splitId:guid}")]
+        public async Task<IActionResult> DeleteSplit(
+            Guid programId,
+            Guid splitId,
+            CancellationToken cancellationToken)
+        {
+            var success = await _mediator.Send(
+                new DeleteWorkoutProgramSplitCommand
+                {
+                    WorkoutProgramId = programId,
+                    SplitId = splitId
+                },
+                cancellationToken);
+
+            if (!success)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
 
 
         // ---------- Program Exercises (child entity of WorkoutProgram) ----------
@@ -138,10 +235,11 @@ namespace FitnessTracking.Api.Controllers
             public int TargetReps { get; init; }
         }
 
-        // POST: api/workoutprograms/{programId}/exercises
-        [HttpPost("{programId:guid}/exercises")]
-        public async Task<IActionResult> AddExercise(
+        // POST: api/workoutprograms/{programId}/splits/{splitId}/exercises
+        [HttpPost("{programId:guid}/splits/{splitId:guid}/exercises")]
+        public async Task<IActionResult> AddExerciseToSplit(
             Guid programId,
+            Guid splitId,
             [FromBody] AddProgramExerciseRequest request,
             CancellationToken cancellationToken)
         {
@@ -151,9 +249,10 @@ namespace FitnessTracking.Api.Controllers
             }
 
             var workoutProgramExerciseId = await _mediator.Send(
-                new AddExerciseToWorkoutProgramCommand
+                new AddExerciseToWorkoutProgramSplitCommand
                 {
                     WorkoutProgramId = programId,
+                    WorkoutProgramSplitId = splitId,
                     ExerciseId = request.ExerciseId,
                     Sets = request.Sets,
                     TargetReps = request.TargetReps
@@ -166,10 +265,11 @@ namespace FitnessTracking.Api.Controllers
                 workoutProgramExerciseId);
         }
 
-        // PUT: api/workoutprograms/{programId}/exercises/{workoutProgramExerciseId}
-        [HttpPut("{programId:guid}/exercises/{workoutProgramExerciseId:guid}")]
-        public async Task<IActionResult> UpdateExercise(
+        // PUT: api/workoutprograms/{programId}/splits/{splitId}/exercises/{workoutProgramExerciseId}
+        [HttpPut("{programId:guid}/splits/{splitId:guid}/exercises/{workoutProgramExerciseId:guid}")]
+        public async Task<IActionResult> UpdateExerciseInSplit(
             Guid programId,
+            Guid splitId,
             Guid workoutProgramExerciseId,
             [FromBody] UpdateProgramExerciseRequest request,
             CancellationToken cancellationToken)
@@ -180,9 +280,10 @@ namespace FitnessTracking.Api.Controllers
             }
 
             var success = await _mediator.Send(
-                new UpdateWorkoutProgramExerciseCommand
+                new UpdateWorkoutProgramSplitExerciseCommand
                 {
                     WorkoutProgramId = programId,
+                    WorkoutProgramSplitId = splitId,
                     WorkoutProgramExerciseId = workoutProgramExerciseId,
                     Sets = request.Sets,
                     TargetReps = request.TargetReps
@@ -197,17 +298,19 @@ namespace FitnessTracking.Api.Controllers
             return NoContent();
         }
 
-        // DELETE: api/workoutprograms/{programId}/exercises/{workoutProgramExerciseId}
-        [HttpDelete("{programId:guid}/exercises/{workoutProgramExerciseId:guid}")]
-        public async Task<IActionResult> RemoveExercise(
+        // DELETE: api/workoutprograms/{programId}/splits/{splitId}/exercises/{workoutProgramExerciseId}
+        [HttpDelete("{programId:guid}/splits/{splitId:guid}/exercises/{workoutProgramExerciseId:guid}")]
+        public async Task<IActionResult> RemoveExerciseFromSplit(
             Guid programId,
+            Guid splitId,
             Guid workoutProgramExerciseId,
             CancellationToken cancellationToken)
         {
             var success = await _mediator.Send(
-                new RemoveWorkoutProgramExerciseCommand
+                new RemoveWorkoutProgramSplitExerciseCommand
                 {
                     WorkoutProgramId = programId,
+                    WorkoutProgramSplitId = splitId,
                     WorkoutProgramExerciseId = workoutProgramExerciseId
                 },
                 cancellationToken);

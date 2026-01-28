@@ -1,20 +1,20 @@
 ﻿using FitnessTracking.Domain.Repositories;
 using MediatR;
 
-internal sealed class GetWorkoutProgramExercisesQueryHandler
-    : IRequestHandler<GetWorkoutProgramExercisesQuery, IReadOnlyList<WorkoutProgramExerciseDto>>
+internal sealed class GetWorkoutProgramSplitExercisesQueryHandler
+    : IRequestHandler<GetWorkoutProgramSplitExercisesQuery, IReadOnlyList<WorkoutProgramSplitExerciseDto>>
 {
     private readonly IWorkoutProgramRepository _workoutProgramRepository;
     private readonly IExerciseRepository _exerciseRepository;
 
-    public GetWorkoutProgramExercisesQueryHandler(IWorkoutProgramRepository workoutProgramRepository, IExerciseRepository exerciseRepository)
+    public GetWorkoutProgramSplitExercisesQueryHandler(IWorkoutProgramRepository workoutProgramRepository, IExerciseRepository exerciseRepository)
     {
         _workoutProgramRepository = workoutProgramRepository;
         _exerciseRepository = exerciseRepository;
     }
 
-    public async Task<IReadOnlyList<WorkoutProgramExerciseDto>> Handle(
-        GetWorkoutProgramExercisesQuery request,
+    public async Task<IReadOnlyList<WorkoutProgramSplitExerciseDto>> Handle(
+        GetWorkoutProgramSplitExercisesQuery request,
         CancellationToken cancellationToken)
     {
         // Repository imzan bu şekilde varsayıldı; gerekirse uyarlarsın.
@@ -22,17 +22,24 @@ internal sealed class GetWorkoutProgramExercisesQueryHandler
             request.WorkoutProgramId,
             cancellationToken);
 
-        if (program is null || program.WorkoutProgramExercises is null)
+        if (program is null || program.Splits is null)
         {
-            return Array.Empty<WorkoutProgramExerciseDto>();
+            return Array.Empty<WorkoutProgramSplitExerciseDto>();
+        }
+
+        var split = program.Splits.FirstOrDefault(s => s.Id == request.WorkoutSplitId);
+
+        if (split is null)
+        {
+            return Array.Empty<WorkoutProgramSplitExerciseDto>();
         }
 
         // Tüm exercise’ları bir kere çek
         var allExercises = await _exerciseRepository.GetAllAsync(cancellationToken);
         var exerciseLookup = allExercises.ToDictionary(x => x.Id, x => x.Name);
 
-        var result = program.WorkoutProgramExercises
-            .Select(x => new WorkoutProgramExerciseDto
+        var result = split.Exercises
+            .Select(x => new WorkoutProgramSplitExerciseDto
             {
                 WorkoutProgramExerciseId = x.Id,
                 ExerciseId = x.ExerciseId,

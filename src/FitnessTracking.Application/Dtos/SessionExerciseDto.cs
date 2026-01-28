@@ -1,4 +1,4 @@
-﻿public sealed class WorkoutExerciseDto
+﻿public sealed class SessionExerciseDto
 {
     public Guid Id { get; init; }
     public Guid ExerciseId { get; init; }
@@ -6,7 +6,7 @@
     public decimal Weight { get; init; }
     public int Reps { get; init; }
 
-    public static WorkoutExerciseDto FromEntity(WorkoutExercise entity) =>
+    public static SessionExerciseDto FromEntity(SessionExercise entity) =>
         new()
         {
             Id = entity.Id,

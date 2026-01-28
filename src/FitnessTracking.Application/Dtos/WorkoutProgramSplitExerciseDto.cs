@@ -1,4 +1,4 @@
-﻿public sealed class WorkoutProgramExerciseDto
+﻿public sealed class WorkoutProgramSplitExerciseDto
 {
     public Guid WorkoutProgramExerciseId { get; init; }
     public Guid ExerciseId { get; init; }

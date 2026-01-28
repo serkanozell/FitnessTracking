@@ -5,7 +5,7 @@
         public Guid WorkoutProgramId { get; private set; }
         public DateTime Date { get; private set; }
 
-        public List<WorkoutExercise> WorkoutExercises { get; private set; } = new();
+        public List<SessionExercise> SessionExercises { get; private set; } = new();
 
         private WorkoutSession() { }
 
@@ -16,24 +16,24 @@
             Date = date;
         }
 
-        public WorkoutExercise AddEntry(Guid exerciseId, int setNumber, decimal weight, int reps)
+        public SessionExercise AddEntry(Guid exerciseId, int setNumber, decimal weight, int reps)
         {
             // Aynı Exercise + SetNumber tekrar eklenmesin
-            if (WorkoutExercises.Any(x => x.ExerciseId == exerciseId && x.SetNumber == setNumber))
+            if (SessionExercises.Any(x => x.ExerciseId == exerciseId && x.SetNumber == setNumber))
             {
                 throw new InvalidOperationException(
                     $"Set {setNumber} for exercise ({exerciseId}) already exists in session {Id}.");
             }
 
-            var workoutExercise = new WorkoutExercise(Guid.NewGuid(),
+            var sessionExercise = new SessionExercise(Guid.NewGuid(),
                                                       exerciseId,
                                                       setNumber,
                                                       weight,
                                                       reps);
 
-            WorkoutExercises.Add(workoutExercise);
+            SessionExercises.Add(sessionExercise);
 
-            return workoutExercise;
+            return sessionExercise;
         }
 
         public void UpdateDate(DateTime date)
@@ -41,22 +41,22 @@
             Date = date;
         }
 
-        public void UpdateEntry(Guid workoutExerciseId, int setNumber, decimal weight, int reps)
+        public void UpdateEntry(Guid sessionExerciseId, int setNumber, decimal weight, int reps)
         {
-            var entry = WorkoutExercises.FirstOrDefault(x => x.Id == workoutExerciseId) ?? throw new KeyNotFoundException($"WorkoutExercise ({workoutExerciseId}) not found in session {Id}.");
+            var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new KeyNotFoundException($"SessionExercise ({sessionExerciseId}) not found in session {Id}.");
 
             entry.Update(setNumber, weight, reps);
         }
 
-        public void RemoveEntry(Guid workoutExerciseId)
+        public void RemoveEntry(Guid sessionExerciseId)
         {
-            var entry = WorkoutExercises.FirstOrDefault(x => x.Id == workoutExerciseId);
+            var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId);
             if (entry is null)
             {
                 return;
             }
 
-            WorkoutExercises.Remove(entry);
+            SessionExercises.Remove(entry);
         }
 
         // İsteğe bağlı: ExerciseId + SetNumber ile güncelle/sil convenience metotları
@@ -73,7 +73,7 @@
 
         public void RemoveEntry(Guid exerciseId, int setNumber)
         {
-            var entry = WorkoutExercises.FirstOrDefault(x =>
+            var entry = SessionExercises.FirstOrDefault(x =>
                 x.ExerciseId == exerciseId && x.SetNumber == setNumber);
 
             if (entry is null)
@@ -81,7 +81,7 @@
                 return;
             }
 
-            WorkoutExercises.Remove(entry);
+            SessionExercises.Remove(entry);
         }
     }
 }

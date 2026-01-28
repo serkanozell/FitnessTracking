@@ -5,7 +5,7 @@
         public string Name { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
-        public List<WorkoutProgramExercise> WorkoutProgramExercises { get; private set; } = new();
+        public List<WorkoutProgramSplit> Splits { get; set; } = new();
 
         private WorkoutProgram() { }
 
@@ -24,47 +24,43 @@
             EndDate = endDate;
         }
 
-        public WorkoutProgramExercise AddExercise(Guid exerciseId, int sets, int targetReps)
+        public WorkoutProgramSplit AddSplit(string name, int order)
         {
-            if (WorkoutProgramExercises.Any(x => x.ExerciseId == exerciseId))
+            if (Splits.Any(x => x.Name == name))
             {
                 throw new InvalidOperationException(
-                    $"Exercise ({exerciseId}) is already part of workout program {Id}.");
+                    $"Split with name ({name}) already exists in workout program {Id}.");
             }
 
-            var workoutProgramExercise = new WorkoutProgramExercise(Guid.NewGuid(),
-                                                                    exerciseId,
-                                                                    sets,
-                                                                    targetReps);
-
-            WorkoutProgramExercises.Add(workoutProgramExercise);
-
-            return workoutProgramExercise;
+            var split = new WorkoutProgramSplit(Guid.NewGuid(), Id, name, order);
+            Splits.Add(split);
+            return split;
         }
 
-        public void UpdateExercise(Guid workoutProgramExerciseId, int sets, int targetReps)
+        public void UpdateSplit(Guid splitId, string name, int order)
         {
-            var item = WorkoutProgramExercises.SingleOrDefault(x => x.Id == workoutProgramExerciseId)
-                       ?? throw new KeyNotFoundException(
-                           $"WorkoutProgramExercise ({workoutProgramExerciseId}) not found in program {Id}.");
+            var split = Splits.SingleOrDefault(x => x.Id == splitId)
+                        ?? throw new KeyNotFoundException(
+                            $"Split ({splitId}) not found in program {Id}.");
 
-            item.Update(sets, targetReps);
+            split.Update(name, order);
         }
 
-        public void RemoveExercise(Guid workoutProgramExerciseId)
+        public void RemoveSplit(Guid splitId)
         {
-            var item = WorkoutProgramExercises.SingleOrDefault(x => x.Id == workoutProgramExerciseId);
-            if (item is null)
+            var split = Splits.SingleOrDefault(x => x.Id == splitId);
+            if (split is null)
             {
                 return;
             }
 
-            WorkoutProgramExercises.Remove(item);
+            Splits.Remove(split);
         }
 
         public bool ContainsExercise(Guid exerciseId)
         {
-            return WorkoutProgramExercises.Any(x => x.ExerciseId == exerciseId);
+            return Splits.SelectMany(s => s.Exercises)
+                         .Any(x => x.ExerciseId == exerciseId);
         }
     }
 }

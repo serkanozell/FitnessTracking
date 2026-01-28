@@ -32,28 +32,55 @@ public class WorkoutProgramConfiguration : IEntityTypeConfiguration<WorkoutProgr
         //builder.Property(x => x.UpdatedBy)
         //    .HasMaxLength(100);
 
+        // WorkoutProgramSplits (owned collection)
         builder.OwnsMany(
-            x => x.WorkoutProgramExercises,
-            pe =>
+            x => x.Splits,
+            split =>
             {
-                pe.ToTable("WorkoutProgramExercises");
+                split.ToTable("WorkoutProgramSplits");
 
-                pe.WithOwner()
-                    .HasForeignKey("WorkoutProgramId"); // shadow FK
+                split.WithOwner()
+                     .HasForeignKey("WorkoutProgramId"); // shadow FK to WorkoutProgram
 
-                pe.HasKey(x => x.Id);
+                split.HasKey(x => x.Id);
 
-                pe.Property(x => x.Id)
-                    .ValueGeneratedNever();
+                split.Property(x => x.Id)
+                     .ValueGeneratedNever();
 
-                pe.Property(x => x.ExerciseId)
-                    .IsRequired();
+                split.Property(x => x.WorkoutProgramId)
+                     .IsRequired();
 
-                pe.Property(x => x.Sets)
-                    .IsRequired();
+                split.Property(x => x.Name)
+                     .IsRequired()
+                     .HasMaxLength(100);
 
-                pe.Property(x => x.TargetReps)
-                    .IsRequired();
+                split.Property(x => x.Order)
+                     .IsRequired();
+
+                // WorkoutProgramExercises under each split
+                split.OwnsMany(
+                    s => s.Exercises,
+                    pe =>
+                    {
+                        pe.ToTable("WorkoutProgramSplitExercises");
+
+                        pe.WithOwner()
+                          .HasForeignKey("WorkoutProgramSplitId"); // FK to split
+
+                        pe.HasKey(x => x.Id);
+
+                        pe.Property(x => x.Id)
+                          .ValueGeneratedNever();
+
+                        pe.Property(x => x.ExerciseId)
+                          .IsRequired();
+
+                        pe.Property(x => x.Sets)
+                          .IsRequired();
+
+                        pe.Property(x => x.TargetReps)
+                          .IsRequired();
+                    });
             });
     }
 }

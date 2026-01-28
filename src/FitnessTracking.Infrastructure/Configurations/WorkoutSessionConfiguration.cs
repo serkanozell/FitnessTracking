@@ -38,10 +38,10 @@ public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSessi
 
         // Owned Entity
         builder.OwnsMany(
-            x => x.WorkoutExercises,
+            x => x.SessionExercises,
             we =>
             {
-                we.ToTable("WorkoutExercises");
+                we.ToTable("WorkoutSessionExercises");
 
                 we.WithOwner()
                   .HasForeignKey("WorkoutSessionId"); // shadow FK
