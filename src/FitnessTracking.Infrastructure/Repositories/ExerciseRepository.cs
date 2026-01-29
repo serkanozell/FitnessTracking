@@ -1,4 +1,5 @@
-﻿using FitnessTracking.Domain.Entity;
+﻿using Exercises.Domain.Entity;
+using FitnessTracking.Domain.Entity;
 using FitnessTracking.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 

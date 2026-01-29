@@ -19,7 +19,7 @@ namespace FitnessTracking.Api.Controllers
         [ProducesResponseType(typeof(IReadOnlyList<ExerciseDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetAllExercisesQuery(), cancellationToken);
+            var result = await _mediator.Send(new Exercises.Application.Features.Exercises.GetAllExercises.GetAllExercisesQuery(), cancellationToken);
             return Ok(result);
         }
 
@@ -29,7 +29,7 @@ namespace FitnessTracking.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetExerciseByIdQuery(id), cancellationToken);
+            var result = await _mediator.Send(new Exercises.Application.Features.Exercises.GetExerciseById.GetExerciseByIdQuery(id), cancellationToken);
 
             if (result is null)
             {
@@ -59,7 +59,7 @@ namespace FitnessTracking.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var command = new CreateExerciseCommand(
+            var command = new Exercises.Application.Features.Exercises.CreateExercise.CreateExerciseCommand(
                 request.Name,
                 request.MuscleGroup,
                 request.Description);
@@ -94,7 +94,7 @@ namespace FitnessTracking.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var command = new UpdateExerciseCommand(
+            var command = new Exercises.Application.Features.Exercises.UpdateExercise.UpdateExerciseCommand(
                 id,
                 request.Name,
                 request.MuscleGroup,
@@ -116,7 +116,7 @@ namespace FitnessTracking.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var command = new DeleteExerciseCommand(id);
+            var command = new Exercises.Application.Features.Exercises.DeleteExercise.DeleteExerciseCommand(id);
             var success = await _mediator.Send(command, cancellationToken);
 
             if (!success)

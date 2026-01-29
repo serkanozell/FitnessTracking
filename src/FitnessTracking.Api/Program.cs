@@ -1,3 +1,5 @@
+using BuildingBlocks.Infrastructure.Services;
+using Exercises.Infrastructure;
 using FitnessTracking.Application;
 using FitnessTracking.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddExercisesInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblies(
+        typeof(Exercises.Application.AssemblyReference).Assembly);
+});
 
 builder.Configuration.GetConnectionString("FitnessDbConnection");
 

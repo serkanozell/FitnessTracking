@@ -18,7 +18,7 @@ public sealed class CreateExerciseCommandHandler
     {
         var id = Guid.NewGuid();
 
-        var exercise = new Exercise(
+        var exercise = new Exercises.Domain.Entity.Exercise(
             id,
             request.Name,
             request.MuscleGroup,

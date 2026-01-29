@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Domain.Entity;
+﻿using Exercises.Domain.Entity;
 
 namespace FitnessTracking.Domain.Repositories
 {

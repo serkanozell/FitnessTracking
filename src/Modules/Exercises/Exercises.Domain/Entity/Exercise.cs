@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Domain.Entity
+﻿namespace Exercises.Domain.Entity
 {
     public class Exercise : AggregateRoot<Guid>
     {
@@ -16,11 +16,27 @@
             Description = description;
         }
 
+        public static Exercise Create(string name, string muscleGroup, string description)
+        {
+            var exercise = new Exercise(Guid.NewGuid(), name, muscleGroup, description);
+
+            // Add domain event if needed
+            //exercise.AddDomainEvent(new ExerciseCreatedDomainEvent(exercise.Id, exercise.Name, exercise.MuscleGroup, exercise.Description));
+
+            return exercise;
+        }
+
         public void Update(string name, string muscleGroup, string description)
         {
             Name = name;
             MuscleGroup = muscleGroup;
             Description = description;
+        }
+
+        public void Delete()
+        {
+            IsActive = false;
+            IsDeleted = true;
         }
     }
 }
