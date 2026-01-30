@@ -15,10 +15,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FitnessTracking.Application\FitnessTracking.Application.csproj" />
-		<ProjectReference Include="..\FitnessTracking.Infrastructure\FitnessTracking.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\Exercises\Exercises.Application\Exercises.Application.csproj" />
 		<ProjectReference Include="..\Modules\Exercises\Exercises.Infrastructure\Exercises.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules\WorkoutPrograms\WorkoutPrograms.Application\WorkoutPrograms.Application.csproj" />
+		<ProjectReference Include="..\Modules\WorkoutPrograms\WorkoutPrograms.Infrastructure\WorkoutPrograms.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

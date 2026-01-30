@@ -1,6 +1,6 @@
 ﻿using Exercises.Application.Features.Exercises.UpdateExercise;
 
-public sealed class UpdateExerciseCommandHandler(IExerciseRepository _exerciseRepository, IExercisesUnitOfWork _unitOfWork) : ICommandHandler<UpdateExerciseCommand, bool>
+internal sealed class UpdateExerciseCommandHandler(IExerciseRepository _exerciseRepository, IExercisesUnitOfWork _unitOfWork) : ICommandHandler<UpdateExerciseCommand, bool>
 {
     public async Task<bool> Handle(UpdateExerciseCommand request, CancellationToken cancellationToken)
     {

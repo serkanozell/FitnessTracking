@@ -1,8 +1,8 @@
-﻿using Exercises.Domain.Repositories;
+﻿using WorkoutPrograms.Domain.Repositories;
 
-namespace Exercises.Infrastructure.Persistance
+namespace WorkoutPrograms.Infrastructure.Persistance
 {
-    public sealed class ExercisesUnitOfWork(ExercisesDbContext _context, IDomainEventDispatcher _domainEventDispatcher) : IExercisesUnitOfWork
+    public sealed class WorkoutProgramsUnitOfWork(WorkoutProgramsDbContext _context, IDomainEventDispatcher _domainEventDispatcher) : IWorkoutProgramsUnitOfWork
     {
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

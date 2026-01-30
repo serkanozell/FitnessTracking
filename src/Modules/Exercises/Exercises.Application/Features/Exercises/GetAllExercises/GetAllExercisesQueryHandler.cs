@@ -2,7 +2,7 @@
 
 namespace Exercises.Application.Features.Exercises.GetAllExercises
 {
-    public sealed class GetAllExercisesQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetAllExercisesQuery, IReadOnlyList<ExerciseDto>>
+    internal sealed class GetAllExercisesQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetAllExercisesQuery, IReadOnlyList<ExerciseDto>>
     {
         public async Task<IReadOnlyList<ExerciseDto>> Handle(GetAllExercisesQuery request, CancellationToken cancellationToken)
         {

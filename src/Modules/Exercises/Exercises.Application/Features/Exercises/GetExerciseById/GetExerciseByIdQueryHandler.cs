@@ -1,7 +1,7 @@
 ﻿using Exercises.Application.Dtos;
 using Exercises.Application.Features.Exercises.GetExerciseById;
 
-public sealed class GetExerciseByIdQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetExerciseByIdQuery, ExerciseDto>
+internal sealed class GetExerciseByIdQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetExerciseByIdQuery, ExerciseDto>
 {
     public async Task<ExerciseDto> Handle(GetExerciseByIdQuery request, CancellationToken cancellationToken)
     {

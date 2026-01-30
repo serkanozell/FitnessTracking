@@ -21,6 +21,14 @@
     <Project Path="src/Modules/Exercises/Exercises.Domain/Exercises.Domain.csproj" Id="e41c4981-50e3-4141-952f-2570d03ce65f" />
     <Project Path="src/Modules/Exercises/Exercises.Infrastructure/Exercises.Infrastructure.csproj" Id="afa571e3-8775-4699-a05e-d9fc4c6cb1de" />
   </Folder>
-  <Folder Name="/src/Modules/WorkoutProgram/" />
-  <Folder Name="/src/Modules/WorkoutSession/" />
+  <Folder Name="/src/Modules/WorkoutPrograms/">
+    <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Application/WorkoutPrograms.Application.csproj" Id="4ee012ce-60b3-40a8-bca3-de22b8c1eb0b" />
+    <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Domain/WorkoutPrograms.Domain.csproj" Id="96ba4f1e-b99e-4822-9c37-9a4b9f120c16" />
+    <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Infrastructure/WorkoutPrograms.Infrastructure.csproj" Id="5192dad9-7273-4673-8f15-54a4994e1485" />
+  </Folder>
+  <Folder Name="/src/Modules/WorkoutSessions/">
+    <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Application/WorkoutSessions.Application.csproj" Id="57037d0d-d701-4e6a-9291-dabfa93e6b17" />
+    <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Domain/WorkoutSessions.Domain.csproj" Id="54a1f2aa-a3ba-4e66-a908-3b9097eda966" />
+    <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Infrastructure/WorkoutSessions.Infrastructure.csproj" Id="862ff880-dc9d-43b2-8491-947b1b3df9e8" />
+  </Folder>
 </Solution>

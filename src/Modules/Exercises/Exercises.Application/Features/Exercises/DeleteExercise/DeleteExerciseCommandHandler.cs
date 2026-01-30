@@ -1,6 +1,6 @@
 ﻿namespace Exercises.Application.Features.Exercises.DeleteExercise
 {
-    public sealed class DeleteExerciseCommandHandler(IExerciseRepository _exerciseRepository, IExercisesUnitOfWork _unitOfWork) : ICommandHandler<DeleteExerciseCommand, bool>
+    internal sealed class DeleteExerciseCommandHandler(IExerciseRepository _exerciseRepository, IExercisesUnitOfWork _unitOfWork) : ICommandHandler<DeleteExerciseCommand, bool>
     {
         public async Task<bool> Handle(
             DeleteExerciseCommand request,

@@ -1,3 +1,4 @@
+using Exercises.Application.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

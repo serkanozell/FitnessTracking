@@ -1,6 +1,18 @@
-using FitnessTracking.Application.Features.WorkoutPrograms.DeleteWorkoutProgram;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProgram;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProgram;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgramById;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgramList;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.AddWorkoutProgramSplit;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.DeleteWorkoutProgramSplit;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.GetWorkoutProgramSplits;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.UpdateWorkoutProgramSplit;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.AddExerciseToSplit;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.GetSplitExercises;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.RemoveSplitExercise;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.UpdateSplitExercise;
 
 namespace FitnessTracking.Api.Controllers
 {
@@ -59,18 +71,19 @@ namespace FitnessTracking.Api.Controllers
             public int TargetReps { get; init; }
         }
 
+        // bu endpoint programa eklenmiþ tüm exercises'i dönecek þuan böyle bir feature yok sonra yazarýz
         // GET: api/workoutprograms/{programId}/exercises
-        [HttpGet("{programId:guid}/exercises")]
-        public async Task<IActionResult> GetProgramExercises(
-            Guid programId,
-            CancellationToken cancellationToken)
-        {
-            var result = await _mediator.Send(
-                new GetWorkoutProgramSplitExercisesQuery { WorkoutProgramId = programId },
-                cancellationToken);
+        //[HttpGet("{programId:guid}/exercises")]
+        //public async Task<IActionResult> GetProgramExercises(
+        //    Guid programId,
+        //    CancellationToken cancellationToken)
+        //{
+        //    var result = await _mediator.Send(
+        //        new GetSplitExercisesQuery { WorkoutProgramId = programId },
+        //        cancellationToken);
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
         // POST: api/workoutprograms
         [HttpPost]
@@ -235,6 +248,17 @@ namespace FitnessTracking.Api.Controllers
             public int TargetReps { get; init; }
         }
 
+        // GET: api/workoutprograms/{programId}/exercises
+        [HttpGet("{programId:guid}/splits/{splitId:guid}/exercises")]
+        public async Task<IActionResult> GetSplitExercises(Guid programId, Guid splitId, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(
+                new GetSplitExercisesQuery { WorkoutProgramId = programId, WorkoutSplitId = splitId },
+                cancellationToken);
+
+            return Ok(result);
+        }
+
         // POST: api/workoutprograms/{programId}/splits/{splitId}/exercises
         [HttpPost("{programId:guid}/splits/{splitId:guid}/exercises")]
         public async Task<IActionResult> AddExerciseToSplit(
@@ -249,7 +273,7 @@ namespace FitnessTracking.Api.Controllers
             }
 
             var workoutProgramExerciseId = await _mediator.Send(
-                new AddExerciseToWorkoutProgramSplitCommand
+                new AddExerciseToSplitCommand
                 {
                     WorkoutProgramId = programId,
                     WorkoutProgramSplitId = splitId,
@@ -280,7 +304,7 @@ namespace FitnessTracking.Api.Controllers
             }
 
             var success = await _mediator.Send(
-                new UpdateWorkoutProgramSplitExerciseCommand
+                new UpdateSplitExerciseCommand
                 {
                     WorkoutProgramId = programId,
                     WorkoutProgramSplitId = splitId,
@@ -307,7 +331,7 @@ namespace FitnessTracking.Api.Controllers
             CancellationToken cancellationToken)
         {
             var success = await _mediator.Send(
-                new RemoveWorkoutProgramSplitExerciseCommand
+                new RemoveSplitExerciseCommand
                 {
                     WorkoutProgramId = programId,
                     WorkoutProgramSplitId = splitId,
