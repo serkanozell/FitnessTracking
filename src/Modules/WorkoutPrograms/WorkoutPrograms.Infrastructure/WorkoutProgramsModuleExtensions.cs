@@ -2,9 +2,11 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WorkoutPrograms.Application.Services;
 using WorkoutPrograms.Domain.Repositories;
 using WorkoutPrograms.Infrastructure.Persistance;
 using WorkoutPrograms.Infrastructure.Repositories;
+using WorkoutPrograms.Infrastructure.Services;
 
 namespace WorkoutPrograms.Infrastructure
 {
@@ -27,6 +29,9 @@ namespace WorkoutPrograms.Infrastructure
             // Repositories
             services.AddScoped<IWorkoutProgramRepository, WorkoutProgramRepository>();
             services.AddScoped<IWorkoutProgramsUnitOfWork, WorkoutProgramsUnitOfWork>();
+
+            // Modüller arası servisler
+            services.AddScoped<IWorkoutProgramReadService, WorkoutProgramReadService>();
 
             return services;
         }

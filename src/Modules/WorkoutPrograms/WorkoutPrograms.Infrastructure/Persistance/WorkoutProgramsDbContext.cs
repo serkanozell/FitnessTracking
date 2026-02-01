@@ -14,7 +14,7 @@ namespace WorkoutPrograms.Infrastructure.Persistance
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Sadece Exercises modülünün konfigürasyonlarını uygula
+            // Sadece WorkoutPrograms modülünün konfigürasyonlarını uygula
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(WorkoutProgramsDbContext).Assembly);
 
             base.OnModelCreating(modelBuilder);

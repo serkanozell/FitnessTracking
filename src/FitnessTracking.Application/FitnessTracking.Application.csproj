@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FitnessTracking.Domain\FitnessTracking.Domain.csproj" />
+    <ProjectReference Include="..\Modules\WorkoutSessions\WorkoutSessions.Domain\WorkoutSessions.Domain.csproj" />
   </ItemGroup>
 
 </Project>

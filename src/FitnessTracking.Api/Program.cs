@@ -2,6 +2,7 @@ using BuildingBlocks.Infrastructure.Services;
 using Exercises.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using WorkoutPrograms.Infrastructure;
+using WorkoutSessions.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddExercisesInfrastructure(builder.Configuration)
-                .WorkoutProgramsInfrastructure(builder.Configuration);
+                .WorkoutProgramsInfrastructure(builder.Configuration)
+                .WorkoutSessionsInfrastructure(builder.Configuration);
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
@@ -21,7 +24,8 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssemblies(
         typeof(Exercises.Application.AssemblyReference).Assembly,
-        typeof(WorkoutPrograms.Application.AssemblyReference).Assembly);
+        typeof(WorkoutPrograms.Application.AssemblyReference).Assembly,
+        typeof(WorkoutSessions.Application.AssemblyReference).Assembly);
 });
 
 builder.Services.AddCors(options =>
