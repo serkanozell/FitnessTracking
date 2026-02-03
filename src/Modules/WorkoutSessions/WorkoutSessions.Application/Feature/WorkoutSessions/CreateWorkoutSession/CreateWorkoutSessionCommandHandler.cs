@@ -9,7 +9,7 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.CreateWorkoutSessi
             CreateWorkoutSessionCommand request,
             CancellationToken cancellationToken)
         {
-            var session = WorkoutSession.CreateAsync(request.WorkoutProgramId,
+            var session = WorkoutSession.Create(request.WorkoutProgramId,
                                                            request.Date);
 
             await _workoutSessionRepository.AddAsync(session, cancellationToken);

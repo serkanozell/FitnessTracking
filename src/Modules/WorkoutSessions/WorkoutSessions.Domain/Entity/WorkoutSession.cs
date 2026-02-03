@@ -16,7 +16,7 @@
             Date = date;
         }
 
-        public static WorkoutSession CreateAsync(Guid workoutProgramId, DateTime dateTime)
+        public static WorkoutSession Create(Guid workoutProgramId, DateTime dateTime)
         {
             var workoutSession = new WorkoutSession(Guid.NewGuid(), workoutProgramId, dateTime);
 

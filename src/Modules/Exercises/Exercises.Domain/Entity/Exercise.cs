@@ -33,6 +33,12 @@
             Description = description;
         }
 
+        public void Activate()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
+
         public void Delete()
         {
             IsActive = false;

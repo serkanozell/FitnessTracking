@@ -20,138 +20,269 @@ else
 {
     <div class="mb-3">
         <h4>@_program.Name</h4>
-        <p>
+        <p class="mb-0">
             <strong>Start:</strong> @_program.StartDate.ToShortDateString() <br />
             <strong>End:</strong> @_program.EndDate.ToShortDateString()
         </p>
     </div>
 
-    <div class="mb-4">
-        <h5>Add Exercise</h5>
-        <EditForm Model="_newExercise" OnValidSubmit="OnAddExerciseAsync">
-            <DataAnnotationsValidator />
-            <div class="row g-2">
-                <div class="col-md-4">
-                    <label class="form-label">Exercise</label>
-                    <InputSelect class="form-select" @bind-Value="_selectedExerciseId">
-                        <option value="">-- select exercise --</option>
-                        @foreach (var ex in _allExercises)
-                        {
-                            <option value="@ex.Id">@ex.Name</option>
-                        }
-                    </InputSelect>
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <strong>Splits</strong>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ToggleAllSplits">
+                @(_expandAllSplits ? "Collapse all" : "Expand all")
+            </button>
+        </div>
+
+        <div class="card-body">
+            <h6 class="mb-3">Add Split</h6>
+
+            <EditForm Model="_newSplit" OnValidSubmit="OnAddSplitAsync">
+                <DataAnnotationsValidator />
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Name</label>
+                        <InputText class="form-control" @bind-Value="_newSplit.Name" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Order</label>
+                        <InputNumber class="form-control" @bind-Value="_newSplit.Order" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Add</button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Sets</label>
-                    <InputNumber class="form-control" @bind-Value="_newExercise.Sets" />
+            </EditForm>
+
+            <hr />
+
+            @if (_splits.Count == 0)
+            {
+                <p class="mb-0">No splits created.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var s in _splits.OrderBy(x => x.Order))
+                    {
+                        var isEditingSplit = _editingSplitId == s.Id;
+                        var isExpanded = _expandedSplitIds.Contains(s.Id);
+
+                        <div class="border rounded p-3">
+                            <div class="d-flex align-items-start justify-content-between gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge text-bg-secondary">@s.Order</span>
+
+                                    @if (isEditingSplit)
+                                    {
+                                        <div class="d-flex flex-wrap align-items-end gap-2">
+                                            <div>
+                                                <label class="form-label mb-1">Name</label>
+                                                <InputText class="form-control" @bind-Value="_editSplit.Name" />
+                                            </div>
+                                            <div style="max-width: 120px;">
+                                                <label class="form-label mb-1">Order</label>
+                                                <InputNumber class="form-control" @bind-Value="_editSplit.Order" />
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <strong>@s.Name</strong>
+                                    }
+                                </div>
+
+                                <div class="d-flex flex-wrap justify-content-end gap-2">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => ToggleSplitAsync(s.Id)">
+                                        @(isExpanded ? "Hide" : "Show")
+                                    </button>
+
+                                    @if (isEditingSplit)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-success"
+                                                @onclick="() => OnSaveSplitAsync(s.Id)">
+                                            Save
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-secondary"
+                                                @onclick="CancelSplitEdit">
+                                            Cancel
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                @onclick="() => StartSplitEdit(s)">
+                                            Edit
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                @onclick="() => OnDeleteSplitAsync(s.Id)">
+                                            Delete
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (isExpanded)
+                            {
+                                <hr />
+
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h6 class="mb-0">Exercises</h6>
+                                    <small class="text-muted">SplitId: @s.Id</small>
+                                </div>
+
+                                @if (!_splitExercisesBySplitId.TryGetValue(s.Id, out var exercises))
+                                {
+                                    <p class="mb-0">Loading exercises...</p>
+                                }
+                                else
+                                {
+                                    <div class="mb-3">
+                                        <EditForm Model="_addExerciseBySplitId[s.Id]" OnValidSubmit="() => OnAddExerciseToSplitAsync(s.Id)">
+                                            <DataAnnotationsValidator />
+
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-md-5">
+                                                    <label class="form-label">Exercise</label>
+                                                    <InputSelect class="form-select" @bind-Value="_addExerciseBySplitId[s.Id].ExerciseId">
+                                                        <option value="@Guid.Empty">-- select exercise --</option>
+                                                        @foreach (var ex in _allExercises)
+                                                        {
+                                                            <option value="@ex.Id">@ex.Name</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Sets</label>
+                                                    <InputNumber class="form-control" @bind-Value="_addExerciseBySplitId[s.Id].Sets" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Target Reps</label>
+                                                    <InputNumber class="form-control" @bind-Value="_addExerciseBySplitId[s.Id].TargetReps" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="submit" class="btn btn-primary w-100">Add</button>
+                                                </div>
+                                            </div>
+                                        </EditForm>
+                                    </div>
+
+                                    @if (exercises.Count == 0)
+                                    {
+                                        <p class="mb-0">No exercises in this split.</p>
+                                    }
+                                    else
+                                    {
+                                        <table class="table table-sm table-striped align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Exercise</th>
+                                                    <th style="width: 120px;">Sets</th>
+                                                    <th style="width: 140px;">Target Reps</th>
+                                                    <th class="text-end" style="width: 200px;">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var e in exercises)
+                                                {
+                                                    var isEditingExercise = _editingExerciseId == e.WorkoutProgramExerciseId;
+
+                                                    <tr>
+                                                        <td>@e.ExerciseName</td>
+                                                        <td>
+                                                            @if (isEditingExercise)
+                                                            {
+                                                                <InputNumber class="form-control form-control-sm" @bind-Value="_editExercise.Sets" />
+                                                            }
+                                                            else
+                                                            {
+                                                                @e.Sets
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (isEditingExercise)
+                                                            {
+                                                                <InputNumber class="form-control form-control-sm" @bind-Value="_editExercise.TargetReps" />
+                                                            }
+                                                            else
+                                                            {
+                                                                @e.TargetReps
+                                                            }
+                                                        </td>
+                                                        <td class="text-end">
+                                                            @if (isEditingExercise)
+                                                            {
+                                                                <button class="btn btn-sm btn-success me-2"
+                                                                        @onclick="() => OnSaveSplitExerciseAsync(s.Id, e.WorkoutProgramExerciseId)">
+                                                                    Save
+                                                                </button>
+                                                                <button class="btn btn-sm btn-secondary"
+                                                                        @onclick="CancelExerciseEdit">
+                                                                    Cancel
+                                                                </button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button class="btn btn-sm btn-outline-secondary me-2"
+                                                                        @onclick="() => StartExerciseEdit(e)">
+                                                                    Edit
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-danger"
+                                                                        @onclick="() => OnDeleteSplitExerciseAsync(s.Id, e.WorkoutProgramExerciseId)">
+                                                                    Delete
+                                                                </button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                            }
+                        </div>
+                    }
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Target Reps</label>
-                    <InputNumber class="form-control" @bind-Value="_newExercise.TargetReps" />
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Add</button>
-                </div>
-            </div>
-        </EditForm>
+            }
+        </div>
     </div>
 
-    <h5>Exercises</h5>
-
-    @if (_exercises.Count == 0)
-    {
-        <p>No exercises in this program.</p>
-    }
-    else
-    {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Exercise</th>
-                    <th>Sets</th>
-                    <th>Target Reps</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var e in _exercises)
-                {
-                    var isEditing = _editingExerciseId == e.WorkoutProgramExerciseId;
-
-                    <tr>
-                        <td>@e.ExerciseName</td>
-                        <td>
-                            @if (isEditing)
-                            {
-                                <InputNumber class="form-control form-control-sm"
-                                             @bind-Value="_editExercise.Sets" />
-                            }
-                            else
-                            {
-                                @e.Sets
-                            }
-                        </td>
-                        <td>
-                            @if (isEditing)
-                            {
-                                <InputNumber class="form-control form-control-sm"
-                                             @bind-Value="_editExercise.TargetReps" />
-                            }
-                            else
-                            {
-                                @e.TargetReps
-                            }
-                        </td>
-                        <td class="text-end">
-                            @if (isEditing)
-                            {
-                                <button class="btn btn-sm btn-success me-2"
-                                        @onclick="() => OnSaveExerciseAsync(e.WorkoutProgramExerciseId)">
-                                    Save
-                                </button>
-                                <button class="btn btn-sm btn-secondary"
-                                        @onclick="CancelEdit">
-                                    Cancel
-                                </button>
-                            }
-                            else
-                            {
-                                <button class="btn btn-sm btn-secondary me-2"
-                                        @onclick="() => StartEdit(e)">
-                                    Edit
-                                </button>
-                                <button class="btn btn-sm btn-danger"
-                                        @onclick="() => OnDeleteExerciseAsync(e.WorkoutProgramExerciseId)">
-                                    Delete
-                                </button>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-
-    <button class="btn btn-secondary" @onclick="GoBack">
-        Back to list
-    </button>
+    <button class="btn btn-secondary" @onclick="GoBack">Back to list</button>
 }
 
 @code {
     [Parameter] public Guid Id { get; set; }
 
     private WorkoutProgramDto? _program;
-    private List<WorkoutProgramExerciseDto> _exercises = new();
     private bool _isLoading;
 
-    // Dropdown için tüm egzersizler
+    private List<WorkoutProgramSplitDto> _splits = new();
+
+    // Split CRUD
+    private AddSplitRequest _newSplit = new() { Order = 1 };
+    private Guid? _editingSplitId;
+    private UpdateSplitRequest _editSplit = new();
+
+    // "Expanded" state (no Bootstrap accordion)
+    private readonly HashSet<Guid> _expandedSplitIds = new();
+    private bool _expandAllSplits;
+
+    // Split exercises (cache per split)
+    private readonly Dictionary<Guid, List<WorkoutProgramExerciseDto>> _splitExercisesBySplitId = new();
+
+    // Add exercise per split (avoid shared dropdown state)
+    private readonly Dictionary<Guid, AddProgramExerciseRequest> _addExerciseBySplitId = new();
+
+    // Exercise source list
     private List<ExerciseDto> _allExercises = new();
-    private string? _selectedExerciseId;
 
-    // Add exercise
-    private AddProgramExerciseRequest _newExercise = new();
-
-    // Edit exercise
+    // Edit (exercise)
     private Guid? _editingExerciseId;
     private UpdateProgramExerciseRequest _editExercise = new();
 
@@ -167,11 +298,40 @@ else
         try
         {
             _program = await WorkoutProgramsService.GetByIdAsync(Id);
-            var exercises = await WorkoutProgramsService.GetProgramExercisesAsync(Id);
-            _exercises = exercises.ToList();
+
+            var splits = await WorkoutProgramsService.GetSplitsAsync(Id);
+            _splits = splits.ToList();
 
             var allExercises = await ExercisesService.GetAllAsync();
             _allExercises = allExercises.ToList();
+
+            _newSplit.Order = _splits.Count == 0 ? 1 : _splits.Max(x => x.Order) + 1;
+
+            // keep cache only for existing splits
+            var validSplitIds = _splits.Select(x => x.Id).ToHashSet();
+            foreach (var key in _splitExercisesBySplitId.Keys.Where(k => !validSplitIds.Contains(k)).ToList())
+            {
+                _splitExercisesBySplitId.Remove(key);
+            }
+
+            foreach (var key in _addExerciseBySplitId.Keys.Where(k => !validSplitIds.Contains(k)).ToList())
+            {
+                _addExerciseBySplitId.Remove(key);
+            }
+
+            _expandedSplitIds.RemoveWhere(id => !validSplitIds.Contains(id));
+
+            // ensure per-split add models exist
+            foreach (var splitId in validSplitIds)
+            {
+                _addExerciseBySplitId.TryAdd(splitId, new AddProgramExerciseRequest());
+            }
+
+            // If user previously clicked "expand all", keep it consistent after reload
+            if (_expandAllSplits)
+            {
+                await ExpandAllAsync();
+            }
         }
         finally
         {
@@ -179,37 +339,163 @@ else
         }
     }
 
-    private void GoBack()
-    {
-        Navigation.NavigateTo("/workoutprograms");
-    }
+    private void GoBack() => Navigation.NavigateTo("/workoutprograms");
 
-    private async Task OnAddExerciseAsync()
+    // ---------- Split CRUD ----------
+
+    private async Task OnAddSplitAsync()
     {
-        if (!Guid.TryParse(_selectedExerciseId, out var exerciseId))
+        var name = (_newSplit.Name ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(name))
         {
-            // Basit validasyon, istersen burada hata mesajı gösterebilirsin
             return;
         }
 
-        var request = new AddProgramExerciseRequest
-        {
-            ExerciseId = exerciseId,
-            Sets = _newExercise.Sets,
-            TargetReps = _newExercise.TargetReps
-        };
+        await WorkoutProgramsService.AddSplitAsync(
+            Id,
+            new AddSplitRequest { Name = name, Order = _newSplit.Order });
 
-        await WorkoutProgramsService.AddExerciseAsync(Id, request);
-
-        // Listeyi yenile
+        _newSplit = new AddSplitRequest { Order = _newSplit.Order + 1 };
         await LoadDataAsync();
-
-        // Formu sıfırla
-        _newExercise = new AddProgramExerciseRequest();
-        _selectedExerciseId = null;
     }
 
-    private void StartEdit(WorkoutProgramExerciseDto exercise)
+    private void StartSplitEdit(WorkoutProgramSplitDto split)
+    {
+        _editingSplitId = split.Id;
+        _editSplit = new UpdateSplitRequest { Name = split.Name, Order = split.Order };
+    }
+
+    private void CancelSplitEdit()
+    {
+        _editingSplitId = null;
+        _editSplit = new UpdateSplitRequest();
+    }
+
+    private async Task OnSaveSplitAsync(Guid splitId)
+    {
+        if (_editingSplitId is null)
+        {
+            return;
+        }
+
+        var name = (_editSplit.Name ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
+
+        await WorkoutProgramsService.UpdateSplitAsync(
+            Id,
+            splitId,
+            new UpdateSplitRequest { Name = name, Order = _editSplit.Order });
+
+        _editingSplitId = null;
+        _editSplit = new UpdateSplitRequest();
+
+        await LoadDataAsync();
+    }
+
+    private async Task OnDeleteSplitAsync(Guid splitId)
+    {
+        await WorkoutProgramsService.DeleteSplitAsync(Id, splitId);
+
+        if (_editingSplitId == splitId)
+        {
+            CancelSplitEdit();
+        }
+
+        // remove cached exercises for deleted split
+        _splitExercisesBySplitId.Remove(splitId);
+        _addExerciseBySplitId.Remove(splitId);
+        _expandedSplitIds.Remove(splitId);
+
+        await LoadDataAsync();
+    }
+
+    // ---------- Split "expand" (manual, no Bootstrap) ----------
+
+    private async Task ToggleSplitAsync(Guid splitId)
+    {
+        if (_expandedSplitIds.Contains(splitId))
+        {
+            _expandedSplitIds.Remove(splitId);
+            return;
+        }
+
+        _expandedSplitIds.Add(splitId);
+
+        if (!_splitExercisesBySplitId.ContainsKey(splitId))
+        {
+            var items = await WorkoutProgramsService.GetSplitExercisesAsync(Id, splitId);
+            _splitExercisesBySplitId[splitId] = items.ToList();
+        }
+    }
+
+    private void ToggleAllSplits()
+    {
+        _expandAllSplits = !_expandAllSplits;
+
+        if (!_expandAllSplits)
+        {
+            _expandedSplitIds.Clear();
+            return;
+        }
+
+        _ = ExpandAllAsync();
+    }
+
+    private async Task ExpandAllAsync()
+    {
+        foreach (var splitId in _splits.Select(s => s.Id))
+        {
+            _expandedSplitIds.Add(splitId);
+
+            if (!_splitExercisesBySplitId.ContainsKey(splitId))
+            {
+                var items = await WorkoutProgramsService.GetSplitExercisesAsync(Id, splitId);
+                _splitExercisesBySplitId[splitId] = items.ToList();
+            }
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RefreshSplitExercisesAsync(Guid splitId)
+    {
+        var items = await WorkoutProgramsService.GetSplitExercisesAsync(Id, splitId);
+        _splitExercisesBySplitId[splitId] = items.ToList();
+    }
+
+    // ---------- Split exercise CRUD ----------
+
+    private async Task OnAddExerciseToSplitAsync(Guid splitId)
+    {
+        if (!_addExerciseBySplitId.TryGetValue(splitId, out var model))
+        {
+            return;
+        }
+
+        if (model.ExerciseId == Guid.Empty)
+        {
+            return;
+        }
+
+        await WorkoutProgramsService.AddExerciseToSplitAsync(
+            Id,
+            splitId,
+            new AddProgramExerciseRequest
+            {
+                ExerciseId = model.ExerciseId,
+                Sets = model.Sets,
+                TargetReps = model.TargetReps
+            });
+
+        _addExerciseBySplitId[splitId] = new AddProgramExerciseRequest();
+
+        await RefreshSplitExercisesAsync(splitId);
+    }
+
+    private void StartExerciseEdit(WorkoutProgramExerciseDto exercise)
     {
         _editingExerciseId = exercise.WorkoutProgramExerciseId;
         _editExercise = new UpdateProgramExerciseRequest
@@ -219,33 +505,33 @@ else
         };
     }
 
-    private void CancelEdit()
+    private void CancelExerciseEdit()
     {
         _editingExerciseId = null;
         _editExercise = new UpdateProgramExerciseRequest();
     }
 
-    private async Task OnSaveExerciseAsync(Guid workoutProgramExerciseId)
+    private async Task OnSaveSplitExerciseAsync(Guid splitId, Guid workoutProgramExerciseId)
     {
         if (_editingExerciseId is null)
         {
             return;
         }
 
-        await WorkoutProgramsService.UpdateExerciseAsync(
-        Id,
-        workoutProgramExerciseId,
-        _editExercise);
+        await WorkoutProgramsService.UpdateExerciseInSplitAsync(
+            Id,
+            splitId,
+            workoutProgramExerciseId,
+            _editExercise);
 
-        _editingExerciseId = null;
-        _editExercise = new UpdateProgramExerciseRequest();
+        CancelExerciseEdit();
 
-        await LoadDataAsync();
+        await RefreshSplitExercisesAsync(splitId);
     }
 
-    private async Task OnDeleteExerciseAsync(Guid workoutProgramExerciseId)
+    private async Task OnDeleteSplitExerciseAsync(Guid splitId, Guid workoutProgramExerciseId)
     {
-        await WorkoutProgramsService.RemoveExerciseAsync(Id, workoutProgramExerciseId);
-        await LoadDataAsync();
+        await WorkoutProgramsService.RemoveExerciseFromSplitAsync(Id, splitId, workoutProgramExerciseId);
+        await RefreshSplitExercisesAsync(splitId);
     }
 }

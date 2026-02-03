@@ -35,7 +35,7 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.A
                 throw new InvalidOperationException($"Exercise ({request.ExerciseId}) for program {program.Id} is limited to {programExercise.Sets} sets. " + $"Session {session.Id} already has {currentSetCountInSession} sets.");
             }
 
-            if (request.SetNumber >= programExercise.Sets)
+            if (request.SetNumber > programExercise.Sets)
             {
                 throw new InvalidOperationException($"Exercise ({request.ExerciseId}) for program {program.Id} is limited to {programExercise.Sets} sets.");
             }

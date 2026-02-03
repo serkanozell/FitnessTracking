@@ -1,6 +1,7 @@
 using Exercises.Application.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Exercises.Application.Features.Exercises.ActivateExercise;
 
 namespace FitnessTracking.Api.Controllers
 {
@@ -127,5 +128,16 @@ namespace FitnessTracking.Api.Controllers
 
             return NoContent();
         }
+
+
+        // PUT: api/exercises/{id}/activate
+        [HttpPut("{id:guid}/activate")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Activate(Guid id, CancellationToken cancellationToken)
+        {
+            var resultId = await _mediator.Send(new ActivateExerciseCommand(id), cancellationToken);
+            return Ok(resultId);
+        }
     }
-}
+}   
