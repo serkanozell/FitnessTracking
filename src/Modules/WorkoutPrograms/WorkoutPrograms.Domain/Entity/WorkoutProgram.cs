@@ -32,6 +32,12 @@
             EndDate = endDate;
         }
 
+        public void Activate()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
+
         public WorkoutProgramSplit AddSplit(string name, int order)
         {
             if (Splits.Any(x => x.Name == name))
@@ -43,6 +49,35 @@
             var split = new WorkoutProgramSplit(Guid.NewGuid(), Id, name, order);
             Splits.Add(split);
             return split;
+        }
+
+        public void ActivateSplit(Guid splitId)
+        {
+            if (!IsActive && IsDeleted)
+            {
+                throw new InvalidOperationException($"Workout program ({Id}) is not active.");
+            }
+            var split = Splits.SingleOrDefault(x => x.Id == splitId)
+                        ?? throw new KeyNotFoundException($"Split ({splitId}) not found in program {Id}.");
+
+            split.Activate();
+        }
+
+        public void ActivateSplitExercise(Guid splitId, Guid workoutSplitExerciseId)
+        {
+            if (!IsActive && IsDeleted)
+            {
+                throw new InvalidOperationException($"Workout program ({Id}) is not active.");
+            }
+
+            var split = Splits.SingleOrDefault(x => x.Id == splitId) ?? throw new KeyNotFoundException($"Split ({splitId}) not found in program {Id}.");
+
+            if (!split.IsActive && split.IsDeleted)
+            {
+                throw new InvalidOperationException($"Split ({splitId}) is not active in program {Id}.");
+            }
+
+            split.ActivateExercise(workoutSplitExerciseId);
         }
 
         public void UpdateSplit(Guid splitId, string name, int order)

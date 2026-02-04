@@ -27,5 +27,11 @@
             Sets = sets;
             TargetReps = targetReps;
         }
+
+        public void Activate()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
     }
 }

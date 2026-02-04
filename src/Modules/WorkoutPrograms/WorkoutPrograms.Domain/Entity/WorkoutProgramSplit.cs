@@ -28,6 +28,12 @@
             Order = order;
         }
 
+        public void Activate()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
+
         public WorkoutSplitExercise AddExercise(Guid exerciseId, int sets, int targetReps)
         {
             if (Exercises.Any(x => x.ExerciseId == exerciseId))
@@ -56,6 +62,14 @@
                            $"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
 
             item.Update(sets, targetReps);
+        }
+
+        public void ActivateExercise(Guid workoutSplitExerciseId)
+        {
+            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId)
+                       ?? throw new KeyNotFoundException($"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
+
+            item.Activate();
         }
 
         public void RemoveExercise(Guid workoutSplitExerciseId)
