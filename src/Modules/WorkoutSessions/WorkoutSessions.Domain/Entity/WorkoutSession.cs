@@ -26,6 +26,12 @@
             return workoutSession;
         }
 
+        public void Activate()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
+
         public SessionExercise AddEntry(Guid exerciseId, int setNumber, decimal weight, int reps)
         {
             // Aynı Exercise + SetNumber tekrar eklenmesin
@@ -44,6 +50,18 @@
             SessionExercises.Add(sessionExercise);
 
             return sessionExercise;
+        }
+
+        public void ActivateEntry(Guid sessionExerciseId)
+        {
+            if (!IsActive && IsDeleted)
+            {
+                throw new InvalidOperationException($"The WorkoutSession ({Id}) is not active.");
+            }
+
+            var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new KeyNotFoundException($"SessionExercise ({sessionExerciseId}) not found in session {Id}.");
+
+            entry.Activate();
         }
 
         public void UpdateDate(DateTime date)

@@ -24,5 +24,11 @@
             Weight = weight;
             Reps = reps;
         }
+
+        public void Activate()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
     }
 }

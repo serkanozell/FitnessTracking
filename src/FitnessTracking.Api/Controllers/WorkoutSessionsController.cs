@@ -1,9 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using WorkoutSessions.Application.Feature.WorkoutSessions.ActivateWorkoutSession;
 using WorkoutSessions.Application.Feature.WorkoutSessions.CreateWorkoutSession;
 using WorkoutSessions.Application.Feature.WorkoutSessions.DeleteWorkoutSession;
 using WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessionById;
 using WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessions;
+using WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.ActivateSessionExercise;
 using WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.AddExerciseToSession;
 using WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.GetExercisesBySession;
 using WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.RemoveExerciseFromSession;
@@ -102,10 +104,20 @@ namespace FitnessTracking.Api.Controllers
             return NoContent();
         }
 
+        // PUT: api/workoutsessions/{workoutSessionId}/activate
+        [HttpPut("{workoutSessionId:guid}/activate")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ActivateWorkoutSession(Guid workoutSessionId, CancellationToken cancellationToken)
+        {
+            var resultId = await _mediator.Send(new ActivateWorkoutSessionCommand(workoutSessionId), cancellationToken);
+            return Ok(resultId);
+        }
 
-        // ---------- WorkoutExercise (session içindeki setler) ----------
 
-        public sealed class AddWorkoutExerciseRequest
+        // ---------- SessionExercise (session içindeki setler) ----------
+
+        public sealed class AddSessionExerciseRequest
         {
             public Guid ExerciseId { get; init; }
             public int SetNumber { get; init; }
@@ -113,7 +125,7 @@ namespace FitnessTracking.Api.Controllers
             public int Reps { get; init; }
         }
 
-        public sealed class UpdateWorkoutExerciseRequest
+        public sealed class UpdateSessionExerciseRequest
         {
             public int SetNumber { get; init; }
             public decimal Weight { get; init; }
@@ -123,9 +135,9 @@ namespace FitnessTracking.Api.Controllers
         // POST: api/workoutsessions/{sessionId}/exercises
         // Sadece programa kayýtlý ExerciseId'ler handler içinde kabul edilecek.
         [HttpPost("{sessionId:guid}/exercises")]
-        public async Task<IActionResult> AddWorkoutExercise(
+        public async Task<IActionResult> AddSessionExercise(
             Guid sessionId,
-            [FromBody] AddWorkoutExerciseRequest request,
+            [FromBody] AddSessionExerciseRequest request,
             CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -133,7 +145,7 @@ namespace FitnessTracking.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var workoutExerciseId = await _mediator.Send(
+            var sessionExerciseId = await _mediator.Send(
                 new AddExerciseToSessionCommand
                 {
                     WorkoutSessionId = sessionId,
@@ -149,15 +161,15 @@ namespace FitnessTracking.Api.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = sessionId },
-                workoutExerciseId);
+                sessionExerciseId);
         }
 
-        // PUT: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
-        [HttpPut("{sessionId:guid}/exercises/{workoutExerciseId:guid}")]
-        public async Task<IActionResult> UpdateWorkoutExercise(
+        // PUT: api/workoutsessions/{sessionId}/exercises/{sessionExerciseId}
+        [HttpPut("{sessionId:guid}/exercises/{sessionExerciseId:guid}")]
+        public async Task<IActionResult> UpdateSessionExercise(
             Guid sessionId,
-            Guid workoutExerciseId,
-            [FromBody] UpdateWorkoutExerciseRequest request,
+            Guid sessionExerciseId,
+            [FromBody] UpdateSessionExerciseRequest request,
             CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -169,7 +181,7 @@ namespace FitnessTracking.Api.Controllers
                new UpdateExerciseInSessionCommand
                {
                    WorkoutSessionId = sessionId,
-                   WorkoutExerciseId = workoutExerciseId,
+                   SessionExerciseId = sessionExerciseId, // deðiþecek
                    SetNumber = request.SetNumber,
                    Weight = request.Weight,
                    Reps = request.Reps
@@ -179,9 +191,9 @@ namespace FitnessTracking.Api.Controllers
             return NoContent();
         }
 
-        // GET: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
+        // GET: api/workoutsessions/{sessionId}/exercises/{sessionExerciseId}
         [HttpGet("{sessionId:guid}/exercises/")]
-        public async Task<IActionResult> GetWorkoutExercises(
+        public async Task<IActionResult> GetSessionExercises(
             Guid sessionId,
             CancellationToken cancellationToken)
         {
@@ -192,22 +204,38 @@ namespace FitnessTracking.Api.Controllers
             return Ok(result);
         }
 
-        // DELETE: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
-        [HttpDelete("{sessionId:guid}/exercises/{workoutExerciseId:guid}")]
-        public async Task<IActionResult> RemoveWorkoutExercise(
+        // DELETE: api/workoutsessions/{sessionId}/exercises/{sessionExerciseId}
+        [HttpDelete("{sessionId:guid}/exercises/{sessionExerciseId:guid}")]
+        public async Task<IActionResult> RemoveSessionExercise(
             Guid sessionId,
-            Guid workoutExerciseId,
+            Guid sessionExerciseId,
             CancellationToken cancellationToken)
         {
             var success = await _mediator.Send(
                 new RemoveExerciseFromSessionCommand
                 {
                     WorkoutSessionId = sessionId,
-                    WorkoutExerciseId = workoutExerciseId
+                    SessionExerciseId = sessionExerciseId
                 },
                 cancellationToken);
 
             return NoContent();
+        }
+
+        // PUT: api/workoutsessions/{workoutSessionId}/exercises/{sessionExerciseId}/activate
+        [HttpPut("{workoutSessionId:guid}/exercises/{sessionExerciseId:guid}/activate")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ActivateSessionExercise(
+            Guid workoutSessionId,
+            Guid sessionExerciseId,
+            CancellationToken cancellationToken)
+        {
+            var resultId = await _mediator.Send(
+                new ActivateSessionExerciseCommand(workoutSessionId, sessionExerciseId),
+                cancellationToken);
+
+            return Ok(resultId);
         }
     }
 }

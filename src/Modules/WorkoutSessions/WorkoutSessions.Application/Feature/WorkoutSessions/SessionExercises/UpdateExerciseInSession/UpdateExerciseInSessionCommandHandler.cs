@@ -8,7 +8,7 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.U
         {
             var session = await _workoutSessionRepository.GetByIdAsync(request.WorkoutSessionId, cancellationToken) ?? throw new KeyNotFoundException($"WorkoutSession ({request.WorkoutSessionId}) not found.");
 
-            session.UpdateEntry(request.WorkoutExerciseId,
+            session.UpdateEntry(request.SessionExerciseId,
                                 request.SetNumber,
                                 request.Weight,
                                 request.Reps);

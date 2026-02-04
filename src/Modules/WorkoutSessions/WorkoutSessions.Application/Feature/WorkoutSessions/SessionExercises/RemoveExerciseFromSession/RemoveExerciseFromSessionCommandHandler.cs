@@ -14,7 +14,7 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.R
                 return Unit.Value;
             }
 
-            session.RemoveEntry(request.WorkoutExerciseId);
+            session.RemoveEntry(request.SessionExerciseId);
 
             await _workoutSessionRepository.UpdateAsync(session, cancellationToken);
 
