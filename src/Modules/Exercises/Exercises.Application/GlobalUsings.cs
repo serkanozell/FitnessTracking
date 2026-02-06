@@ -1,2 +1,2 @@
-﻿global using MediatR;
-global using Exercises.Domain.Repositories;
+﻿global using Exercises.Domain.Repositories;
+global using FluentValidation;

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Application.Behaviors;
-using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -21,8 +20,6 @@ namespace BuildingBlocks.Application
             });
 
             AddLogService(configuration);
-
-            services.AddValidatorsFromAssembly(assembly);
 
             return services;
         }

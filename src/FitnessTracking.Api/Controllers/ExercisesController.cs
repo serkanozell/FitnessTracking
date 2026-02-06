@@ -1,7 +1,7 @@
 using Exercises.Application.Dtos;
+using Exercises.Application.Features.Exercises.ActivateExercise;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Exercises.Application.Features.Exercises.ActivateExercise;
 
 namespace FitnessTracking.Api.Controllers
 {
@@ -140,4 +140,4 @@ namespace FitnessTracking.Api.Controllers
             return Ok(resultId);
         }
     }
-}   
+}

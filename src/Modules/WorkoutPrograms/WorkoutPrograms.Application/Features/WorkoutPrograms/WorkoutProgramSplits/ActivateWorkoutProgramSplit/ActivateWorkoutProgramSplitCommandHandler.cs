@@ -9,7 +9,7 @@ internal sealed class ActivateWorkoutProgramSplitCommandHandler(IWorkoutProgramR
     {
         // Splits are part of aggregate, so load aggregate and mutate inside.
         WorkoutProgram? program = await _workoutProgramRepository.GetByIdAsync(request.WorkoutProgramId, cancellationToken) ?? throw new KeyNotFoundException($"WorkoutProgram ({request.WorkoutProgramId}) not found.");
-        
+
         program.ActivateSplit(request.SplitId);
 
         await _workoutProgramRepository.UpdateAsync(program, cancellationToken);

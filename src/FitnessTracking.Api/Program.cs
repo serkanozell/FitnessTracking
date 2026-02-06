@@ -1,5 +1,7 @@
+using BuildingBlocks.Application;
 using BuildingBlocks.Infrastructure.Services;
 using Exercises.Infrastructure;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using WorkoutPrograms.Infrastructure;
 using WorkoutSessions.Infrastructure;
@@ -27,6 +29,14 @@ builder.Services.AddMediatR(cfg =>
         typeof(WorkoutPrograms.Application.AssemblyReference).Assembly,
         typeof(WorkoutSessions.Application.AssemblyReference).Assembly);
 });
+
+builder.Services.AddValidatorsFromAssemblies(new[] {
+    typeof(Exercises.Application.AssemblyReference).Assembly,
+    typeof(WorkoutPrograms.Application.AssemblyReference).Assembly,
+    typeof(WorkoutSessions.Application.AssemblyReference).Assembly }
+);
+
+builder.Services.AddBuildingBlocksApplication(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {

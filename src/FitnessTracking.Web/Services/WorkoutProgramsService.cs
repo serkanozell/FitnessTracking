@@ -48,7 +48,7 @@ public sealed class WorkoutProgramsService : IWorkoutProgramsService
         var response = await _httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
         response.EnsureSuccessStatusCode();
     }
-        
+
     // ---------- Splits ----------
 
     public async Task<IReadOnlyList<WorkoutProgramSplitDto>> GetSplitsAsync(
