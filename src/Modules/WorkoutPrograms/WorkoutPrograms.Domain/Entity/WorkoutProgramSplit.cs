@@ -34,7 +34,7 @@
             IsDeleted = false;
         }
 
-        public WorkoutSplitExercise AddExercise(Guid exerciseId, int sets, int targetReps)
+        public WorkoutSplitExercise AddExercise(Guid exerciseId, int sets, int minimumReps, int maximumReps)
         {
             if (Exercises.Any(x => x.ExerciseId == exerciseId))
             {
@@ -46,7 +46,8 @@
                 Guid.NewGuid(),
                 exerciseId,
                 sets,
-                targetReps,
+                minimumReps,
+                maximumReps,
                 Id // SplitId
             );
 
@@ -55,19 +56,16 @@
             return workoutSplitExercise;
         }
 
-        public void UpdateExercise(Guid workoutSplitExerciseId, int sets, int targetReps)
+        public void UpdateExercise(Guid workoutSplitExerciseId, int sets, int minimumReps, int maximumReps)
         {
-            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId)
-                       ?? throw new KeyNotFoundException(
-                           $"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
+            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId) ?? throw new KeyNotFoundException($"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
 
-            item.Update(sets, targetReps);
+            item.Update(sets, minimumReps, maximumReps);
         }
 
         public void ActivateExercise(Guid workoutSplitExerciseId)
         {
-            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId)
-                       ?? throw new KeyNotFoundException($"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
+            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId) ?? throw new KeyNotFoundException($"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
 
             item.Activate();
         }

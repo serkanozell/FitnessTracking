@@ -5,27 +5,31 @@
         public Guid ExerciseId { get; private set; }
         public Guid WorkoutProgramSplitId { get; private set; }
         public int Sets { get; private set; }
-        public int TargetReps { get; private set; }
+        public int MinimumReps { get; private set; }
+        public int MaximumReps { get; private set; }
 
         private WorkoutSplitExercise() { }
 
         public WorkoutSplitExercise(Guid id,
                                       Guid exerciseId,
                                       int sets,
-                                      int targetReps,
+                                      int minimumReps,
+                                      int maximumReps,
                                       Guid workoutProgramSplitId)
         {
             Id = id;
             ExerciseId = exerciseId;
             Sets = sets;
-            TargetReps = targetReps;
+            MinimumReps = minimumReps;
+            MaximumReps = maximumReps;
             WorkoutProgramSplitId = workoutProgramSplitId;
         }
 
-        public void Update(int sets, int targetReps)
+        public void Update(int sets, int minimumReps, int maximumReps)
         {
             Sets = sets;
-            TargetReps = targetReps;
+            MinimumReps = minimumReps;
+            MaximumReps = maximumReps;
         }
 
         public void Activate()

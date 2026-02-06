@@ -94,7 +94,10 @@ namespace WorkoutPrograms.Infrastructure.Configurations
                             pe.Property(x => x.Sets)
                               .IsRequired();
 
-                            pe.Property(x => x.TargetReps)
+                            pe.Property(x => x.MinimumReps)
+                              .IsRequired();
+
+                            pe.Property(x => x.MaximumReps)
                               .IsRequired();
 
                             // Audit

@@ -248,13 +248,15 @@ namespace FitnessTracking.Api.Controllers
         {
             public Guid ExerciseId { get; init; }
             public int Sets { get; init; }
-            public int TargetReps { get; init; }
+            public int MinimumReps { get; init; }
+            public int MaximumReps { get; init; }
         }
 
         public sealed class UpdateProgramExerciseRequest
         {
             public int Sets { get; init; }
-            public int TargetReps { get; init; }
+            public int MinimumReps { get; init; }
+            public int MaximumReps { get; init; }
         }
 
         // GET: api/workoutprograms/{programId}/exercises
@@ -288,7 +290,8 @@ namespace FitnessTracking.Api.Controllers
                     WorkoutProgramSplitId = splitId,
                     ExerciseId = request.ExerciseId,
                     Sets = request.Sets,
-                    TargetReps = request.TargetReps
+                    MinimumReps = request.MinimumReps,
+                    MaximumReps = request.MaximumReps
                 },
                 cancellationToken);
 
@@ -336,7 +339,8 @@ namespace FitnessTracking.Api.Controllers
                     WorkoutProgramSplitId = splitId,
                     WorkoutProgramExerciseId = workoutProgramExerciseId,
                     Sets = request.Sets,
-                    TargetReps = request.TargetReps
+                    MinimumReps = request.MinimumReps,
+                    MaximumReps = request.MaximumReps
                 },
                 cancellationToken);
 

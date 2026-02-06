@@ -24,7 +24,6 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             }
 
             // Tüm exercise’ları bir kere çek
-            // Exercise ayrı modüle taşındığı için burada farklı bir çözüm bakacağız
             var allExercises = await _exerciseReadService.GetNamesByIdsAsync(cancellationToken);
 
             var result = split.Exercises
@@ -34,7 +33,8 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                     ExerciseId = x.ExerciseId,
                     ExerciseName = allExercises.TryGetValue(x.ExerciseId, out var name) ? name : string.Empty,
                     Sets = x.Sets,
-                    TargetReps = x.TargetReps
+                    MinimumReps = x.MinimumReps,
+                    MaximumReps = x.MaximumReps
                 })
                 .ToList()
                 .AsReadOnly();

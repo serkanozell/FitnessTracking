@@ -6,6 +6,7 @@
         public Guid WorkoutProgramSplitId { get; init; }
         public Guid WorkoutProgramExerciseId { get; init; }
         public int Sets { get; init; }
-        public int TargetReps { get; init; }
+        public int MinimumReps { get; init; }
+        public int MaximumReps { get; init; }
     }
 }

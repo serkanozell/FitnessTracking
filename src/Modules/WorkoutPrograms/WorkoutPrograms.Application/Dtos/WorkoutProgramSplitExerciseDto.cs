@@ -6,6 +6,7 @@
         public Guid ExerciseId { get; init; }
         public string ExerciseName { get; init; } = default!;
         public int Sets { get; init; }
-        public int TargetReps { get; init; }
+        public int MinimumReps { get; init; }
+        public int MaximumReps { get; init; }
     }
 }

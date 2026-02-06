@@ -26,7 +26,8 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             // Entity yönetimi aggregate içinde
             var programExercise = split.AddExercise(request.ExerciseId,
                                                     request.Sets,
-                                                    request.TargetReps);
+                                                    request.MinimumReps,
+                                                    request.MaximumReps);
 
             await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
 
