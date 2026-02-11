@@ -2,5 +2,5 @@
 
 namespace Exercises.Application.Features.Exercises.GetExerciseById
 {
-    public sealed record GetExerciseByIdQuery(Guid Id) : IQuery<ExerciseDto>;
+    public sealed record GetExerciseByIdQuery(Guid Id) : IQuery<Result<ExerciseDto>>;
 }

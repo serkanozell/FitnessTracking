@@ -3,5 +3,5 @@
     public sealed record UpdateExerciseCommand(Guid Id,
                                                string Name,
                                                string MuscleGroup,
-                                               string Description) : ICommand<bool>;
+                                               string Description) : ICommand<Result<bool>>;
 }

@@ -2,5 +2,5 @@
 
 namespace Exercises.Application.Features.Exercises.GetAllExercises
 {
-    public sealed record GetAllExercisesQuery : IQuery<IReadOnlyList<ExerciseDto>>;
+    public sealed record GetAllExercisesQuery : IQuery<Result<IReadOnlyList<ExerciseDto>>>;
 }

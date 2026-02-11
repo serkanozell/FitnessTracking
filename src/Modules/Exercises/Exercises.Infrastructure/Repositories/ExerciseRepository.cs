@@ -16,6 +16,8 @@ namespace Exercises.Infrastructure.Repositories
 
         public async Task<Exercise?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) => await _dbContext.Exercises.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+        public async Task<Exercise?> GetByNameAsync(string name, CancellationToken cancellationToken = default) => await _dbContext.Exercises.FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
+
         public async Task<IReadOnlyList<Exercise>> GetAllAsync(CancellationToken cancellationToken = default) => await _dbContext.Exercises.AsNoTracking().ToListAsync(cancellationToken);
 
         public async Task AddAsync(Exercise exercise, CancellationToken cancellationToken = default) => await _dbContext.Exercises.AddAsync(exercise, cancellationToken);

@@ -5,6 +5,7 @@ namespace Exercises.Domain.Repositories
     public interface IExerciseRepository
     {
         Task<Exercise?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<Exercise?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<Exercise>> GetAllAsync(CancellationToken cancellationToken = default);
         Task AddAsync(Exercise exercise, CancellationToken cancellationToken = default);
         Task UpdateAsync(Exercise exercise, CancellationToken cancellationToken = default);

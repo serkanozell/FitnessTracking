@@ -1,13 +1,15 @@
-using BuildingBlocks.Application;
 using BuildingBlocks.Infrastructure.Services;
+using BuildingBlocks.Web;
+using Exercises.Api;
 using Exercises.Infrastructure;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using WorkoutPrograms.Infrastructure;
 using WorkoutSessions.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog();
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -22,21 +24,16 @@ builder.Services.AddExercisesInfrastructure(builder.Configuration)
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
-builder.Services.AddMediatR(cfg =>
+// Modülleri yükle
+IModule[] modules =
 {
-    cfg.RegisterServicesFromAssemblies(
-        typeof(Exercises.Application.AssemblyReference).Assembly,
-        typeof(WorkoutPrograms.Application.AssemblyReference).Assembly,
-        typeof(WorkoutSessions.Application.AssemblyReference).Assembly);
-});
+    new ExercisesModule()
+};
 
-builder.Services.AddValidatorsFromAssemblies(new[] {
-    typeof(Exercises.Application.AssemblyReference).Assembly,
-    typeof(WorkoutPrograms.Application.AssemblyReference).Assembly,
-    typeof(WorkoutSessions.Application.AssemblyReference).Assembly }
-);
-
-builder.Services.AddBuildingBlocksApplication(builder.Configuration);
+foreach (var module in modules)
+{
+    module.Register(builder.Services, builder.Configuration);
+}
 
 builder.Services.AddCors(options =>
 {
@@ -49,6 +46,27 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// ileride ayrý yapý kurulacak
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/problem+json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            Title = "An error occurred",
+            Status = 500
+        });
+    });
+});
+
+// Endpointleri map et
+foreach (var module in modules)
+{
+    module.MapEndpoints(app);
+}
 
 app.UseCors("BlazorClient");
 

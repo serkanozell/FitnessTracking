@@ -1,16 +1,15 @@
 ﻿using Exercises.Application.Dtos;
+using Exercises.Application.Errors;
 using Exercises.Application.Features.Exercises.GetExerciseById;
 
-internal sealed class GetExerciseByIdQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetExerciseByIdQuery, ExerciseDto>
+internal sealed class GetExerciseByIdQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetExerciseByIdQuery, Result<ExerciseDto>>
 {
-    public async Task<ExerciseDto> Handle(GetExerciseByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<ExerciseDto>> Handle(GetExerciseByIdQuery request, CancellationToken cancellationToken)
     {
         var exercise = await _exerciseRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (exercise is null)
-        {
-            return new();
-        }
+            return ExerciseErrors.NotFound(request.Id);
 
         return new ExerciseDto
         {

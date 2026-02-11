@@ -2,13 +2,13 @@
 
 namespace Exercises.Application.Features.Exercises.GetAllExercises
 {
-    internal sealed class GetAllExercisesQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetAllExercisesQuery, IReadOnlyList<ExerciseDto>>
+    internal sealed class GetAllExercisesQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetAllExercisesQuery, Result<IReadOnlyList<ExerciseDto>>>
     {
-        public async Task<IReadOnlyList<ExerciseDto>> Handle(GetAllExercisesQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IReadOnlyList<ExerciseDto>>> Handle(GetAllExercisesQuery request, CancellationToken cancellationToken)
         {
             var exercises = await _exerciseRepository.GetAllAsync(cancellationToken);
 
-            return exercises
+            var dtos = exercises
                 .Select(e => new ExerciseDto
                 {
                     Id = e.Id,
@@ -17,6 +17,8 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
                     Description = e.Description
                 })
                 .ToList();
+
+            return Result<IReadOnlyList<ExerciseDto>>.Success(dtos);
         }
     }
 }
