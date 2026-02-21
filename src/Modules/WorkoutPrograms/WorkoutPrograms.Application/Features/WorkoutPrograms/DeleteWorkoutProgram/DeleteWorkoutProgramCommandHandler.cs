@@ -1,22 +1,19 @@
-﻿using WorkoutPrograms.Domain.Repositories;
+﻿using BuildingBlocks.Application.Results;
+using WorkoutPrograms.Application.Errors;
+using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProgram
 {
-    internal sealed class DeleteWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : IRequestHandler<DeleteWorkoutProgramCommand, bool>
+    internal sealed class DeleteWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<DeleteWorkoutProgramCommand, Result<bool>>
     {
-        public async Task<bool> Handle(
-            DeleteWorkoutProgramCommand request,
-            CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(DeleteWorkoutProgramCommand request, CancellationToken cancellationToken)
         {
-            var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.Id, cancellationToken);
+            var program = await _workoutProgramRepository.GetByIdAsync(request.Id, cancellationToken);
 
-            if (workoutProgram is null)
-            {
-                return false; // Idempotent behavior
-            }
+            if (program is null)
+                return WorkoutProgramErrors.NotFound(request.Id);
 
             await _workoutProgramRepository.DeleteAsync(request.Id, cancellationToken);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

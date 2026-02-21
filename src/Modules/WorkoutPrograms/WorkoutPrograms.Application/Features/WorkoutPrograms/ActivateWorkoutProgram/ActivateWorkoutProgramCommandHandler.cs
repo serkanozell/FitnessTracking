@@ -1,19 +1,27 @@
-using WorkoutPrograms.Domain.Entity;
+using BuildingBlocks.Application.Results;
+using WorkoutPrograms.Application.Errors;
 using WorkoutPrograms.Domain.Repositories;
 
-namespace WorkoutPrograms.Application.Features.WorkoutPrograms.ActivateWorkoutProgram;
-
-internal sealed class ActivateWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<ActivateWorkoutProgramCommand, Guid>
+namespace WorkoutPrograms.Application.Features.WorkoutPrograms.ActivateWorkoutProgram
 {
-    public async Task<Guid> Handle(ActivateWorkoutProgramCommand request, CancellationToken cancellationToken)
+    internal sealed class ActivateWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<ActivateWorkoutProgramCommand, Result<Guid>>
     {
-        WorkoutProgram? program = await _workoutProgramRepository.GetByIdAsync(request.Id, cancellationToken) ?? throw new KeyNotFoundException($"WorkoutProgram ({request.Id}) not found.");
+        public async Task<Result<Guid>> Handle(ActivateWorkoutProgramCommand request, CancellationToken cancellationToken)
+        {
+            var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.Id, cancellationToken);
 
-        program.Activate();
+            if (workoutProgram is null)
+                return WorkoutProgramErrors.NotFound(request.Id);
 
-        await _workoutProgramRepository.UpdateAsync(program, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+            if (workoutProgram.IsActive)
+                return WorkoutProgramErrors.AlreadyActive(request.Id);
 
-        return program.Id;
+            workoutProgram.Activate();
+
+            await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return workoutProgram.Id;
+        }
     }
 }

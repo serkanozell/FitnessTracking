@@ -2,8 +2,8 @@ using BuildingBlocks.Infrastructure.Services;
 using BuildingBlocks.Web;
 using Exercises.Api;
 using Exercises.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WorkoutPrograms.Api;
 using WorkoutPrograms.Infrastructure;
 using WorkoutSessions.Infrastructure;
 
@@ -27,7 +27,8 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 // Modülleri yükle
 IModule[] modules =
 {
-    new ExercisesModule()
+    new ExercisesModule(),
+    new WorkoutProgramsModule(),
 };
 
 foreach (var module in modules)

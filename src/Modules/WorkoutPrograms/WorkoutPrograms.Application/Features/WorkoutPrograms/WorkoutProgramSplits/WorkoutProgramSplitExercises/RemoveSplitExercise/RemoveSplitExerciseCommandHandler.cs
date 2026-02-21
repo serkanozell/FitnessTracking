@@ -2,34 +2,28 @@
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.RemoveSplitExercise
 {
-    internal sealed class RemoveSplitExerciseCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<RemoveSplitExerciseCommand, bool>
+    internal sealed class RemoveSplitExerciseCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<RemoveSplitExerciseCommand, Result<bool>>
     {
-        public async Task<bool> Handle(RemoveSplitExerciseCommand request, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(RemoveSplitExerciseCommand request, CancellationToken cancellationToken)
         {
             var workoutProgram = await _workoutProgramRepository.GetByIdWithExercisesAsync(request.WorkoutProgramId, cancellationToken);
 
-            if (workoutProgram is null || workoutProgram.Splits is null)
-            {
-                return false;
-            }
+            if (workoutProgram is null)
+                return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
 
-            var split = workoutProgram.Splits.FirstOrDefault(s => s.Id == request.WorkoutProgramSplitId);
-            if (split is null)
-            {
-                return false;
-            }
+            var programSplit = workoutProgram.Splits.SingleOrDefault(s => s.Id == request.WorkoutProgramSplitId);
 
-            var exerciseToRemove = split.Exercises.FirstOrDefault(e => e.Id == request.WorkoutProgramExerciseId);
+            if (programSplit is null)
+                return WorkoutProgramErrors.SplitNotFound(request.WorkoutProgramId, request.WorkoutProgramSplitId);
 
-            if (exerciseToRemove is null)
-            {
-                return false;
-            }
+            var splitExercise = programSplit.Exercises.SingleOrDefault(e => e.Id == request.WorkoutProgramExerciseId);
 
-            split.Exercises.Remove(exerciseToRemove);
+            if (splitExercise is null)
+                return WorkoutProgramErrors.ExerciseNotFoundInSplit(request.WorkoutProgramSplitId, request.WorkoutProgramExerciseId);
+
+            programSplit.RemoveExercise(request.WorkoutProgramExerciseId);
 
             await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

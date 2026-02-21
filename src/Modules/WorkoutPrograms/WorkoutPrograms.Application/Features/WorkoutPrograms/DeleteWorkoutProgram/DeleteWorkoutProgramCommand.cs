@@ -1,7 +1,6 @@
-﻿namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProgram
+﻿using BuildingBlocks.Application.Results;
+
+namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProgram
 {
-    public sealed class DeleteWorkoutProgramCommand : ICommand<bool>
-    {
-        public Guid Id { get; init; }
-    }
+    public sealed record DeleteWorkoutProgramCommand(Guid Id) : ICommand<Result<bool>>;
 }

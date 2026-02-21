@@ -2,28 +2,23 @@
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.UpdateWorkoutProgramSplit
 {
-    internal sealed class UpdateWorkoutProgramSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : IRequestHandler<UpdateWorkoutProgramSplitCommand, bool>
+    internal sealed class UpdateWorkoutProgramSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<UpdateWorkoutProgramSplitCommand, Result<bool>>
     {
-        public async Task<bool> Handle(UpdateWorkoutProgramSplitCommand request, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(UpdateWorkoutProgramSplitCommand request, CancellationToken cancellationToken)
         {
-            var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.WorkoutProgramId, cancellationToken);
+            var program = await _workoutProgramRepository.GetByIdAsync(request.WorkoutProgramId, cancellationToken);
 
-            if (workoutProgram is null)
-            {
-                return false;
-            }
+            if (program is null)
+                return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
 
-            var split = workoutProgram.Splits.SingleOrDefault(x => x.Id == request.SplitId);
+            var split = program.Splits.SingleOrDefault(s => s.Id == request.SplitId);
 
             if (split is null)
-            {
-                return false;
-            }
+                return WorkoutProgramErrors.SplitNotFound(request.WorkoutProgramId, request.SplitId);
 
-            workoutProgram.UpdateSplit(request.SplitId, request.Name, request.Order);
+            program.UpdateSplit(request.SplitId, request.Name, request.Order);
 
-            await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
-
+            await _workoutProgramRepository.UpdateAsync(program, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

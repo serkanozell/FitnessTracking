@@ -1,19 +1,20 @@
-﻿using WorkoutPrograms.Application.Dtos;
+﻿using BuildingBlocks.Application.Results;
+using WorkoutPrograms.Application.Dtos;
+using WorkoutPrograms.Application.Errors;
 using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgramById
 {
-    internal sealed class GetWorkoutProgramByIdQueryHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _workoutProgramsUnitOfWork) : IRequestHandler<GetWorkoutProgramByIdQuery, WorkoutProgramDto>
+    internal sealed class GetWorkoutProgramByIdQueryHandler(IWorkoutProgramRepository _workoutProgramRepository) : IQueryHandler<GetWorkoutProgramByIdQuery, Result<WorkoutProgramDto>>
     {
-        public async Task<WorkoutProgramDto> Handle(GetWorkoutProgramByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<WorkoutProgramDto>> Handle(GetWorkoutProgramByIdQuery request, CancellationToken cancellationToken)
         {
-            var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (workoutProgram is null)
-            {
-                return new();
-            }
+            var program = await _workoutProgramRepository.GetByIdAsync(request.Id, cancellationToken);
 
-            return WorkoutProgramDto.FromEntity(workoutProgram);
+            if (program is null)
+                return WorkoutProgramErrors.NotFound(request.Id);
+
+            return WorkoutProgramDto.FromEntity(program);
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram
+﻿using BuildingBlocks.Application.Results;
+
+namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram
 {
-    public sealed class UpdateWorkoutProgramCommand : ICommand<Unit>
-    {
-        public Guid Id { get; init; }
-        public string Name { get; init; } = default!;
-        public DateTime StartDate { get; init; }
-        public DateTime EndDate { get; init; }
-    }
+    public sealed record UpdateWorkoutProgramCommand(Guid Id,
+                                                     string Name,
+                                                     DateTime StartDate,
+                                                     DateTime EndDate) : ICommand<Result<bool>>;
 }

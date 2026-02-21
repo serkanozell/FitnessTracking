@@ -2,38 +2,29 @@
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.AddExerciseToSplit
 {
-    internal sealed class AddExerciseToSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : IRequestHandler<AddExerciseToSplitCommand, Guid>
+    internal sealed class AddExerciseToSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<AddExerciseToSplitCommand, Result<Guid>>
     {
-        public async Task<Guid> Handle(AddExerciseToSplitCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(AddExerciseToSplitCommand request, CancellationToken cancellationToken)
         {
-            var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.WorkoutProgramId, cancellationToken);
+            var workoutProgram = await _workoutProgramRepository.GetByIdWithExercisesAsync(request.WorkoutProgramId, cancellationToken);
 
             if (workoutProgram is null)
-            {
-                throw new KeyNotFoundException(
-                    $"WorkoutProgram ({request.WorkoutProgramId}) not found.");
-            }
+                return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
 
-            var split = workoutProgram.Splits.SingleOrDefault(x => x.Id == request.WorkoutProgramSplitId);
+            var programSplit = workoutProgram.Splits.SingleOrDefault(s => s.Id == request.WorkoutProgramSplitId);
 
-            if (split is null)
-            {
-                throw new KeyNotFoundException(
-                    $"WorkoutProgramSplit ({request.WorkoutProgramSplitId}) not found in program {request.WorkoutProgramId}.");
-            }
+            if (programSplit is null)
+                return WorkoutProgramErrors.SplitNotFound(request.WorkoutProgramId, request.WorkoutProgramSplitId);
 
-
-            // Entity yönetimi aggregate içinde
-            var programExercise = split.AddExercise(request.ExerciseId,
+            var splitExercise = programSplit.AddExercise(request.ExerciseId,
                                                     request.Sets,
                                                     request.MinimumReps,
                                                     request.MaximumReps);
 
             await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return programExercise.Id;
+            return splitExercise.Id;
         }
     }
 }

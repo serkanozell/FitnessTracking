@@ -2,9 +2,6 @@
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.GetSplitExercises
 {
-    public sealed class GetSplitExercisesQuery : IQuery<IReadOnlyList<WorkoutProgramSplitExerciseDto>>
-    {
-        public Guid WorkoutProgramId { get; init; }
-        public Guid WorkoutSplitId { get; set; }
-    }
+    public sealed record GetSplitExercisesQuery(Guid WorkoutProgramId,
+                                                Guid WorkoutSplitId) : IQuery<Result<IReadOnlyList<WorkoutProgramSplitExerciseDto>>>;
 }

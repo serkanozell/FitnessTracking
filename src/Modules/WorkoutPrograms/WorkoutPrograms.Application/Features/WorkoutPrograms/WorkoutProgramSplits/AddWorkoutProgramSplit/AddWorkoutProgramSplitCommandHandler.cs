@@ -2,18 +2,23 @@
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.AddWorkoutProgramSplit
 {
-    internal sealed class AddWorkoutProgramSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<AddWorkoutProgramSplitCommand, Guid>
+    internal sealed class AddWorkoutProgramSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<AddWorkoutProgramSplitCommand, Result<Guid>>
     {
-        public async Task<Guid> Handle(AddWorkoutProgramSplitCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(AddWorkoutProgramSplitCommand request, CancellationToken cancellationToken)
         {
-            // Aggregate root'u, split ve exercises ile birlikte yükle
-            var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.WorkoutProgramId, cancellationToken) ?? throw new KeyNotFoundException($"WorkoutProgram ({request.WorkoutProgramId}) not found.");
+            // Aggregate root'u, split ve exercises ile birlikte yükler
+            var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.WorkoutProgramId, cancellationToken);
 
-            // Davranışı aggregate üzerinden yap
+            if (workoutProgram is null)
+                return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
+
+            if (workoutProgram.Splits.Any(s => s.Name == request.Name))
+                return WorkoutProgramErrors.SplitDuplicateName(request.Name);
+
+            // Davranışı aggregate üzerinden yapar
             var split = workoutProgram.AddSplit(request.Name, request.Order);
 
             await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return split.Id;

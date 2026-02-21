@@ -1,19 +1,23 @@
-﻿using WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProgram;
+﻿using BuildingBlocks.Application.Results;
+using WorkoutPrograms.Application.Errors;
 using WorkoutPrograms.Domain.Entity;
 using WorkoutPrograms.Domain.Repositories;
 
-internal sealed class CreateWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<CreateWorkoutProgramCommand, Guid>
+namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProgram
 {
-    public async Task<Guid> Handle(CreateWorkoutProgramCommand request, CancellationToken cancellationToken)
+    internal sealed class CreateWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<CreateWorkoutProgramCommand, Result<Guid>>
     {
-        var workoutProgram = WorkoutProgram.Create(request.Name,
-                                            request.StartDate,
-                                            request.EndDate);
+        public async Task<Result<Guid>> Handle(CreateWorkoutProgramCommand request, CancellationToken cancellationToken)
+        {
+            if (request.EndDate <= request.StartDate)
+                return WorkoutProgramErrors.InvalidDateRange();
 
-        await _workoutProgramRepository.AddAsync(workoutProgram, cancellationToken);
+            var workoutProgram = WorkoutProgram.Create(request.Name, request.StartDate, request.EndDate);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _workoutProgramRepository.AddAsync(workoutProgram, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return workoutProgram.Id;
+            return workoutProgram.Id;
+        }
     }
 }
