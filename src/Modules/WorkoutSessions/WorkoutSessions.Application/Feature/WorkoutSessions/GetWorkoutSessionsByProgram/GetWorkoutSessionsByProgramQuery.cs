@@ -1,6 +1,6 @@
 ﻿using WorkoutSessions.Application.Dtos;
 
-public sealed class GetWorkoutSessionsByProgramQuery : IQuery<IReadOnlyList<WorkoutSessionDto>>
+namespace WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessionsByProgram
 {
-    public Guid WorkoutProgramId { get; init; }
+    public sealed record GetWorkoutSessionsByProgramQuery(Guid WorkoutProgramId) : IQuery<Result<IReadOnlyList<WorkoutSessionDto>>>;
 }

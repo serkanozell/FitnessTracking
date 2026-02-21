@@ -5,6 +5,7 @@ using Exercises.Infrastructure;
 using Serilog;
 using WorkoutPrograms.Api;
 using WorkoutPrograms.Infrastructure;
+using WorkoutSessions.Api;
 using WorkoutSessions.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,7 @@ IModule[] modules =
 {
     new ExercisesModule(),
     new WorkoutProgramsModule(),
+    new WorkoutSessionsModule()
 };
 
 foreach (var module in modules)

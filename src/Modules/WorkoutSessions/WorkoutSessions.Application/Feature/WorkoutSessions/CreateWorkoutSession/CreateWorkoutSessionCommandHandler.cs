@@ -3,17 +3,13 @@ using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.CreateWorkoutSession
 {
-    internal sealed class CreateWorkoutSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<CreateWorkoutSessionCommand, Guid>
+    internal sealed class CreateWorkoutSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<CreateWorkoutSessionCommand, Result<Guid>>
     {
-        public async Task<Guid> Handle(
-            CreateWorkoutSessionCommand request,
-            CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateWorkoutSessionCommand request, CancellationToken cancellationToken)
         {
-            var session = WorkoutSession.Create(request.WorkoutProgramId,
-                                                           request.Date);
+            var session = WorkoutSession.Create(request.WorkoutProgramId, request.Date);
 
             await _workoutSessionRepository.AddAsync(session, cancellationToken);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return session.Id;

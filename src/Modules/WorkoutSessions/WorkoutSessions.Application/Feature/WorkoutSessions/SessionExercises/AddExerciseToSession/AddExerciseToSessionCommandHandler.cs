@@ -3,53 +3,45 @@ using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.AddExerciseToSession
 {
-    internal sealed class AddExerciseToSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository,
-                                                             IWorkoutProgramReadService _workoutProgramReadService,
-                                                             IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<AddExerciseToSessionCommand, Guid>
+    internal sealed class AddExerciseToSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutProgramReadService _workoutProgramReadService,
+        IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<AddExerciseToSessionCommand, Result<Guid>>
     {
-        public async Task<Guid> Handle(
-            AddExerciseToSessionCommand request,
-            CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(AddExerciseToSessionCommand request, CancellationToken cancellationToken)
         {
-            var session = await _workoutSessionRepository.GetByIdAsync(
-                request.WorkoutSessionId,
-                cancellationToken)
-                ?? throw new KeyNotFoundException(
-                    $"WorkoutSession ({request.WorkoutSessionId}) not found.");
+            var workoutSession = await _workoutSessionRepository.GetByIdAsync(request.WorkoutSessionId, cancellationToken);
 
-            var program = await _workoutProgramReadService.GetWorkoutProgramByIdAsync(session.WorkoutProgramId, cancellationToken) ?? throw new KeyNotFoundException($"WorkoutProgram ({session.WorkoutProgramId}) not found.");
+            if (workoutSession is null)
+                return WorkoutSessionErrors.NotFound(request.WorkoutSessionId);
 
-            if (!program.ContainsExercise(request.ExerciseId))
-            {
-                throw new InvalidOperationException($"Exercise ({request.ExerciseId}) is not part of workout program {program.Id}.");
-            }
+            var workoutProgram = await _workoutProgramReadService.GetWorkoutProgramByIdAsync(workoutSession.WorkoutProgramId, cancellationToken);
 
-            // Programda bu exercise için tanımlı max set sayısı
-            var programExercise = program.Splits.SelectMany(s => s.Exercises).FirstOrDefault(x => x.ExerciseId == request.ExerciseId);
+            if (workoutProgram is null)
+                return WorkoutSessionErrors.ProgramNotFound(workoutSession.WorkoutProgramId);
 
-            // Session'da şu anki set sayısı
-            var currentSetCountInSession = session.SessionExercises.Count(x => x.ExerciseId == request.ExerciseId);
+            if (!workoutProgram.ContainsExercise(request.ExerciseId))
+                return WorkoutSessionErrors.ExerciseNotInProgram(request.ExerciseId, workoutProgram.Id);
 
-            if (currentSetCountInSession >= programExercise!.Sets)
-            {
-                throw new InvalidOperationException($"Exercise ({request.ExerciseId}) for program {program.Id} is limited to {programExercise.Sets} sets. " + $"Session {session.Id} already has {currentSetCountInSession} sets.");
-            }
+            var programExercise = workoutProgram.Splits
+                                                .SelectMany(s => s.Exercises)
+                                                .FirstOrDefault(x => x.ExerciseId == request.ExerciseId);
+
+            var currentSetCount = workoutSession.SessionExercises.Count(x => x.ExerciseId == request.ExerciseId);
+
+            if (currentSetCount >= programExercise!.Sets)
+                return WorkoutSessionErrors.SetLimitExceeded(request.ExerciseId, programExercise.Sets, currentSetCount);
 
             if (request.SetNumber > programExercise.Sets)
-            {
-                throw new InvalidOperationException($"Exercise ({request.ExerciseId}) for program {program.Id} is limited to {programExercise.Sets} sets.");
-            }
+                return WorkoutSessionErrors.SetNumberExceedsLimit(request.ExerciseId, programExercise.Sets);
 
-            var workoutExercise = session.AddEntry(request.ExerciseId,
-                                                   request.SetNumber,
-                                                   request.Weight,
-                                                   request.Reps);
+            if (workoutSession.SessionExercises.Any(x => x.ExerciseId == request.ExerciseId && x.SetNumber == request.SetNumber))
+                return WorkoutSessionErrors.DuplicateSet(request.ExerciseId, request.SetNumber);
 
-            await _workoutSessionRepository.UpdateAsync(session, cancellationToken);
+            var entry = workoutSession.AddEntry(request.ExerciseId, request.SetNumber, request.Weight, request.Reps);
 
+            await _workoutSessionRepository.UpdateAsync(workoutSession, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return workoutExercise.Id;
+            return entry.Id;
         }
     }
 }

@@ -7,9 +7,6 @@
             RuleFor(x => x.WorkoutSessionId)
                 .NotEmpty();
 
-            RuleFor(x => x.WorkoutSplitId)
-                .NotEmpty();
-
             RuleFor(x => x.ExerciseId)
                 .NotEmpty();
 

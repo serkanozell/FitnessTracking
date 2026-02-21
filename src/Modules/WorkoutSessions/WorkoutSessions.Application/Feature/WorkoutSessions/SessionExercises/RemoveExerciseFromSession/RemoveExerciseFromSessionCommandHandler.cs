@@ -2,25 +2,26 @@
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.RemoveExerciseFromSession
 {
-    public sealed class RemoveExerciseFromSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<RemoveExerciseFromSessionCommand, Unit>
+    internal sealed class RemoveExerciseFromSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<RemoveExerciseFromSessionCommand, Result<bool>>
     {
-        public async Task<Unit> Handle(
-            RemoveExerciseFromSessionCommand request,
-            CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(RemoveExerciseFromSessionCommand request, CancellationToken cancellationToken)
         {
-            var session = await _workoutSessionRepository.GetByIdAsync(request.WorkoutSessionId, cancellationToken);
-            if (session is null)
-            {
-                return Unit.Value;
-            }
+            var workoutSession = await _workoutSessionRepository.GetByIdAsync(request.WorkoutSessionId, cancellationToken);
 
-            session.RemoveEntry(request.SessionExerciseId);
+            if (workoutSession is null)
+                return WorkoutSessionErrors.NotFound(request.WorkoutSessionId);
 
-            await _workoutSessionRepository.UpdateAsync(session, cancellationToken);
+            var entry = workoutSession.SessionExercises.FirstOrDefault(x => x.Id == request.SessionExerciseId);
 
+            if (entry is null)
+                return WorkoutSessionErrors.SessionExerciseNotFound(request.WorkoutSessionId, request.SessionExerciseId);
+
+            workoutSession.RemoveEntry(request.SessionExerciseId);
+
+            await _workoutSessionRepository.UpdateAsync(workoutSession, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Unit.Value;
+            return true;
         }
     }
 }

@@ -1,13 +1,19 @@
-﻿using WorkoutSessions.Domain.Entity;
+﻿using WorkoutSessions.Application.Errors;
 using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.ActivateWorkoutSession
 {
-    internal sealed class ActivateWorkoutSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<ActivateWorkoutSessionCommand, Guid>
+    internal sealed class ActivateWorkoutSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<ActivateWorkoutSessionCommand, Result<Guid>>
     {
-        public async Task<Guid> Handle(ActivateWorkoutSessionCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(ActivateWorkoutSessionCommand request, CancellationToken cancellationToken)
         {
-            WorkoutSession session = await _workoutSessionRepository.GetByIdAsync(request.WorkoutSessionId, cancellationToken) ?? throw new KeyNotFoundException($"WorkoutSession ({request.WorkoutSessionId}) not found.");
+            var session = await _workoutSessionRepository.GetByIdAsync(request.WorkoutSessionId, cancellationToken);
+
+            if (session is null)
+                return WorkoutSessionErrors.NotFound(request.WorkoutSessionId);
+
+            if (session.IsActive)
+                return WorkoutSessionErrors.AlreadyActive(request.WorkoutSessionId);
 
             session.Activate();
 

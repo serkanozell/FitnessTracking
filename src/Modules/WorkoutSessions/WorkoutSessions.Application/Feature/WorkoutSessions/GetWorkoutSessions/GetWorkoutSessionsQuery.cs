@@ -2,7 +2,5 @@
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessions
 {
-    public sealed class GetWorkoutSessionsQuery : IQuery<IReadOnlyList<WorkoutSessionDto>>
-    {
-    }
+    public sealed record GetWorkoutSessionsQuery : IQuery<Result<IReadOnlyList<WorkoutSessionDto>>>;
 }

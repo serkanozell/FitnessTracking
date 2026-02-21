@@ -2,19 +2,18 @@
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.GetExercisesBySession
 {
-    internal sealed class GetExercisesBySessionQueryHandler(IWorkoutSessionRepository _workoutSessionRepository) : IQueryHandler<GetExercisesBySessionQuery, IReadOnlyList<SessionExerciseDto>>
+    internal sealed class GetExercisesBySessionQueryHandler(IWorkoutSessionRepository _workoutSessionRepository) : IQueryHandler<GetExercisesBySessionQuery, Result<IReadOnlyList<SessionExerciseDto>>>
     {
-        public async Task<IReadOnlyList<SessionExerciseDto>> Handle(GetExercisesBySessionQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IReadOnlyList<SessionExerciseDto>>> Handle(GetExercisesBySessionQuery request, CancellationToken cancellationToken)
         {
             var session = await _workoutSessionRepository.GetByIdAsync(request.WorkoutSessionId, cancellationToken);
+
             if (session is null)
-            {
-                return Array.Empty<SessionExerciseDto>();
-            }
+                return WorkoutSessionErrors.NotFound(request.WorkoutSessionId);
 
             return session.SessionExercises
-                .Select(SessionExerciseDto.FromEntity)
-                .ToArray();
+                                           .Select(SessionExerciseDto.FromEntity)
+                                           .ToList();
         }
     }
 }

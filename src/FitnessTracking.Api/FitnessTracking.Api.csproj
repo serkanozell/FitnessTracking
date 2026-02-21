@@ -22,6 +22,7 @@
 		<ProjectReference Include="..\Modules\WorkoutPrograms\WorkoutPrograms.Api\WorkoutPrograms.Api.csproj" />
 		<ProjectReference Include="..\Modules\WorkoutPrograms\WorkoutPrograms.Application\WorkoutPrograms.Application.csproj" />
 		<ProjectReference Include="..\Modules\WorkoutPrograms\WorkoutPrograms.Infrastructure\WorkoutPrograms.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules\WorkoutSessions\WorkoutSessions.Api\WorkoutSessions.Api.csproj" />
 		<ProjectReference Include="..\Modules\WorkoutSessions\WorkoutSessions.Application\WorkoutSessions.Application.csproj" />
 		<ProjectReference Include="..\Modules\WorkoutSessions\WorkoutSessions.Infrastructure\WorkoutSessions.Infrastructure.csproj" />
 	</ItemGroup>

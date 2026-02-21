@@ -1,0 +1,30 @@
+using BuildingBlocks.Web;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+
+namespace WorkoutSessions.Application.Feature.WorkoutSessions.UpdateWorkoutSession;
+
+public sealed class UpdateWorkoutSessionEndpoint : IEndpoint
+{
+    public void Map(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPut("/api/workoutsessions/{id:guid}", async (Guid id, UpdateSessionRequest request, ISender sender, CancellationToken ct) =>
+        {
+            var command = new UpdateWorkoutSessionCommand(id, request.Date);
+            var result = await sender.Send(command, ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(title: "Update session failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+        })
+        .WithName("UpdateWorkoutSession")
+        .WithTags("WorkoutSessions")
+        .WithSummary("Updates a workout session")
+        .Accepts<UpdateSessionRequest>("application/json")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound);
+    }
+
+    public sealed record UpdateSessionRequest(DateTime Date);
+}
