@@ -1,6 +1,6 @@
 ﻿public abstract class Entity<T> : IEntity
 {
-    public T Id { get; set; }
+    public T Id { get; protected set; }
     public bool IsActive { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? CreatedDate { get; set; }

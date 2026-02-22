@@ -1,6 +1,4 @@
-﻿using BuildingBlocks.Application.Results;
-
-namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.AddWorkoutProgramSplit
+﻿namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.AddWorkoutProgramSplit
 {
     public sealed record AddWorkoutProgramSplitCommand(Guid WorkoutProgramId,
                                                        string Name,

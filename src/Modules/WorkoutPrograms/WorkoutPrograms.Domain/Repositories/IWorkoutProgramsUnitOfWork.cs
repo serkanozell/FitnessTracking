@@ -1,7 +1,8 @@
-﻿namespace WorkoutPrograms.Domain.Repositories
+﻿using BuildingBlocks.Domain.Abstractions;
+
+namespace WorkoutPrograms.Domain.Repositories
 {
-    public interface IWorkoutProgramsUnitOfWork
+    public interface IWorkoutProgramsUnitOfWork : IUnitOfWork
     {
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

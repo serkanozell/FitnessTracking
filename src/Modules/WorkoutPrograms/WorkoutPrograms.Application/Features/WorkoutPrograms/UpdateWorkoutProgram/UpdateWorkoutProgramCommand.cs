@@ -1,6 +1,4 @@
-﻿using BuildingBlocks.Application.Results;
-
-namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram
+﻿namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram
 {
     public sealed record UpdateWorkoutProgramCommand(Guid Id,
                                                      string Name,

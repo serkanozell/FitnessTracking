@@ -22,9 +22,17 @@ namespace Exercises.Infrastructure.Repositories
 
         public async Task AddAsync(Exercise exercise, CancellationToken cancellationToken = default) => await _dbContext.Exercises.AddAsync(exercise, cancellationToken);
 
-        public async Task UpdateAsync(Exercise exercise, CancellationToken cancellationToken = default) => _dbContext.Exercises.Update(exercise);
+        public Task UpdateAsync(Exercise exercise, CancellationToken cancellationToken = default)
+        {
+            _dbContext.Exercises.Update(exercise);
+            return Task.CompletedTask;
+        }
 
-        public async Task DeleteAsync(Exercise exercise, CancellationToken cancellationToken = default) => _dbContext.Exercises.Remove(exercise);
+        public Task DeleteAsync(Exercise exercise, CancellationToken cancellationToken = default)
+        {
+            _dbContext.Exercises.Remove(exercise);
+            return Task.CompletedTask;
+        }
 
         public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default) => await _dbContext.Exercises.AnyAsync(x => x.Id == id, cancellationToken);
     }

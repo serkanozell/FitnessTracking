@@ -1,5 +1,8 @@
 ﻿using MediatR;
 
-public interface ICommand<out TResponse> : IRequest<TResponse>
+namespace BuildingBlocks.Application.CQRS
 {
+    public interface ICommand<out TResponse> : IRequest<TResponse>
+    {
+    }
 }

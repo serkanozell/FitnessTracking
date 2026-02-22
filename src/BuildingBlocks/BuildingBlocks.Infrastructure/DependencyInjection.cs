@@ -1,11 +1,25 @@
 ﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Abstractions.Caching;
+using BuildingBlocks.Infrastructure.Persistence;
 using BuildingBlocks.Infrastructure.Persistence.Caching;
+using BuildingBlocks.Infrastructure.Persistence.Interceptors;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
+    public static IServiceCollection AddBuildingBlocksInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        AddEmail(services, configuration);
+        AddRedisCaching(services, configuration);
+
+        return services;
+    }
+
     public static IServiceCollection AddEmail(
         this IServiceCollection services,
         IConfiguration configuration)

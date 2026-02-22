@@ -1,6 +1,4 @@
-﻿using BuildingBlocks.Application.Results;
-using WorkoutPrograms.Application.Dtos;
-using WorkoutPrograms.Application.Errors;
+﻿using WorkoutPrograms.Application.Dtos;
 using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgramById

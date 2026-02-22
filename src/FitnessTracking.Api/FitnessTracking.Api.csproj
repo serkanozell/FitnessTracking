@@ -27,8 +27,4 @@
 		<ProjectReference Include="..\Modules\WorkoutSessions\WorkoutSessions.Infrastructure\WorkoutSessions.Infrastructure.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Endpoints\" />
-	</ItemGroup>
-
 </Project>

@@ -1,23 +1,27 @@
-﻿using FluentValidation;
+﻿using BuildingBlocks.Application.CQRS;
+using FluentValidation;
 using MediatR;
 
-public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand<TResponse>
-
+namespace BuildingBlocks.Application.Behaviors
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : ICommand<TResponse>
+
     {
-        var context = new ValidationContext<TRequest>(request);
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        {
+            var context = new ValidationContext<TRequest>(request);
 
-        var validationResults = await Task.WhenAll(validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+            var validationResults = await Task.WhenAll(validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
-        var failures = validationResults.Where(e => e.Errors.Any())
-                                        .SelectMany(e => e.Errors)
-                                        .ToList();
+            var failures = validationResults.Where(e => e.Errors.Any())
+                                            .SelectMany(e => e.Errors)
+                                            .ToList();
 
-        if (failures.Count != 0)
-            throw new ValidationException(failures);
+            if (failures.Count != 0)
+                throw new ValidationException(failures);
 
-        return await next(cancellationToken);
+            return await next(cancellationToken);
+        }
     }
 }

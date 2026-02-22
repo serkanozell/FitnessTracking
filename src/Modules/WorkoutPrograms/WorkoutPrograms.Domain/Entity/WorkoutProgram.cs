@@ -5,7 +5,7 @@
         public string Name { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
-        public List<WorkoutProgramSplit> Splits { get; set; } = new();
+        public List<WorkoutProgramSplit> Splits { get; private set; } = new();
 
         private WorkoutProgram() { }
 
@@ -53,7 +53,7 @@
 
         public void ActivateSplit(Guid splitId)
         {
-            if (!IsActive && IsDeleted)
+            if (!IsActive || IsDeleted)
             {
                 throw new InvalidOperationException($"Workout program ({Id}) is not active.");
             }
@@ -65,14 +65,14 @@
 
         public void ActivateSplitExercise(Guid splitId, Guid workoutSplitExerciseId)
         {
-            if (!IsActive && IsDeleted)
+            if (!IsActive || IsDeleted)
             {
                 throw new InvalidOperationException($"Workout program ({Id}) is not active.");
             }
 
             var split = Splits.SingleOrDefault(x => x.Id == splitId) ?? throw new KeyNotFoundException($"Split ({splitId}) not found in program {Id}.");
 
-            if (!split.IsActive && split.IsDeleted)
+            if (!split.IsActive || split.IsDeleted)
             {
                 throw new InvalidOperationException($"Split ({splitId}) is not active in program {Id}.");
             }

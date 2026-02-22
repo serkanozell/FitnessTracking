@@ -49,9 +49,10 @@ namespace WorkoutSessions.Infrastructure.Repositories
             await _context.WorkoutSessions.AddAsync(session, cancellationToken);
         }
 
-        public async Task UpdateAsync(WorkoutSession session, CancellationToken cancellationToken = default)
+        public Task UpdateAsync(WorkoutSession session, CancellationToken cancellationToken = default)
         {
             _context.WorkoutSessions.Update(session);
+            return Task.CompletedTask;
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

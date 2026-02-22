@@ -40,9 +40,10 @@ namespace WorkoutPrograms.Infrastructure.Repositories
             await _context.WorkoutPrograms.AddAsync(program, cancellationToken);
         }
 
-        public async Task UpdateAsync(WorkoutProgram program, CancellationToken cancellationToken = default)
+        public Task UpdateAsync(WorkoutProgram program, CancellationToken cancellationToken = default)
         {
             _context.WorkoutPrograms.Update(program);
+            return Task.CompletedTask;
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

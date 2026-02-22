@@ -4,7 +4,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 
 namespace WorkoutPrograms.Api
 {
@@ -23,19 +22,11 @@ namespace WorkoutPrograms.Api
             });
 
             services.AddValidatorsFromAssembly(assembly);
-
-            AddLogService(configuration);
         }
 
         public void MapEndpoints(IEndpointRouteBuilder app)
         {
             app.MapEndpointsFromAssembly(typeof(Application.AssemblyReference).Assembly);
-        }
-
-        private static void AddLogService(IConfiguration configuration)
-        {
-            Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration)
-                                                           .CreateLogger();
         }
     }
 }

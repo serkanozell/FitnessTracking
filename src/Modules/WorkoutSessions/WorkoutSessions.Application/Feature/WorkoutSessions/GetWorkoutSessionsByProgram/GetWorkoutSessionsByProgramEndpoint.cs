@@ -1,5 +1,4 @@
 using BuildingBlocks.Web;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using WorkoutSessions.Application.Dtos;
@@ -10,7 +9,7 @@ public sealed class GetWorkoutSessionsByProgramEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/workoutsessions/by-program/{programId:guid}", async (
+        endpoints.MapGet("/api/workoutsessions/byprogram/{programId:guid}", async (
             Guid programId,
             ISender sender,
             CancellationToken ct) =>

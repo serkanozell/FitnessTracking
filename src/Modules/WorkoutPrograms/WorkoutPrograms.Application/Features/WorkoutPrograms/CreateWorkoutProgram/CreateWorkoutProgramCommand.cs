@@ -1,6 +1,4 @@
-﻿using BuildingBlocks.Application.Results;
-
-namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProgram
+﻿namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProgram
 {
     public sealed record CreateWorkoutProgramCommand(string Name,
                                                      DateTime StartDate,

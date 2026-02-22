@@ -1,16 +1,7 @@
-﻿using WorkoutPrograms.Domain.Repositories;
+using BuildingBlocks.Infrastructure.Persistence;
+using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Infrastructure.Persistance
 {
-    public sealed class WorkoutProgramsUnitOfWork(WorkoutProgramsDbContext _context, IDomainEventDispatcher _domainEventDispatcher) : IWorkoutProgramsUnitOfWork
-    {
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var result = await _context.SaveChangesAsync(cancellationToken);
-
-            await _domainEventDispatcher.DispatchDomainEvents(_context);
-
-            return result;
-        }
-    }
+    public sealed class WorkoutProgramsUnitOfWork(WorkoutProgramsDbContext context, IDomainEventDispatcher domainEventDispatcher) : UnitOfWork<WorkoutProgramsDbContext>(context, domainEventDispatcher), IWorkoutProgramsUnitOfWork;
 }

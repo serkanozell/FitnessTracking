@@ -1,6 +1,4 @@
-﻿using BuildingBlocks.Application.Results;
-
-namespace WorkoutPrograms.Application.Errors
+﻿namespace WorkoutPrograms.Application.Errors
 {
     public static class WorkoutProgramErrors
     {

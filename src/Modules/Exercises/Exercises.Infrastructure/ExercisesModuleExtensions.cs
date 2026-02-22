@@ -16,15 +16,11 @@ namespace Exercises.Infrastructure
         {
             var connectionString = configuration.GetConnectionString("FitnessDbConnection");
 
-            services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-
             services.AddDbContext<ExercisesDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseSqlServer(connectionString);
             });
-
-            services.AddScoped<IDomainEventDispatcher, ExercisesDomainEventDispatcher>();
 
             // Repositories
             services.AddScoped<IExerciseRepository, ExerciseRepository>();

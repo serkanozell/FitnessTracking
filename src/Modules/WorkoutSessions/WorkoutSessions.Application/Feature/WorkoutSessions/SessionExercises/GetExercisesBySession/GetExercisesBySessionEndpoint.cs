@@ -1,5 +1,4 @@
 using BuildingBlocks.Web;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using WorkoutSessions.Application.Dtos;

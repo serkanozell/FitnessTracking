@@ -62,15 +62,15 @@ namespace WorkoutPrograms.Infrastructure.Configurations
                          .IsRequired();
 
                     // Audit
-                    builder.Property(x => x.CreatedDate)
+                    split.Property(x => x.CreatedDate)
                         .IsRequired();
 
-                    builder.Property(x => x.UpdatedDate);
+                    split.Property(x => x.UpdatedDate);
 
-                    builder.Property(x => x.CreatedBy)
+                    split.Property(x => x.CreatedBy)
                         .HasMaxLength(100);
 
-                    builder.Property(x => x.UpdatedBy)
+                    split.Property(x => x.UpdatedBy)
                         .HasMaxLength(100);
 
                     // WorkoutProgramExercises under each split
@@ -101,15 +101,15 @@ namespace WorkoutPrograms.Infrastructure.Configurations
                               .IsRequired();
 
                             // Audit
-                            builder.Property(x => x.CreatedDate)
+                            pe.Property(x => x.CreatedDate)
                                 .IsRequired();
 
-                            builder.Property(x => x.UpdatedDate);
+                            pe.Property(x => x.UpdatedDate);
 
-                            builder.Property(x => x.CreatedBy)
+                            pe.Property(x => x.CreatedBy)
                                 .HasMaxLength(100);
 
-                            builder.Property(x => x.UpdatedBy)
+                            pe.Property(x => x.UpdatedBy)
                                 .HasMaxLength(100);
                         });
                 });

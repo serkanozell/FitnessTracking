@@ -1,5 +1,4 @@
-﻿using WorkoutSessions.Application.Errors;
-using WorkoutSessions.Domain.Repositories;
+﻿using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.DeleteWorkoutSession
 {

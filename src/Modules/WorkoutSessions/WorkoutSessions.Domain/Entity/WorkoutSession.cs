@@ -54,7 +54,7 @@
 
         public void ActivateEntry(Guid sessionExerciseId)
         {
-            if (!IsActive && IsDeleted)
+            if (!IsActive || IsDeleted)
             {
                 throw new InvalidOperationException($"The WorkoutSession ({Id}) is not active.");
             }

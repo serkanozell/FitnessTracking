@@ -1,13 +1,13 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace WorkoutSessions.Infrastructure.Persistance
+namespace BuildingBlocks.Infrastructure.Persistence
 {
-    public sealed class WorkoutSessionsDomainEventDispatcher(IMediator mediator) : IDomainEventDispatcher
+    public sealed class DomainEventDispatcher(IMediator mediator) : IDomainEventDispatcher
     {
         public async Task DispatchDomainEvents(DbContext? context)
         {
-            if (context == null) return;
+            if (context is null) return;
 
             var aggregates = context.ChangeTracker.Entries<IAggregate>()
                                                   .Where(a => a.Entity.DomainEvents.Any())

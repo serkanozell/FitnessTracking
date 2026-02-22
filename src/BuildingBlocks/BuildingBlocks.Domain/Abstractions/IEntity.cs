@@ -1,6 +1,6 @@
 ﻿public interface IEntity<T> : IEntity
 {
-    public T Id { get; set; }
+    public T Id { get; }
 }
 
 public interface IEntity

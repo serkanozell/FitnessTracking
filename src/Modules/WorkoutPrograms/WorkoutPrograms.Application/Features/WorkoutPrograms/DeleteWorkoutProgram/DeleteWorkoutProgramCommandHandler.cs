@@ -1,6 +1,4 @@
-﻿using BuildingBlocks.Application.Results;
-using WorkoutPrograms.Application.Errors;
-using WorkoutPrograms.Domain.Repositories;
+﻿using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProgram
 {

@@ -16,15 +16,11 @@ namespace WorkoutPrograms.Infrastructure
         {
             var connectionString = configuration.GetConnectionString("FitnessDbConnection");
 
-            services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-
             services.AddDbContext<WorkoutProgramsDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseSqlServer(connectionString);
             });
-
-            services.AddScoped<IDomainEventDispatcher, WorkoutProgramsDomainEventDispatcher>();
 
             // Repositories
             services.AddScoped<IWorkoutProgramRepository, WorkoutProgramRepository>();
