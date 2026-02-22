@@ -1,5 +1,7 @@
-﻿public sealed class CacheOptions
+﻿namespace BuildingBlocks.Application.Abstractions.Caching
 {
-    // Example: "Caching:DefaultExpirationMinutes" in appsettings.json
-    public int DefaultExpirationMinutes { get; set; } = 10;
+    public sealed class CacheOptions
+    {
+        public int DefaultExpirationMinutes { get; set; } = 10;
+    }
 }

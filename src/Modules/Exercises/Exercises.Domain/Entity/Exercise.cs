@@ -1,4 +1,6 @@
-﻿namespace Exercises.Domain.Entity
+﻿using Exercises.Domain.Events;
+
+namespace Exercises.Domain.Entity
 {
     public class Exercise : AggregateRoot<Guid>
     {
@@ -20,8 +22,7 @@
         {
             var exercise = new Exercise(Guid.NewGuid(), name, muscleGroup, description);
 
-            // Add domain event if needed
-            //exercise.AddDomainEvent(new ExerciseCreatedDomainEvent(exercise.Id, exercise.Name, exercise.MuscleGroup, exercise.Description));
+            exercise.AddDomainEvent(new ExerciseCreatedEvent(exercise.Id));
 
             return exercise;
         }
@@ -31,18 +32,24 @@
             Name = name;
             MuscleGroup = muscleGroup;
             Description = description;
+
+            AddDomainEvent(new ExerciseUpdatedEvent(Id));
         }
 
         public void Activate()
         {
             IsActive = true;
             IsDeleted = false;
+
+            AddDomainEvent(new ExerciseActivatedEvent(Id));
         }
 
         public void Delete()
         {
             IsActive = false;
             IsDeleted = true;
+
+            AddDomainEvent(new ExerciseDeletedEvent(Id));
         }
     }
 }

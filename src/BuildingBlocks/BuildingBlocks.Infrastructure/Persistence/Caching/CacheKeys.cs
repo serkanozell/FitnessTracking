@@ -2,16 +2,20 @@
 {
     public static class CacheKeys
     {
-        public static string Users() => "users:all";
-        public static string UserById(Guid userId) => $"users:{userId}";
-        public static string Roles() => "roles:all";
-        public static string RoleById(Guid roleId) => $"roles:{roleId}";
-        public static string UserAddresses(Guid userId) => $"users:{userId}:addresses";
-        public static string UserAddressById(Guid userId, Guid addressId) => $"users:{userId}:addresses:{addressId}";
-        public static string Products() => "products:all";
-        public static string ProductById(Guid productId) => $"products:{productId}";
-        public static string ProductsByCategoryId(Guid categoryId) => $"products:category:{categoryId}";
-        public static string Categories() => "categories:all";
-        public static string CategoryById(Guid categoryId) => $"categories:{categoryId}";
+        // Exercises
+        public static string Exercises() => "exercises:all";
+        public static string ExerciseById(Guid id) => $"exercises:{id}";
+
+        // Workout Programs
+        public static string WorkoutPrograms() => "workoutprograms:all";
+        public static string WorkoutProgramById(Guid id) => $"workoutprograms:{id}";
+        public static string WorkoutProgramSplits(Guid programId) => $"workoutprograms:{programId}:splits";
+        public static string SplitExercises(Guid programId, Guid splitId) => $"workoutprograms:{programId}:splits:{splitId}:exercises";
+
+        // Workout Sessions
+        public static string WorkoutSessions() => "workoutsessions:all";
+        public static string WorkoutSessionById(Guid id) => $"workoutsessions:{id}";
+        public static string WorkoutSessionsByProgram(Guid programId) => $"workoutsessions:program:{programId}";
+        public static string SessionExercises(Guid sessionId) => $"workoutsessions:{sessionId}:exercises";
     }
 }

@@ -11,7 +11,8 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.DeleteWorkoutSessi
             if (session is null)
                 return WorkoutSessionErrors.NotFound(request.Id);
 
-            await _workoutSessionRepository.DeleteAsync(request.Id, cancellationToken);
+            session.Delete();
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

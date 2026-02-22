@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Domain.Exceptions;
+using WorkoutPrograms.Domain.Events;
 
 namespace WorkoutPrograms.Domain.Entity
 {
@@ -23,7 +24,8 @@ namespace WorkoutPrograms.Domain.Entity
         {
             var workoutProgram = new WorkoutProgram(Guid.NewGuid(), name, startDate, endDate);
 
-            //workoutProgram.AddDomainEvent(new WorkoutProgramCreatedDomainEvent(workoutProgram.Id));
+            workoutProgram.AddDomainEvent(new WorkoutProgramCreatedEvent(workoutProgram.Id));
+
             return workoutProgram;
         }
 
@@ -32,12 +34,24 @@ namespace WorkoutPrograms.Domain.Entity
             Name = name;
             StartDate = startDate;
             EndDate = endDate;
+
+            AddDomainEvent(new WorkoutProgramUpdatedEvent(Id));
         }
 
         public void Activate()
         {
             IsActive = true;
             IsDeleted = false;
+
+            AddDomainEvent(new WorkoutProgramActivatedEvent(Id));
+        }
+
+        public void Delete()
+        {
+            IsActive = false;
+            IsDeleted = true;
+
+            AddDomainEvent(new WorkoutProgramDeletedEvent(Id));
         }
 
         public WorkoutProgramSplit AddSplit(string name, int order)
@@ -50,6 +64,9 @@ namespace WorkoutPrograms.Domain.Entity
 
             var split = new WorkoutProgramSplit(Guid.NewGuid(), Id, name, order);
             Splits.Add(split);
+
+            AddDomainEvent(new WorkoutProgramSplitChangedEvent(Id));
+
             return split;
         }
 
@@ -63,6 +80,8 @@ namespace WorkoutPrograms.Domain.Entity
                         ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
 
             split.Activate();
+
+            AddDomainEvent(new WorkoutProgramSplitChangedEvent(Id));
         }
 
         public void ActivateSplitExercise(Guid splitId, Guid workoutSplitExerciseId)
@@ -80,6 +99,8 @@ namespace WorkoutPrograms.Domain.Entity
             }
 
             split.ActivateExercise(workoutSplitExerciseId);
+
+            AddDomainEvent(new SplitExerciseChangedEvent(Id, splitId));
         }
 
         public void UpdateSplit(Guid splitId, string name, int order)
@@ -89,6 +110,8 @@ namespace WorkoutPrograms.Domain.Entity
                             "Split", splitId, "WorkoutProgram", Id);
 
             split.Update(name, order);
+
+            AddDomainEvent(new WorkoutProgramSplitChangedEvent(Id));
         }
 
         public void RemoveSplit(Guid splitId)
@@ -100,12 +123,46 @@ namespace WorkoutPrograms.Domain.Entity
             }
 
             Splits.Remove(split);
+
+            AddDomainEvent(new WorkoutProgramSplitChangedEvent(Id));
         }
 
         public bool ContainsExercise(Guid exerciseId)
         {
             return Splits.SelectMany(s => s.Exercises)
                          .Any(x => x.ExerciseId == exerciseId);
+        }
+
+        public WorkoutSplitExercise AddExerciseToSplit(Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps)
+        {
+            var split = Splits.SingleOrDefault(x => x.Id == splitId)
+                        ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
+
+            var exercise = split.AddExercise(exerciseId, sets, minimumReps, maximumReps);
+
+            AddDomainEvent(new SplitExerciseChangedEvent(Id, splitId));
+
+            return exercise;
+        }
+
+        public void UpdateExerciseInSplit(Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps)
+        {
+            var split = Splits.SingleOrDefault(x => x.Id == splitId)
+                        ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
+
+            split.UpdateExercise(exerciseId, sets, minimumReps, maximumReps);
+
+            AddDomainEvent(new SplitExerciseChangedEvent(Id, splitId));
+        }
+
+        public void RemoveExerciseFromSplit(Guid splitId, Guid exerciseId)
+        {
+            var split = Splits.SingleOrDefault(x => x.Id == splitId)
+                        ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
+
+            split.RemoveExercise(exerciseId);
+
+            AddDomainEvent(new SplitExerciseChangedEvent(Id, splitId));
         }
     }
 }

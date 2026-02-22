@@ -11,7 +11,8 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProg
             if (program is null)
                 return WorkoutProgramErrors.NotFound(request.Id);
 
-            await _workoutProgramRepository.DeleteAsync(request.Id, cancellationToken);
+            program.Delete();
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Domain.Exceptions;
+using WorkoutSessions.Domain.Events;
 
 namespace WorkoutSessions.Domain.Entity
 {
@@ -22,8 +23,7 @@ namespace WorkoutSessions.Domain.Entity
         {
             var workoutSession = new WorkoutSession(Guid.NewGuid(), workoutProgramId, dateTime);
 
-
-            //workoutSession.AddDomainEvent(new WorkoutSessionCreatedDomainEvent(workoutSession.Id, workoutProgramId, dateTime));
+            workoutSession.AddDomainEvent(new WorkoutSessionCreatedEvent(workoutSession.Id, workoutProgramId));
 
             return workoutSession;
         }
@@ -32,11 +32,20 @@ namespace WorkoutSessions.Domain.Entity
         {
             IsActive = true;
             IsDeleted = false;
+
+            AddDomainEvent(new WorkoutSessionActivatedEvent(Id));
+        }
+
+        public void Delete()
+        {
+            IsActive = false;
+            IsDeleted = true;
+
+            AddDomainEvent(new WorkoutSessionDeletedEvent(Id, WorkoutProgramId));
         }
 
         public SessionExercise AddEntry(Guid exerciseId, int setNumber, decimal weight, int reps)
         {
-            // Aynı Exercise + SetNumber tekrar eklenmesin
             if (SessionExercises.Any(x => x.ExerciseId == exerciseId && x.SetNumber == setNumber))
             {
                 throw new BusinessRuleViolationException(
@@ -51,6 +60,8 @@ namespace WorkoutSessions.Domain.Entity
 
             SessionExercises.Add(sessionExercise);
 
+            AddDomainEvent(new SessionExerciseChangedEvent(Id));
+
             return sessionExercise;
         }
 
@@ -64,11 +75,15 @@ namespace WorkoutSessions.Domain.Entity
             var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new DomainNotFoundException("SessionExercise", sessionExerciseId, "WorkoutSession", Id);
 
             entry.Activate();
+
+            AddDomainEvent(new SessionExerciseChangedEvent(Id));
         }
 
         public void UpdateDate(DateTime date)
         {
             Date = date;
+
+            AddDomainEvent(new WorkoutSessionUpdatedEvent(Id, WorkoutProgramId));
         }
 
         public void UpdateEntry(Guid sessionExerciseId, int setNumber, decimal weight, int reps)
@@ -76,6 +91,8 @@ namespace WorkoutSessions.Domain.Entity
             var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new DomainNotFoundException("SessionExercise", sessionExerciseId, "WorkoutSession", Id);
 
             entry.Update(setNumber, weight, reps);
+
+            AddDomainEvent(new SessionExerciseChangedEvent(Id));
         }
 
         public void RemoveEntry(Guid sessionExerciseId)
@@ -87,19 +104,9 @@ namespace WorkoutSessions.Domain.Entity
             }
 
             SessionExercises.Remove(entry);
+
+            AddDomainEvent(new SessionExerciseChangedEvent(Id));
         }
-
-        // İsteğe bağlı: ExerciseId + SetNumber ile güncelle/sil convenience metotları
-
-        //public void UpdateEntry(Guid exerciseId, int setNumber, decimal weight, int reps)
-        //{
-        //    var entry = WorkoutExercises.FirstOrDefault(x =>
-        //                     x.ExerciseId == exerciseId && x.SetNumber == setNumber)
-        //                ?? throw new KeyNotFoundException(
-        //                    $"WorkoutExercise with ExerciseId ({exerciseId}) and SetNumber ({setNumber}) not found in session {Id}.");
-
-        //    entry.Update(setNumber, weight, reps);
-        //}
 
         public void RemoveEntry(Guid exerciseId, int setNumber)
         {
@@ -112,6 +119,8 @@ namespace WorkoutSessions.Domain.Entity
             }
 
             SessionExercises.Remove(entry);
+
+            AddDomainEvent(new SessionExerciseChangedEvent(Id));
         }
     }
 }

@@ -9,9 +9,13 @@ namespace BuildingBlocks.Infrastructure.Persistence
     {
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            await domainEventDispatcher.DispatchDomainEvents(context);
+            var domainEvents = domainEventDispatcher.CollectDomainEvents(context);
 
-            return await context.SaveChangesAsync(cancellationToken);
+            var result = await context.SaveChangesAsync(cancellationToken);
+
+            await domainEventDispatcher.DispatchDomainEvents(domainEvents);
+
+            return result;
         }
     }
 }

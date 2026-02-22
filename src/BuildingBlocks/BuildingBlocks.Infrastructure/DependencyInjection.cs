@@ -48,8 +48,8 @@ namespace BuildingBlocks.Infrastructure
                 options.Configuration = configuration.GetConnectionString("Redis") ?? configuration["Redis:ConnectionString"];
             });
 
-            services.AddScoped<ICacheService, RedisCacheService>();
-            services.AddScoped<ICacheAsideService, CacheAsideService>();
+            services.AddSingleton<ICacheService, RedisCacheService>();
+            services.AddSingleton<ICacheAsideService, CacheAsideService>();
 
             return services;
         }

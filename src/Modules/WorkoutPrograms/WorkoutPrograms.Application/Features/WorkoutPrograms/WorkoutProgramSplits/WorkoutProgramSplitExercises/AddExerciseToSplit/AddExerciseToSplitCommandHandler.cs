@@ -16,10 +16,11 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             if (programSplit is null)
                 return WorkoutProgramErrors.SplitNotFound(request.WorkoutProgramId, request.WorkoutProgramSplitId);
 
-            var splitExercise = programSplit.AddExercise(request.ExerciseId,
-                                                    request.Sets,
-                                                    request.MinimumReps,
-                                                    request.MaximumReps);
+            var splitExercise = workoutProgram.AddExerciseToSplit(request.WorkoutProgramSplitId,
+                                                                  request.ExerciseId,
+                                                                  request.Sets,
+                                                                  request.MinimumReps,
+                                                                  request.MaximumReps);
 
             await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

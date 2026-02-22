@@ -21,7 +21,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             if (splitExercise is null)
                 return WorkoutProgramErrors.ExerciseNotFoundInSplit(request.WorkoutProgramSplitId, request.WorkoutProgramExerciseId);
 
-            programSplit.UpdateExercise(request.WorkoutProgramExerciseId, request.Sets, request.MinimumReps, request.MaximumReps);
+            workoutProgram.UpdateExerciseInSplit(request.WorkoutProgramSplitId, request.WorkoutProgramExerciseId, request.Sets, request.MinimumReps, request.MaximumReps);
 
             await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

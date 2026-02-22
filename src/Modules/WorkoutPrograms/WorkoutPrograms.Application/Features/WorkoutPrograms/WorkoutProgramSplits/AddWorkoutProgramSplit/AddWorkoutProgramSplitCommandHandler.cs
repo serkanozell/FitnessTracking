@@ -6,7 +6,6 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public async Task<Result<Guid>> Handle(AddWorkoutProgramSplitCommand request, CancellationToken cancellationToken)
         {
-            // Aggregate root'u, split ve exercises ile birlikte yükler
             var workoutProgram = await _workoutProgramRepository.GetByIdAsync(request.WorkoutProgramId, cancellationToken);
 
             if (workoutProgram is null)
@@ -15,7 +14,6 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             if (workoutProgram.Splits.Any(s => s.Name == request.Name))
                 return WorkoutProgramErrors.SplitDuplicateName(request.Name);
 
-            // Davranışı aggregate üzerinden yapar
             var split = workoutProgram.AddSplit(request.Name, request.Order);
 
             await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
