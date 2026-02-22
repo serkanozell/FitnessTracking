@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

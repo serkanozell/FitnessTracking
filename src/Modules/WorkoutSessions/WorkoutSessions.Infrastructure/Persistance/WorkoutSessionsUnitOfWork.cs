@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Infrastructure.Persistence;
 using WorkoutSessions.Domain.Repositories;
 

@@ -1,6 +1,5 @@
-﻿using BuildingBlocks.Application.Behaviors;
+﻿using System.Reflection;
 using BuildingBlocks.Web;
-using FluentValidation;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,23 +8,15 @@ namespace Exercises.Api
 {
     public sealed class ExercisesModule : IModule
     {
+        public Assembly ApplicationAssembly => typeof(Application.AssemblyReference).Assembly;
+
         public void Register(IServiceCollection services, IConfiguration configuration)
         {
-            var assembly = typeof(Application.AssemblyReference).Assembly;
-
-            services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssembly(assembly);
-                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-                cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
-                cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
-            });
-
-            services.AddValidatorsFromAssembly(assembly);
         }
+
         public void MapEndpoints(IEndpointRouteBuilder app)
         {
-            app.MapEndpointsFromAssembly(typeof(Application.AssemblyReference).Assembly);
+            app.MapEndpointsFromAssembly(ApplicationAssembly);
         }
     }
 }

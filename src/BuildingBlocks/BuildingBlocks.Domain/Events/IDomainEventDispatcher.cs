@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-public interface IDomainEventDispatcher
+namespace BuildingBlocks.Domain.Events
 {
-    Task DispatchDomainEvents(DbContext context);
+    public interface IDomainEventDispatcher
+    {
+        Task DispatchDomainEvents(DbContext context);
+    }
 }

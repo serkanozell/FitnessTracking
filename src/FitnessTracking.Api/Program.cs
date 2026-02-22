@@ -1,7 +1,10 @@
+using BuildingBlocks.Application.Behaviors;
+using BuildingBlocks.Infrastructure;
 using BuildingBlocks.Infrastructure.Services;
 using BuildingBlocks.Web;
 using Exercises.Api;
 using Exercises.Infrastructure;
+using FluentValidation;
 using Serilog;
 using WorkoutPrograms.Api;
 using WorkoutPrograms.Infrastructure;
@@ -20,7 +23,7 @@ builder.Host.UseSerilog();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddBuildingBlocksInfrastructure();
+builder.Services.AddBuildingBlocksInfrastructure(builder.Configuration);
 
 builder.Services.AddExercisesInfrastructure(builder.Configuration)
                 .WorkoutProgramsInfrastructure(builder.Configuration)
@@ -32,11 +35,25 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
 // Modülleri yükle
 IModule[] modules =
-{
+[
     new ExercisesModule(),
     new WorkoutProgramsModule(),
     new WorkoutSessionsModule()
-};
+];
+
+// MediatR: handler'lar + validator'lar modül assembly'lerinden, behavior'lar tek sefer
+var moduleAssemblies = modules.Select(m => m.ApplicationAssembly).ToArray();
+
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblies(moduleAssemblies);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+    cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
+});
+
+foreach (var assembly in moduleAssemblies)
+    builder.Services.AddValidatorsFromAssembly(assembly);
 
 foreach (var module in modules)
 {

@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Abstractions.Caching;
+using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Infrastructure.Persistence;
 using BuildingBlocks.Infrastructure.Persistence.Caching;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
@@ -7,47 +8,50 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-public static class DependencyInjection
+namespace BuildingBlocks.Infrastructure
 {
-    public static IServiceCollection AddBuildingBlocksInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static class DependencyInjection
     {
-        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        public static IServiceCollection AddBuildingBlocksInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+            services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
-        AddEmail(services, configuration);
-        AddRedisCaching(services, configuration);
+            AddEmail(services, configuration);
+            AddRedisCaching(services, configuration);
 
-        return services;
-    }
+            return services;
+        }
 
-    public static IServiceCollection AddEmail(
+        public static IServiceCollection AddEmail(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            services.Configure<EmailOptions>(
+                configuration.GetSection("EmailOptions"));
+
+            services.AddScoped<IEmailSender, SmtpEmailSender>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddRedisCaching(
         this IServiceCollection services,
         IConfiguration configuration)
-    {
-        services.Configure<EmailOptions>(
-            configuration.GetSection("EmailOptions"));
-
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
-
-        return services;
-    }
-
-    public static IServiceCollection AddRedisCaching(
-    this IServiceCollection services,
-    IConfiguration configuration)
-    {
-        services.Configure<RedisOptions>(configuration.GetSection("Redis"));
-
-        services.Configure<CacheOptions>(configuration.GetSection("Caching"));
-
-        services.AddStackExchangeRedisCache(options =>
         {
-            options.Configuration = configuration.GetConnectionString("Redis") ?? configuration["Redis:ConnectionString"];
-        });
+            services.Configure<RedisOptions>(configuration.GetSection("Redis"));
 
-        services.AddScoped<ICacheService, RedisCacheService>();
-        services.AddScoped<ICacheAsideService, CacheAsideService>();
+            services.Configure<CacheOptions>(configuration.GetSection("Caching"));
 
-        return services;
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("Redis") ?? configuration["Redis:ConnectionString"];
+            });
+
+            services.AddScoped<ICacheService, RedisCacheService>();
+            services.AddScoped<ICacheAsideService, CacheAsideService>();
+
+            return services;
+        }
     }
 }
