@@ -1,4 +1,6 @@
-﻿namespace WorkoutPrograms.Domain.Entity
+﻿using BuildingBlocks.Domain.Exceptions;
+
+namespace WorkoutPrograms.Domain.Entity
 {
     public class WorkoutProgramSplit : Entity<Guid>
     {
@@ -38,7 +40,7 @@
         {
             if (Exercises.Any(x => x.ExerciseId == exerciseId))
             {
-                throw new InvalidOperationException(
+                throw new BusinessRuleViolationException(
                     $"Exercise ({exerciseId}) is already part of split {Id}.");
             }
 
@@ -58,14 +60,14 @@
 
         public void UpdateExercise(Guid workoutSplitExerciseId, int sets, int minimumReps, int maximumReps)
         {
-            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId) ?? throw new KeyNotFoundException($"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
+            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId) ?? throw new DomainNotFoundException("WorkoutSplitExercise", workoutSplitExerciseId, "Split", Id);
 
             item.Update(sets, minimumReps, maximumReps);
         }
 
         public void ActivateExercise(Guid workoutSplitExerciseId)
         {
-            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId) ?? throw new KeyNotFoundException($"WorkoutSplitExercise ({workoutSplitExerciseId}) not found in split {Id}.");
+            var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId) ?? throw new DomainNotFoundException("WorkoutSplitExercise", workoutSplitExerciseId, "Split", Id);
 
             item.Activate();
         }

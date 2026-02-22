@@ -1,5 +1,8 @@
-﻿public abstract class DomainException : Exception
+﻿namespace BuildingBlocks.Domain.Exceptions
 {
-    protected DomainException(string message)
-        : base(message) { }
+    public abstract class DomainException : Exception
+    {
+        protected DomainException(string message)
+            : base(message) { }
+    }
 }

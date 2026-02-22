@@ -4,6 +4,7 @@ using BuildingBlocks.Infrastructure.Services;
 using BuildingBlocks.Web;
 using Exercises.Api;
 using Exercises.Infrastructure;
+using FitnessTracking.Api.ExceptionHandling;
 using FluentValidation;
 using Serilog;
 using WorkoutPrograms.Api;
@@ -60,6 +61,9 @@ foreach (var module in modules)
     module.Register(builder.Services, builder.Configuration);
 }
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("BlazorClient", policy =>
@@ -72,20 +76,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ileride ayrý yapý kurulacak
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        context.Response.ContentType = "application/problem+json";
-        await context.Response.WriteAsJsonAsync(new
-        {
-            Title = "An error occurred",
-            Status = 500
-        });
-    });
-});
+app.UseExceptionHandler();
 
 // Endpointleri map et
 foreach (var module in modules)

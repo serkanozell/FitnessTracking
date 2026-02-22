@@ -1,4 +1,6 @@
-﻿namespace WorkoutSessions.Domain.Entity
+﻿using BuildingBlocks.Domain.Exceptions;
+
+namespace WorkoutSessions.Domain.Entity
 {
     public class WorkoutSession : AggregateRoot<Guid>
     {
@@ -37,7 +39,7 @@
             // Aynı Exercise + SetNumber tekrar eklenmesin
             if (SessionExercises.Any(x => x.ExerciseId == exerciseId && x.SetNumber == setNumber))
             {
-                throw new InvalidOperationException(
+                throw new BusinessRuleViolationException(
                     $"Set {setNumber} for exercise ({exerciseId}) already exists in session {Id}.");
             }
 
@@ -56,10 +58,10 @@
         {
             if (!IsActive || IsDeleted)
             {
-                throw new InvalidOperationException($"The WorkoutSession ({Id}) is not active.");
+                throw new BusinessRuleViolationException($"The WorkoutSession ({Id}) is not active.");
             }
 
-            var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new KeyNotFoundException($"SessionExercise ({sessionExerciseId}) not found in session {Id}.");
+            var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new DomainNotFoundException("SessionExercise", sessionExerciseId, "WorkoutSession", Id);
 
             entry.Activate();
         }
@@ -71,7 +73,7 @@
 
         public void UpdateEntry(Guid sessionExerciseId, int setNumber, decimal weight, int reps)
         {
-            var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new KeyNotFoundException($"SessionExercise ({sessionExerciseId}) not found in session {Id}.");
+            var entry = SessionExercises.FirstOrDefault(x => x.Id == sessionExerciseId) ?? throw new DomainNotFoundException("SessionExercise", sessionExerciseId, "WorkoutSession", Id);
 
             entry.Update(setNumber, weight, reps);
         }

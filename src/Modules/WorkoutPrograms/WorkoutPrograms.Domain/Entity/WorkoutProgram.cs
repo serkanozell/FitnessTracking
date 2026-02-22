@@ -1,4 +1,6 @@
-﻿namespace WorkoutPrograms.Domain.Entity
+﻿using BuildingBlocks.Domain.Exceptions;
+
+namespace WorkoutPrograms.Domain.Entity
 {
     public class WorkoutProgram : AggregateRoot<Guid>
     {
@@ -42,7 +44,7 @@
         {
             if (Splits.Any(x => x.Name == name))
             {
-                throw new InvalidOperationException(
+                throw new BusinessRuleViolationException(
                     $"Split with name ({name}) already exists in workout program {Id}.");
             }
 
@@ -55,10 +57,10 @@
         {
             if (!IsActive || IsDeleted)
             {
-                throw new InvalidOperationException($"Workout program ({Id}) is not active.");
+                throw new BusinessRuleViolationException($"Workout program ({Id}) is not active.");
             }
             var split = Splits.SingleOrDefault(x => x.Id == splitId)
-                        ?? throw new KeyNotFoundException($"Split ({splitId}) not found in program {Id}.");
+                        ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
 
             split.Activate();
         }
@@ -67,14 +69,14 @@
         {
             if (!IsActive || IsDeleted)
             {
-                throw new InvalidOperationException($"Workout program ({Id}) is not active.");
+                throw new BusinessRuleViolationException($"Workout program ({Id}) is not active.");
             }
 
-            var split = Splits.SingleOrDefault(x => x.Id == splitId) ?? throw new KeyNotFoundException($"Split ({splitId}) not found in program {Id}.");
+            var split = Splits.SingleOrDefault(x => x.Id == splitId) ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
 
             if (!split.IsActive || split.IsDeleted)
             {
-                throw new InvalidOperationException($"Split ({splitId}) is not active in program {Id}.");
+                throw new BusinessRuleViolationException($"Split ({splitId}) is not active in program {Id}.");
             }
 
             split.ActivateExercise(workoutSplitExerciseId);
@@ -83,8 +85,8 @@
         public void UpdateSplit(Guid splitId, string name, int order)
         {
             var split = Splits.SingleOrDefault(x => x.Id == splitId)
-                        ?? throw new KeyNotFoundException(
-                            $"Split ({splitId}) not found in program {Id}.");
+                        ?? throw new DomainNotFoundException(
+                            "Split", splitId, "WorkoutProgram", Id);
 
             split.Update(name, order);
         }
