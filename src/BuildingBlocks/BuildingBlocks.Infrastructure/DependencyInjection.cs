@@ -1,12 +1,14 @@
 ﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Abstractions.Caching;
 using BuildingBlocks.Domain.Events;
+using BuildingBlocks.Infrastructure.Email;
 using BuildingBlocks.Infrastructure.Persistence;
 using BuildingBlocks.Infrastructure.Persistence.Caching;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace BuildingBlocks.Infrastructure
 {
@@ -19,6 +21,7 @@ namespace BuildingBlocks.Infrastructure
 
             AddEmail(services, configuration);
             AddRedisCaching(services, configuration);
+            AddHealthChecks(services, configuration);
 
             return services;
         }
@@ -52,6 +55,29 @@ namespace BuildingBlocks.Infrastructure
             services.AddSingleton<ICacheAsideService, CacheAsideService>();
 
             return services;
+        }
+
+        private static void AddHealthChecks(IServiceCollection services, IConfiguration configuration)
+        {
+            var redisConnection = configuration.GetConnectionString("Redis")
+                                  ?? configuration["Redis:ConnectionString"]
+                                  ?? "localhost:6379";
+
+            var sqlConnection = configuration.GetConnectionString("FitnessDbConnection")
+                                ?? string.Empty;
+
+            services.AddHealthChecks()
+                .AddSqlServer(connectionString: sqlConnection,
+                              name: "sqlserver",
+                              failureStatus: HealthStatus.Unhealthy,
+                              tags: ["db", "sql", "ready"])
+                .AddRedis(redisConnectionString: redisConnection,
+                          name: "redis",
+                          failureStatus: HealthStatus.Degraded,
+                          tags: ["cache", "redis", "ready"])
+                .AddCheck<SmtpHealthCheck>(name: "smtp",
+                                           failureStatus: HealthStatus.Degraded,
+                                           tags: ["email", "smtp"]);
         }
     }
 }

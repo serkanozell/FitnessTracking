@@ -6,6 +6,8 @@ using Exercises.Api;
 using Exercises.Infrastructure;
 using FitnessTracking.Api.ExceptionHandling;
 using FluentValidation;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using WorkoutPrograms.Api;
 using WorkoutPrograms.Infrastructure;
@@ -93,6 +95,23 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Health check endpoints
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
 
 //app.UseAuthorization();
 

@@ -4,6 +4,6 @@ namespace WorkoutPrograms.Domain.Events
 {
     public sealed record SplitExerciseChangedEvent(Guid ProgramId, Guid SplitId) : IDomainEvent
     {
-        public DateTime OccurredOn => DateTime.UtcNow;
+        public DateTime OccurredOn => DateTime.Now;
     }
 }

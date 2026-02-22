@@ -4,6 +4,6 @@ namespace WorkoutPrograms.Domain.Events
 {
     public sealed record WorkoutProgramCreatedEvent(Guid ProgramId) : IDomainEvent
     {
-        public DateTime OccurredOn => DateTime.UtcNow;
+        public DateTime OccurredOn => DateTime.Now;
     }
 }
