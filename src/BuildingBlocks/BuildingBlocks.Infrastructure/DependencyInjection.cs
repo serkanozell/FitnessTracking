@@ -5,10 +5,14 @@ using BuildingBlocks.Infrastructure.Email;
 using BuildingBlocks.Infrastructure.Persistence;
 using BuildingBlocks.Infrastructure.Persistence.Caching;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
+using BuildingBlocks.Infrastructure.Resilience;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 namespace BuildingBlocks.Infrastructure
 {
@@ -22,6 +26,7 @@ namespace BuildingBlocks.Infrastructure
             AddEmail(services, configuration);
             AddRedisCaching(services, configuration);
             AddHealthChecks(services, configuration);
+            AddResilience(services);
 
             return services;
         }
@@ -78,6 +83,53 @@ namespace BuildingBlocks.Infrastructure
                 .AddCheck<SmtpHealthCheck>(name: "smtp",
                                            failureStatus: HealthStatus.Degraded,
                                            tags: ["email", "smtp"]);
+        }
+
+        private static void AddResilience(IServiceCollection services)
+        {
+            services.AddResiliencePipeline(ResiliencePipelines.Smtp, builder =>
+            {
+                builder
+                    .AddRetry(new RetryStrategyOptions
+                    {
+                        MaxRetryAttempts = 3,
+                        Delay = TimeSpan.FromSeconds(1),
+                        BackoffType = DelayBackoffType.Exponential,
+                        ShouldHandle = new PredicateBuilder().Handle<Exception>(),
+                        UseJitter = true
+                    })
+                    .AddCircuitBreaker(new CircuitBreakerStrategyOptions
+                    {
+                        FailureRatio = 0.5,
+                        SamplingDuration = TimeSpan.FromSeconds(60),
+                        MinimumThroughput = 5,
+                        BreakDuration = TimeSpan.FromSeconds(30),
+                        ShouldHandle = new PredicateBuilder().Handle<Exception>()
+                    })
+                    .AddTimeout(TimeSpan.FromSeconds(30));
+            });
+
+            services.AddResiliencePipeline(ResiliencePipelines.Redis, builder =>
+            {
+                builder
+                    .AddRetry(new RetryStrategyOptions
+                    {
+                        MaxRetryAttempts = 2,
+                        Delay = TimeSpan.FromMilliseconds(200),
+                        BackoffType = DelayBackoffType.Exponential,
+                        ShouldHandle = new PredicateBuilder().Handle<Exception>(),
+                        UseJitter = true
+                    })
+                    .AddCircuitBreaker(new CircuitBreakerStrategyOptions
+                    {
+                        FailureRatio = 0.5,
+                        SamplingDuration = TimeSpan.FromSeconds(30),
+                        MinimumThroughput = 3,
+                        BreakDuration = TimeSpan.FromSeconds(15),
+                        ShouldHandle = new PredicateBuilder().Handle<Exception>()
+                    })
+                    .AddTimeout(TimeSpan.FromSeconds(5));
+            });
         }
     }
 }

@@ -7,14 +7,18 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp =>
-    new HttpClient
-    {
-        BaseAddress = new Uri("https://localhost:7211/") // FitnessTracking.Api URL
-    });
+var apiBaseAddress = new Uri("https://localhost:7211/"); // FitnessTracking.Api URL
 
-builder.Services.AddScoped<IExercisesService, ExercisesService>();
-builder.Services.AddScoped<IWorkoutProgramsService, WorkoutProgramsService>();
-builder.Services.AddScoped<IWorkoutSessionsService, WorkoutSessionsService>();
+builder.Services.AddHttpClient<IExercisesService, ExercisesService>(client =>
+    client.BaseAddress = apiBaseAddress)
+    .AddStandardResilienceHandler();
+
+builder.Services.AddHttpClient<IWorkoutProgramsService, WorkoutProgramsService>(client =>
+    client.BaseAddress = apiBaseAddress)
+    .AddStandardResilienceHandler();
+
+builder.Services.AddHttpClient<IWorkoutSessionsService, WorkoutSessionsService>(client =>
+    client.BaseAddress = apiBaseAddress)
+    .AddStandardResilienceHandler();
 
 await builder.Build().RunAsync();
