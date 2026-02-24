@@ -1,10 +1,10 @@
-﻿using Exercises.Application.Services;
+﻿using Exercises.Contracts;
 using WorkoutPrograms.Application.Dtos;
 using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.GetSplitExercises
 {
-    internal sealed class GetSplitExercisesQueryHandler(IWorkoutProgramRepository _workoutProgramRepository, IExerciseReadService _exerciseReadService) : IQueryHandler<GetSplitExercisesQuery, Result<IReadOnlyList<WorkoutProgramSplitExerciseDto>>>
+    internal sealed class GetSplitExercisesQueryHandler(IWorkoutProgramRepository _workoutProgramRepository, IExerciseModule _exerciseModule) : IQueryHandler<GetSplitExercisesQuery, Result<IReadOnlyList<WorkoutProgramSplitExerciseDto>>>
     {
         public async Task<Result<IReadOnlyList<WorkoutProgramSplitExerciseDto>>> Handle(GetSplitExercisesQuery request, CancellationToken cancellationToken)
         {
@@ -19,14 +19,14 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                 return WorkoutProgramErrors.SplitNotFound(request.WorkoutProgramId, request.WorkoutSplitId);
 
             // Tüm exercise’ları bir kere çek
-            var allExercises = await _exerciseReadService.GetNamesByIdsAsync(cancellationToken);
+            var allExercises = await _exerciseModule.GetExercisesAsync(cancellationToken);
 
             return split.Exercises
                 .Select(e => new WorkoutProgramSplitExerciseDto
                 {
                     WorkoutProgramExerciseId = e.Id,
                     ExerciseId = e.ExerciseId,
-                    ExerciseName = allExercises.TryGetValue(e.ExerciseId, out var name) ? name : string.Empty,
+                    ExerciseName = allExercises.FirstOrDefault(ex => ex.Id == e.ExerciseId)?.Name ?? string.Empty,
                     Sets = e.Sets,
                     MinimumReps = e.MinimumReps,
                     MaximumReps = e.MaximumReps

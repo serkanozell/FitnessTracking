@@ -1,9 +1,9 @@
-﻿using WorkoutPrograms.Application.Services;
+﻿using WorkoutPrograms.Contracts;
 using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.AddExerciseToSession
 {
-    internal sealed class AddExerciseToSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutProgramReadService _workoutProgramReadService,
+    internal sealed class AddExerciseToSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutProgramModule _workoutProgramModule,
         IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<AddExerciseToSessionCommand, Result<Guid>>
     {
         public async Task<Result<Guid>> Handle(AddExerciseToSessionCommand request, CancellationToken cancellationToken)
@@ -13,21 +13,17 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.A
             if (workoutSession is null)
                 return WorkoutSessionErrors.NotFound(request.WorkoutSessionId);
 
-            var workoutProgram = await _workoutProgramReadService.GetWorkoutProgramByIdAsync(workoutSession.WorkoutProgramId, cancellationToken);
-
-            if (workoutProgram is null)
+            if (!await _workoutProgramModule.ExistsAsync(workoutSession.WorkoutProgramId, cancellationToken))
                 return WorkoutSessionErrors.ProgramNotFound(workoutSession.WorkoutProgramId);
 
-            if (!workoutProgram.ContainsExercise(request.ExerciseId))
-                return WorkoutSessionErrors.ExerciseNotInProgram(request.ExerciseId, workoutProgram.Id);
+            var programExercise = await _workoutProgramModule.GetProgramExerciseAsync(workoutSession.WorkoutProgramId, request.ExerciseId, cancellationToken);
 
-            var programExercise = workoutProgram.Splits
-                                                .SelectMany(s => s.Exercises)
-                                                .FirstOrDefault(x => x.ExerciseId == request.ExerciseId);
+            if (programExercise is null)
+                return WorkoutSessionErrors.ExerciseNotInProgram(request.ExerciseId, workoutSession.WorkoutProgramId);
 
             var currentSetCount = workoutSession.SessionExercises.Count(x => x.ExerciseId == request.ExerciseId);
 
-            if (currentSetCount >= programExercise!.Sets)
+            if (currentSetCount >= programExercise.Sets)
                 return WorkoutSessionErrors.SetLimitExceeded(request.ExerciseId, programExercise.Sets, currentSetCount);
 
             if (request.SetNumber > programExercise.Sets)

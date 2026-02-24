@@ -1,4 +1,4 @@
-﻿using Exercises.Application.Services;
+﻿using Exercises.Contracts;
 using Exercises.Domain.Repositories;
 using Exercises.Infrastructure.Persistance;
 using Exercises.Infrastructure.Repositories;
@@ -27,7 +27,7 @@ namespace Exercises.Infrastructure
             services.AddScoped<IExercisesUnitOfWork, ExercisesUnitOfWork>();
 
             // Modüller arası servisler
-            services.AddScoped<IExerciseReadService, ExerciseReadService>();
+            services.AddScoped<IExerciseModule, ExerciseModuleService>();
 
             return services;
         }

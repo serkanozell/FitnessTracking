@@ -17,12 +17,14 @@
   <Folder Name="/src/Modules/Exercises/">
     <Project Path="src/Modules/Exercises/Exercises.Api/Exercises.Api.csproj" Id="4fcaf71c-8ea9-4066-8e7e-abc3cd3015dc" />
     <Project Path="src/Modules/Exercises/Exercises.Application/Exercises.Application.csproj" Id="0f2a11f8-ea4c-487c-a717-ae5512ddc141" />
+    <Project Path="src/Modules/Exercises/Exercises.Contracts/Exercises.Contracts.csproj" />
     <Project Path="src/Modules/Exercises/Exercises.Domain/Exercises.Domain.csproj" Id="e41c4981-50e3-4141-952f-2570d03ce65f" />
     <Project Path="src/Modules/Exercises/Exercises.Infrastructure/Exercises.Infrastructure.csproj" Id="afa571e3-8775-4699-a05e-d9fc4c6cb1de" />
   </Folder>
   <Folder Name="/src/Modules/WorkoutPrograms/">
     <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Api/WorkoutPrograms.Api.csproj" Id="5c9158b3-acaf-4086-acc1-49d9dae262c9" />
     <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Application/WorkoutPrograms.Application.csproj" Id="4ee012ce-60b3-40a8-bca3-de22b8c1eb0b" />
+    <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Contracts/WorkoutPrograms.Contracts.csproj" />
     <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Domain/WorkoutPrograms.Domain.csproj" Id="96ba4f1e-b99e-4822-9c37-9a4b9f120c16" />
     <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Infrastructure/WorkoutPrograms.Infrastructure.csproj" Id="5192dad9-7273-4673-8f15-54a4994e1485" />
   </Folder>

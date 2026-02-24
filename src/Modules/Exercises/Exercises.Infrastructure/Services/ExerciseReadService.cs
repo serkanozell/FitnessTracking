@@ -1,17 +1,19 @@
-﻿using Exercises.Application.Services;
+﻿using Exercises.Contracts;
 using Exercises.Domain.Repositories;
 
 namespace Exercises.Infrastructure.Services
 {
-    internal sealed class ExerciseReadService(IExerciseRepository _exerciseRepository) : IExerciseReadService
+    internal sealed class ExerciseModuleService(IExerciseRepository _exerciseRepository) : IExerciseModule
     {
-        public async Task<IReadOnlyDictionary<Guid, string>> GetNamesByIdsAsync(CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<ExerciseInfo>> GetExercisesAsync(CancellationToken cancellationToken = default)
         {
-            // Repo'da filtreli method olmadığı için şimdilik GetAllAsync + filter.
-            // (İyileştirme: IExerciseRepository'ye GetByIdsAsync eklemek.)
             var result = await _exerciseRepository.GetAllAsync(cancellationToken);
 
-            return result.ToDictionary(x => x.Id, x => x.Name);
+            return result.Select(x => new ExerciseInfo(x.Id,
+                                                       x.Name,
+                                                       x.MuscleGroup,
+                                                       x.Description))
+                         .ToList();
         }
     }
 }
