@@ -8,7 +8,8 @@ namespace WorkoutSessions.Domain.Entity
         public Guid WorkoutProgramId { get; private set; }
         public DateTime Date { get; private set; }
 
-        public List<SessionExercise> SessionExercises { get; private set; } = new();
+        private readonly List<SessionExercise> _sessionExercises = new();
+        public IReadOnlyList<SessionExercise> SessionExercises => _sessionExercises.AsReadOnly();
 
         private WorkoutSession() { }
 
@@ -58,7 +59,7 @@ namespace WorkoutSessions.Domain.Entity
                                                       weight,
                                                       reps);
 
-            SessionExercises.Add(sessionExercise);
+            _sessionExercises.Add(sessionExercise);
 
             AddDomainEvent(new SessionExerciseChangedEvent(Id));
 
@@ -103,7 +104,7 @@ namespace WorkoutSessions.Domain.Entity
                 return;
             }
 
-            SessionExercises.Remove(entry);
+            _sessionExercises.Remove(entry);
 
             AddDomainEvent(new SessionExerciseChangedEvent(Id));
         }
@@ -118,7 +119,7 @@ namespace WorkoutSessions.Domain.Entity
                 return;
             }
 
-            SessionExercises.Remove(entry);
+            _sessionExercises.Remove(entry);
 
             AddDomainEvent(new SessionExerciseChangedEvent(Id));
         }

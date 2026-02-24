@@ -12,7 +12,8 @@ namespace WorkoutPrograms.Domain.Entity
         // İstersen: Haftadaki sırası (1 = Pazartesi, vs) veya sadece program içi sıralama
         public int Order { get; private set; }
 
-        public List<WorkoutSplitExercise> Exercises { get; private set; } = new();
+        private readonly List<WorkoutSplitExercise> _exercises = new();
+        public IReadOnlyList<WorkoutSplitExercise> Exercises => _exercises.AsReadOnly();
 
         private WorkoutProgramSplit() { }
 
@@ -53,7 +54,7 @@ namespace WorkoutPrograms.Domain.Entity
                 Id // SplitId
             );
 
-            Exercises.Add(workoutSplitExercise);
+            _exercises.Add(workoutSplitExercise);
 
             return workoutSplitExercise;
         }
@@ -80,7 +81,7 @@ namespace WorkoutPrograms.Domain.Entity
                 return;
             }
 
-            Exercises.Remove(item);
+            _exercises.Remove(item);
         }
 
         public bool ContainsExercise(Guid exerciseId)

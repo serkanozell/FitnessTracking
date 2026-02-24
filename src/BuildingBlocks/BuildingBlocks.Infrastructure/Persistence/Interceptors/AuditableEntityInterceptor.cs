@@ -38,8 +38,8 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors
                 {
                     entry.Entity.CreatedBy = entry.Entity.CreatedBy ?? actor;
                     entry.Entity.CreatedDate = entry.Entity.CreatedDate ?? now;
-                    entry.Entity.IsActive = true;
-                    entry.Entity.IsDeleted = false;
+                    entry.Property(nameof(IEntity.IsActive)).CurrentValue = true;
+                    entry.Property(nameof(IEntity.IsDeleted)).CurrentValue = false;
                 }
 
                 else if (entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
@@ -51,8 +51,8 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors
                 else if (entry.State == EntityState.Deleted)
                 {
                     entry.State = EntityState.Modified;
-                    entry.Entity.IsActive = false;
-                    entry.Entity.IsDeleted = true;
+                    entry.Property(nameof(IEntity.IsActive)).CurrentValue = false;
+                    entry.Property(nameof(IEntity.IsDeleted)).CurrentValue = true;
                     entry.Entity.UpdatedBy = actor;
                     entry.Entity.UpdatedDate = now;
                 }

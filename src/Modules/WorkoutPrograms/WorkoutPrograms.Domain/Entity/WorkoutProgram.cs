@@ -8,7 +8,8 @@ namespace WorkoutPrograms.Domain.Entity
         public string Name { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
-        public List<WorkoutProgramSplit> Splits { get; private set; } = new();
+        private readonly List<WorkoutProgramSplit> _splits = new();
+        public IReadOnlyList<WorkoutProgramSplit> Splits => _splits.AsReadOnly();
 
         private WorkoutProgram() { }
 
@@ -63,7 +64,7 @@ namespace WorkoutPrograms.Domain.Entity
             }
 
             var split = new WorkoutProgramSplit(Guid.NewGuid(), Id, name, order);
-            Splits.Add(split);
+            _splits.Add(split);
 
             AddDomainEvent(new WorkoutProgramSplitChangedEvent(Id));
 
@@ -122,7 +123,7 @@ namespace WorkoutPrograms.Domain.Entity
                 return;
             }
 
-            Splits.Remove(split);
+            _splits.Remove(split);
 
             AddDomainEvent(new WorkoutProgramSplitChangedEvent(Id));
         }
