@@ -9,7 +9,7 @@ public sealed class UpdateExerciseEndpoint : IEndpoint
     {
         endpoints.MapPut("/api/exercises/{id:guid}", async (Guid id, UpdateExerciseRequest request, ISender sender, CancellationToken ct) =>
         {
-            var command = new UpdateExerciseCommand(id, request.Name, request.MuscleGroup, request.Description);
+            var command = new UpdateExerciseCommand(id, request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description);
             var result = await sender.Send(command, ct);
 
             return result.IsSuccess
@@ -26,5 +26,5 @@ public sealed class UpdateExerciseEndpoint : IEndpoint
         .ProducesProblem(StatusCodes.Status400BadRequest);
     }
 
-    public sealed record UpdateExerciseRequest(string Name, string MuscleGroup, string Description);
+    public sealed record UpdateExerciseRequest(string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description);
 }

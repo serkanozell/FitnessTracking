@@ -1,4 +1,5 @@
 ﻿using Exercises.Domain.Entity;
+using Exercises.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,9 +17,14 @@ namespace Exercises.Infrastructure.Configurations
                    .IsRequired()
                    .HasMaxLength(150);
 
-            builder.Property(x => x.MuscleGroup)
+            builder.Property(x => x.PrimaryMuscleGroup)
                    .IsRequired()
-                   .HasMaxLength(100);
+                   .HasConversion<string>()
+                   .HasMaxLength(50);
+
+            builder.Property(x => x.SecondaryMuscleGroup)
+                   .HasConversion<string>()
+                   .HasMaxLength(50);
 
             builder.Property(x => x.Description)
                    .HasMaxLength(500);

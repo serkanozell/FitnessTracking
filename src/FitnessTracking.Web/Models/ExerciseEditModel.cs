@@ -9,8 +9,9 @@ namespace FitnessTracking.Web.Models
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(200)]
-        public string MuscleGroup { get; set; } = string.Empty;
+        public string PrimaryMuscleGroup { get; set; } = string.Empty;
+
+        public string? SecondaryMuscleGroup { get; set; }
 
         [StringLength(2000)]
         public string Description { get; set; } = string.Empty;

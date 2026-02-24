@@ -45,7 +45,8 @@ public sealed class ExercisesService : IExercisesService
         var payload = new
         {
             model.Name,
-            model.MuscleGroup,
+            model.PrimaryMuscleGroup,
+            model.SecondaryMuscleGroup,
             model.Description
         };
 
@@ -65,7 +66,8 @@ public sealed class ExercisesService : IExercisesService
         var payload = new
         {
             model.Name,
-            model.MuscleGroup,
+            model.PrimaryMuscleGroup,
+            model.SecondaryMuscleGroup,
             model.Description
         };
 

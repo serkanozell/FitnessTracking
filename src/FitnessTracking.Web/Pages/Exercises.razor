@@ -30,9 +30,26 @@ else
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Muscle Group</label>
-                <InputText class="form-control" @bind-Value="editModel.MuscleGroup" />
-                <ValidationMessage For="@(() => editModel.MuscleGroup)" />
+                <label class="form-label">Primary Muscle Group</label>
+                <InputSelect class="form-control" @bind-Value="editModel.PrimaryMuscleGroup">
+                    <option value="">-- Select --</option>
+                    @foreach (var mg in muscleGroups)
+                    {
+                        <option value="@mg">@mg</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => editModel.PrimaryMuscleGroup)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Secondary Muscle Group</label>
+                <InputSelect class="form-control" @bind-Value="editModel.SecondaryMuscleGroup">
+                    <option value="">-- None --</option>
+                    @foreach (var mg in muscleGroups)
+                    {
+                        <option value="@mg">@mg</option>
+                    }
+                </InputSelect>
             </div>
 
             <div class="mb-3">
@@ -58,7 +75,8 @@ else
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Muscle Group</th>
+                    <th>Primary Muscle Group</th>
+                    <th>Secondary Muscle Group</th>
                     <th>Description</th>
                     <th style="width: 150px;"></th>
                 </tr>
@@ -68,7 +86,8 @@ else
                 {
                     <tr>
                         <td>@exercise.Name</td>
-                        <td>@exercise.MuscleGroup</td>
+                        <td>@exercise.PrimaryMuscleGroup</td>
+                        <td>@(exercise.SecondaryMuscleGroup ?? "—")</td>
                         <td>@exercise.Description</td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary me-1"
@@ -94,6 +113,13 @@ else
     private bool isLoading;
     private bool showForm;
     private string? errorMessage;
+
+    private static readonly string[] muscleGroups =
+    [
+        "Chest", "Back", "Shoulders", "Biceps", "Triceps",
+        "Quadriceps", "Hamstrings", "Glutes", "Calves",
+        "Core", "Forearms", "Traps", "Lats", "FullBody"
+    ];
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,7 +161,8 @@ else
         editModel = new ExerciseEditModel
         {
             Name = dto.Name,
-            MuscleGroup = dto.MuscleGroup,
+            PrimaryMuscleGroup = dto.PrimaryMuscleGroup,
+            SecondaryMuscleGroup = dto.SecondaryMuscleGroup,
             Description = dto.Description
         };
         showForm = true;

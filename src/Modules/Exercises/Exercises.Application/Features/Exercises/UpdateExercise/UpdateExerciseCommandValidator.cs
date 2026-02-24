@@ -1,4 +1,6 @@
-﻿namespace Exercises.Application.Features.Exercises.UpdateExercise
+﻿using Exercises.Domain.Enums;
+
+namespace Exercises.Application.Features.Exercises.UpdateExercise
 {
     public sealed class UpdateExerciseCommandValidator : AbstractValidator<UpdateExerciseCommand>
     {
@@ -11,9 +13,14 @@
                 .NotEmpty()
                 .MaximumLength(100);
 
-            RuleFor(x => x.MuscleGroup)
+            RuleFor(x => x.PrimaryMuscleGroup)
                 .NotEmpty()
-                .MaximumLength(100);
+                .Must(v => Enum.TryParse<MuscleGroup>(v, ignoreCase: true, out _))
+                .WithMessage("Invalid primary muscle group.");
+
+            RuleFor(x => x.SecondaryMuscleGroup)
+                .Must(v => v is null || Enum.TryParse<MuscleGroup>(v, ignoreCase: true, out _))
+                .WithMessage("Invalid secondary muscle group.");
 
             RuleFor(x => x.Description)
                 .MaximumLength(1000);

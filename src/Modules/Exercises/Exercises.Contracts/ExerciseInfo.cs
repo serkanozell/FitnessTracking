@@ -1,3 +1,3 @@
 namespace Exercises.Contracts;
 
-public record ExerciseInfo(Guid Id, string Name, string MuscleGroup, string Description);
+public record ExerciseInfo(Guid Id, string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description);

@@ -11,7 +11,8 @@ namespace Exercises.Infrastructure.Services
 
             return result.Select(x => new ExerciseInfo(x.Id,
                                                        x.Name,
-                                                       x.MuscleGroup,
+                                                       x.PrimaryMuscleGroup.ToString(),
+                                                       x.SecondaryMuscleGroup?.ToString(),
                                                        x.Description))
                          .ToList();
         }

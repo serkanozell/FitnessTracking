@@ -13,7 +13,8 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
                 {
                     Id = e.Id,
                     Name = e.Name,
-                    MuscleGroup = e.MuscleGroup,
+                    PrimaryMuscleGroup = e.PrimaryMuscleGroup.ToString(),
+                    SecondaryMuscleGroup = e.SecondaryMuscleGroup?.ToString(),
                     Description = e.Description
                 })
                 .ToList();

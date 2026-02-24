@@ -15,7 +15,8 @@ internal sealed class GetExerciseByIdQueryHandler(IExerciseRepository _exerciseR
         {
             Id = exercise.Id,
             Name = exercise.Name,
-            MuscleGroup = exercise.MuscleGroup,
+            PrimaryMuscleGroup = exercise.PrimaryMuscleGroup.ToString(),
+            SecondaryMuscleGroup = exercise.SecondaryMuscleGroup?.ToString(),
             Description = exercise.Description
         };
     }

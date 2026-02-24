@@ -1,5 +1,6 @@
 ﻿using Exercises.Application.Errors;
 using Exercises.Domain.Entity;
+using Exercises.Domain.Enums;
 
 namespace Exercises.Application.Features.Exercises.CreateExercise
 {
@@ -12,8 +13,14 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
             if (existingExercise is not null)
                 return ExerciseErrors.DuplicateName(request.Name);
 
+            var primaryMuscleGroup = Enum.Parse<MuscleGroup>(request.PrimaryMuscleGroup, ignoreCase: true);
+            var secondaryMuscleGroup = request.SecondaryMuscleGroup is not null
+                ? Enum.Parse<MuscleGroup>(request.SecondaryMuscleGroup, ignoreCase: true)
+                : (MuscleGroup?)null;
+
             var exercise = Exercise.Create(request.Name,
-                                           request.MuscleGroup,
+                                           primaryMuscleGroup,
+                                           secondaryMuscleGroup,
                                            request.Description);
 
             await _exerciseRepository.AddAsync(exercise, cancellationToken);
