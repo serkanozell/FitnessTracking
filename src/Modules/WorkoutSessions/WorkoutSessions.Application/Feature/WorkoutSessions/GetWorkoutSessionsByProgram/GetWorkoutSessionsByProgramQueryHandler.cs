@@ -1,16 +1,21 @@
-﻿using WorkoutSessions.Application.Dtos;
+﻿using BuildingBlocks.Application.Pagination;
+using WorkoutSessions.Application.Dtos;
+using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessionsByProgram
 {
-    internal sealed class GetWorkoutSessionsByProgramQueryHandler(IWorkoutSessionRepository _workoutSessionRepository) : IQueryHandler<GetWorkoutSessionsByProgramQuery, Result<IReadOnlyList<WorkoutSessionDto>>>
+    internal sealed class GetWorkoutSessionsByProgramQueryHandler(IWorkoutSessionRepository _workoutSessionRepository) : IQueryHandler<GetWorkoutSessionsByProgramQuery, Result<PagedResult<WorkoutSessionDto>>>
     {
-        public async Task<Result<IReadOnlyList<WorkoutSessionDto>>> Handle(
+        public async Task<Result<PagedResult<WorkoutSessionDto>>> Handle(
             GetWorkoutSessionsByProgramQuery request,
             CancellationToken cancellationToken)
         {
-            var sessions = await _workoutSessionRepository.GetListByProgramAsync(request.WorkoutProgramId, cancellationToken);
+            var (items, totalCount) = await _workoutSessionRepository.GetPagedByProgramAsync(
+                request.WorkoutProgramId, request.PageNumber, request.PageSize, cancellationToken);
 
-            return sessions.Select(WorkoutSessionDto.FromEntity).ToList();
+            var dtos = items.Select(WorkoutSessionDto.FromEntity).ToList();
+
+            return PagedResult<WorkoutSessionDto>.Create(dtos, request.PageNumber, request.PageSize, totalCount);
         }
     }
 }

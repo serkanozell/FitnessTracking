@@ -1,5 +1,6 @@
 ﻿using WorkoutSessions.Application.Dtos;
 using WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessionById;
+using WorkoutSessions.Domain.Repositories;
 
 internal sealed class GetWorkoutSessionByIdQueryHandler(IWorkoutSessionRepository _workoutSessionRepository) : IQueryHandler<GetWorkoutSessionByIdQuery, Result<WorkoutSessionDetailDto>>
 {

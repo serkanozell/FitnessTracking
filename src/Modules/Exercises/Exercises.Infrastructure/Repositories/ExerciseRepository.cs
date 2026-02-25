@@ -1,4 +1,5 @@
-﻿using Exercises.Domain.Entity;
+﻿using BuildingBlocks.Infrastructure.Pagination;
+using Exercises.Domain.Entity;
 using Exercises.Domain.Repositories;
 using Exercises.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,9 @@ namespace Exercises.Infrastructure.Repositories
         public async Task<Exercise?> GetByNameAsync(string name, CancellationToken cancellationToken = default) => await _dbContext.Exercises.FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
 
         public async Task<IReadOnlyList<Exercise>> GetAllAsync(CancellationToken cancellationToken = default) => await _dbContext.Exercises.AsNoTracking().ToListAsync(cancellationToken);
+
+        public async Task<(IReadOnlyList<Exercise> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default) =>
+            await _dbContext.Exercises.AsNoTracking().OrderBy(x => x.Name).ToPagedListAsync(pageNumber, pageSize, cancellationToken);
 
         public async Task AddAsync(Exercise exercise, CancellationToken cancellationToken = default) => await _dbContext.Exercises.AddAsync(exercise, cancellationToken);
 

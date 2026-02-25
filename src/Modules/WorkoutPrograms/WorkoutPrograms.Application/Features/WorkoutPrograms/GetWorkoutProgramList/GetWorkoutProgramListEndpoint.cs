@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Web;
+﻿using BuildingBlocks.Application.Pagination;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using WorkoutPrograms.Application.Dtos;
@@ -9,9 +10,13 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgram
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/workoutprograms", async (ISender sender, CancellationToken ct) =>
+            endpoints.MapGet("/api/workoutprograms", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
             {
-                var result = await sender.Send(new GetWorkoutProgramListQuery(), ct);
+                var query = new GetWorkoutProgramListQuery(
+                    pageNumber ?? PaginationDefaults.DefaultPageNumber,
+                    pageSize ?? PaginationDefaults.DefaultPageSize);
+
+                var result = await sender.Send(query, ct);
 
                 return result.IsSuccess
                     ? Results.Ok(result.Data)
@@ -19,9 +24,9 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgram
             })
             .WithName("GetWorkoutProgramList")
             .WithTags("WorkoutPrograms")
-            .WithSummary("Gets all workout programs")
-            .WithDescription("Returns a list of all workout programs")
-            .Produces<IReadOnlyList<WorkoutProgramDto>>(StatusCodes.Status200OK);
+            .WithSummary("Gets workout programs with pagination")
+            .WithDescription("Returns a paginated list of workout programs. Use pageNumber and pageSize query parameters.")
+            .Produces<PagedResult<WorkoutProgramDto>>(StatusCodes.Status200OK);
         }
     }
 }

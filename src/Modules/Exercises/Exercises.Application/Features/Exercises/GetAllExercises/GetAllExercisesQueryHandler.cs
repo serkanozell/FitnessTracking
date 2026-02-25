@@ -1,14 +1,15 @@
-﻿using Exercises.Application.Dtos;
+﻿using BuildingBlocks.Application.Pagination;
+using Exercises.Application.Dtos;
 
 namespace Exercises.Application.Features.Exercises.GetAllExercises
 {
-    internal sealed class GetAllExercisesQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetAllExercisesQuery, Result<IReadOnlyList<ExerciseDto>>>
+    internal sealed class GetAllExercisesQueryHandler(IExerciseRepository _exerciseRepository) : IQueryHandler<GetAllExercisesQuery, Result<PagedResult<ExerciseDto>>>
     {
-        public async Task<Result<IReadOnlyList<ExerciseDto>>> Handle(GetAllExercisesQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<ExerciseDto>>> Handle(GetAllExercisesQuery request, CancellationToken cancellationToken)
         {
-            var exercises = await _exerciseRepository.GetAllAsync(cancellationToken);
+            var (items, totalCount) = await _exerciseRepository.GetPagedAsync(request.PageNumber, request.PageSize, cancellationToken);
 
-            var dtos = exercises
+            var dtos = items
                 .Select(e => new ExerciseDto
                 {
                     Id = e.Id,
@@ -25,7 +26,7 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
                 })
                 .ToList();
 
-            return Result<IReadOnlyList<ExerciseDto>>.Success(dtos);
+            return PagedResult<ExerciseDto>.Create(dtos, request.PageNumber, request.PageSize, totalCount);
         }
     }
 }

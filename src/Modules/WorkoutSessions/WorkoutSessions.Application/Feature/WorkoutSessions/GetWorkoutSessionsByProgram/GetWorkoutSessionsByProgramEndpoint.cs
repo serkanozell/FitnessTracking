@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Pagination;
 using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -11,10 +12,17 @@ public sealed class GetWorkoutSessionsByProgramEndpoint : IEndpoint
     {
         endpoints.MapGet("/api/workoutsessions/byprogram/{programId:guid}", async (
             Guid programId,
+            int? pageNumber,
+            int? pageSize,
             ISender sender,
             CancellationToken ct) =>
         {
-            var result = await sender.Send(new GetWorkoutSessionsByProgramQuery(programId), ct);
+            var query = new GetWorkoutSessionsByProgramQuery(
+                programId,
+                pageNumber ?? PaginationDefaults.DefaultPageNumber,
+                pageSize ?? PaginationDefaults.DefaultPageSize);
+
+            var result = await sender.Send(query, ct);
 
             return result.IsSuccess
                 ? Results.Ok(result.Data)
@@ -22,8 +30,8 @@ public sealed class GetWorkoutSessionsByProgramEndpoint : IEndpoint
         })
         .WithName("GetWorkoutSessionsByProgram")
         .WithTags("WorkoutSessions")
-        .WithSummary("Gets all sessions for a workout program")
-        .WithDescription("Returns a list of workout sessions filtered by program ID")
-        .Produces<IReadOnlyList<WorkoutSessionDto>>(StatusCodes.Status200OK);
+        .WithSummary("Gets sessions for a workout program with pagination")
+        .WithDescription("Returns a paginated list of workout sessions filtered by program ID")
+        .Produces<PagedResult<WorkoutSessionDto>>(StatusCodes.Status200OK);
     }
 }

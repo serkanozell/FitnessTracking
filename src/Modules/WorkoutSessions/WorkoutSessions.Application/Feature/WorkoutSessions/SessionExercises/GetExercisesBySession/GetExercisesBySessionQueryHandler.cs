@@ -1,4 +1,5 @@
 ﻿using WorkoutSessions.Application.Dtos;
+using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.SessionExercises.GetExercisesBySession
 {
