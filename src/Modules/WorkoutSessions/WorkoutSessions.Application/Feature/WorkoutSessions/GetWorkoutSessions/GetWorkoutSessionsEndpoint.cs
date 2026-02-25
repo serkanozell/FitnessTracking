@@ -10,9 +10,10 @@ public sealed class GetWorkoutSessionsEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/workoutsessions", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
+        endpoints.MapGet("/api/workout-sessions", async (Guid? programId, int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
         {
             var query = new GetWorkoutSessionsQuery(
+                programId,
                 pageNumber ?? PaginationDefaults.DefaultPageNumber,
                 pageSize ?? PaginationDefaults.DefaultPageSize);
 
@@ -25,7 +26,7 @@ public sealed class GetWorkoutSessionsEndpoint : IEndpoint
         .WithName("GetWorkoutSessions")
         .WithTags("WorkoutSessions")
         .WithSummary("Gets workout sessions with pagination")
-        .WithDescription("Returns a paginated list of workout sessions. Use pageNumber and pageSize query parameters.")
+        .WithDescription("Returns a paginated list of workout sessions. Optionally filter by programId.")
         .Produces<PagedResult<WorkoutSessionDto>>(StatusCodes.Status200OK);
     }
 }

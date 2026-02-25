@@ -8,9 +8,9 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPut("/api/workoutprograms/{id:guid}", async (Guid id, UpdateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPut("/api/workout-programs/{programId:guid}", async (Guid programId, UpdateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
             {
-                var command = new UpdateWorkoutProgramCommand(id, request.Name, request.StartDate, request.EndDate);
+                var command = new UpdateWorkoutProgramCommand(programId, request.Name, request.StartDate, request.EndDate);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess

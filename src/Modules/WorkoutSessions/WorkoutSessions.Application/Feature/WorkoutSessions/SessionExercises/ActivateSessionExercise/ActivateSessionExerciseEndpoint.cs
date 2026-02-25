@@ -8,13 +8,13 @@ public sealed class ActivateSessionExerciseEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPut("/api/workoutsessions/{sessionId:guid}/exercises/{exerciseId:guid}/activate", async (
+        endpoints.MapPut("/api/workout-sessions/{sessionId:guid}/exercises/{sessionExerciseId:guid}/activate", async (
             Guid sessionId,
-            Guid exerciseId,
+            Guid sessionExerciseId,
             ISender sender,
             CancellationToken ct) =>
         {
-            var result = await sender.Send(new ActivateSessionExerciseCommand(sessionId, exerciseId), ct);
+            var result = await sender.Send(new ActivateSessionExerciseCommand(sessionId, sessionExerciseId), ct);
 
             return result.IsSuccess
                 ? Results.Ok(new ActivateExerciseResponse(result.Data))

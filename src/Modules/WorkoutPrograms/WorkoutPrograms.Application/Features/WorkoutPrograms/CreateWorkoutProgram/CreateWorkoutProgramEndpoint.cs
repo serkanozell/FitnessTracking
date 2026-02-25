@@ -8,13 +8,13 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProg
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/api/workoutprograms", async (CreateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/api/workout-programs", async (CreateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
             {
                 var command = new CreateWorkoutProgramCommand(request.Name, request.StartDate, request.EndDate);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess
-                    ? Results.Created($"/api/workoutprograms/{result.Data}", new CreateWorkoutProgramResponse(result.Data))
+                    ? Results.Created($"/api/workout-programs/{result.Data}", new CreateWorkoutProgramResponse(result.Data))
                     : Results.Problem(title: "Create failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
             })
             .WithName("CreateWorkoutProgram")

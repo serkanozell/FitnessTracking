@@ -8,7 +8,9 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessions
     {
         public async Task<Result<PagedResult<WorkoutSessionDto>>> Handle(GetWorkoutSessionsQuery request, CancellationToken cancellationToken)
         {
-            var (items, totalCount) = await _workoutSessionRepository.GetPagedAsync(request.PageNumber, request.PageSize, cancellationToken);
+            var (items, totalCount) = request.ProgramId.HasValue
+                ? await _workoutSessionRepository.GetPagedByProgramAsync(request.ProgramId.Value, request.PageNumber, request.PageSize, cancellationToken)
+                : await _workoutSessionRepository.GetPagedAsync(request.PageNumber, request.PageSize, cancellationToken);
 
             var dtos = items.Select(WorkoutSessionDto.FromEntity).ToList();
 

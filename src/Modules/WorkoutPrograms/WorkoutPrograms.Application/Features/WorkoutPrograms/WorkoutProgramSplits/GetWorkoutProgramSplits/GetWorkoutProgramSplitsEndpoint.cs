@@ -9,7 +9,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/workoutprograms/{programId:guid}/splits", async (Guid programId,
+            endpoints.MapGet("/api/workout-programs/{programId:guid}/splits", async (Guid programId,
                                                                                     ISender sender,
                                                                                     CancellationToken ct) =>
             {

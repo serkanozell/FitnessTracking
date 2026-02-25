@@ -8,9 +8,9 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProg
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapDelete("/api/workoutprograms/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
+            endpoints.MapDelete("/api/workout-programs/{programId:guid}", async (Guid programId, ISender sender, CancellationToken ct) =>
             {
-                var result = await sender.Send(new DeleteWorkoutProgramCommand(id), ct);
+                var result = await sender.Send(new DeleteWorkoutProgramCommand(programId), ct);
 
                 return result.IsSuccess
                     ? Results.NoContent()

@@ -9,7 +9,7 @@ public sealed class GetExercisesBySessionEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/workoutsessions/{sessionId:guid}/exercises", async (
+        endpoints.MapGet("/api/workout-sessions/{sessionId:guid}/exercises", async (
             Guid sessionId,
             ISender sender,
             CancellationToken ct) =>

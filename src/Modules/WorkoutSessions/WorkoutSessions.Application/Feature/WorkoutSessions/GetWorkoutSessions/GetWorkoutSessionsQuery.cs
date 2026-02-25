@@ -4,9 +4,11 @@ using WorkoutSessions.Application.Dtos;
 
 namespace WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessions
 {
-    public sealed record GetWorkoutSessionsQuery(int PageNumber = PaginationDefaults.DefaultPageNumber, int PageSize = PaginationDefaults.DefaultPageSize) : IQuery<Result<PagedResult<WorkoutSessionDto>>>, ICacheableQuery
+    public sealed record GetWorkoutSessionsQuery(Guid? ProgramId = null, int PageNumber = PaginationDefaults.DefaultPageNumber, int PageSize = PaginationDefaults.DefaultPageSize) : IQuery<Result<PagedResult<WorkoutSessionDto>>>, ICacheableQuery
     {
-        public string CacheKey => $"workoutsessions:all:p{PageNumber}:s{PageSize}";
+        public string CacheKey => ProgramId.HasValue
+            ? $"workoutsessions:program:{ProgramId}:p{PageNumber}:s{PageSize}"
+            : $"workoutsessions:all:p{PageNumber}:s{PageSize}";
         public TimeSpan? Expiration => null;
     }
 }

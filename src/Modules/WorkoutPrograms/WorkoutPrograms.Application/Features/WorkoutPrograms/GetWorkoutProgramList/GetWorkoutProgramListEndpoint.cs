@@ -10,7 +10,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgram
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/workoutprograms", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
+            endpoints.MapGet("/api/workout-programs", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
             {
                 var query = new GetWorkoutProgramListQuery(
                     pageNumber ?? PaginationDefaults.DefaultPageNumber,

@@ -8,16 +8,16 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPut("/api/workoutprograms/{programId:guid}/splits/{splitId:guid}/exercises/{exerciseId:guid}", async (Guid programId,
-                                                                                                                               Guid splitId,
-                                                                                                                               Guid exerciseId,
+            endpoints.MapPut("/api/workout-programs/{programId:guid}/splits/{splitId:guid}/exercises/{splitExerciseId:guid}", async (Guid programId,
+                                                                                                                                Guid splitId,
+                                                                                                                                Guid splitExerciseId,
                                                                                                                                UpdateExerciseRequest request,
                                                                                                                                ISender sender,
                                                                                                                                CancellationToken ct) =>
             {
                 var command = new UpdateSplitExerciseCommand(programId,
-                                                             splitId,
-                                                             exerciseId,
+                                                              splitId,
+                                                              splitExerciseId,
                                                              request.Sets,
                                                              request.MinimumReps,
                                                              request.MaximumReps);

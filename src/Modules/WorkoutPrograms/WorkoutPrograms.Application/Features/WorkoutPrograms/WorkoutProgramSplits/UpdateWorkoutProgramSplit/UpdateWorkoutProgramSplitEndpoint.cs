@@ -8,7 +8,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPut("/api/workoutprograms/{programId:guid}/splits/{splitId:guid}", async (Guid programId,
+            endpoints.MapPut("/api/workout-programs/{programId:guid}/splits/{splitId:guid}", async (Guid programId,
                                                                                                    Guid splitId,
                                                                                                    UpdateSplitRequest request,
                                                                                                    ISender sender,

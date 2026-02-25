@@ -9,9 +9,9 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgram
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/workoutprograms/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
+            endpoints.MapGet("/api/workout-programs/{programId:guid}", async (Guid programId, ISender sender, CancellationToken ct) =>
             {
-                var result = await sender.Send(new GetWorkoutProgramByIdQuery(id), ct);
+                var result = await sender.Send(new GetWorkoutProgramByIdQuery(programId), ct);
 
                 return result.IsSuccess
                     ? Results.Ok(result.Data)

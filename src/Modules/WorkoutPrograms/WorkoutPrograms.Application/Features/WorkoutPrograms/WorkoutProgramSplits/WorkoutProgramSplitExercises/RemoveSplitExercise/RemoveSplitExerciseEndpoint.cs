@@ -8,13 +8,13 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapDelete("/api/workoutprograms/{programId:guid}/splits/{splitId:guid}/exercises/{exerciseId:guid}", async (Guid programId,
-                                                                                                                                  Guid splitId,
-                                                                                                                                  Guid exerciseId,
+            endpoints.MapDelete("/api/workout-programs/{programId:guid}/splits/{splitId:guid}/exercises/{splitExerciseId:guid}", async (Guid programId,
+                                                                                                                                   Guid splitId,
+                                                                                                                                   Guid splitExerciseId,
                                                                                                                                   ISender sender,
                                                                                                                                   CancellationToken ct) =>
             {
-                var result = await sender.Send(new RemoveSplitExerciseCommand(programId, splitId, exerciseId), ct);
+                var result = await sender.Send(new RemoveSplitExerciseCommand(programId, splitId, splitExerciseId), ct);
 
                 return result.IsSuccess
                     ? Results.NoContent()

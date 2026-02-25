@@ -8,7 +8,7 @@ public sealed class AddExerciseToSessionEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/workoutsessions/{sessionId:guid}/exercises", async (
+        endpoints.MapPost("/api/workout-sessions/{sessionId:guid}/exercises", async (
             Guid sessionId,
             AddExerciseRequest request,
             ISender sender,
@@ -24,7 +24,7 @@ public sealed class AddExerciseToSessionEndpoint : IEndpoint
             var result = await sender.Send(command, ct);
 
             return result.IsSuccess
-                ? Results.Created($"/api/workoutsessions/{sessionId}/exercises/{result.Data}", new AddExerciseResponse(result.Data))
+                ? Results.Created($"/api/workout-sessions/{sessionId}/exercises/{result.Data}", new AddExerciseResponse(result.Data))
                 : Results.Problem(title: "Add exercise failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
         })
         .WithName("AddExerciseToSession")

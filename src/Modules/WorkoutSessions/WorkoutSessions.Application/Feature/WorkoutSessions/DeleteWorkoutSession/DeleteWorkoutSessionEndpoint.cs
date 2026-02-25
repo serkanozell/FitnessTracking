@@ -8,9 +8,9 @@ public sealed class DeleteWorkoutSessionEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapDelete("/api/workoutsessions/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
+        endpoints.MapDelete("/api/workout-sessions/{sessionId:guid}", async (Guid sessionId, ISender sender, CancellationToken ct) =>
         {
-            var result = await sender.Send(new DeleteWorkoutSessionCommand(id), ct);
+            var result = await sender.Send(new DeleteWorkoutSessionCommand(sessionId), ct);
 
             return result.IsSuccess
                 ? Results.NoContent()

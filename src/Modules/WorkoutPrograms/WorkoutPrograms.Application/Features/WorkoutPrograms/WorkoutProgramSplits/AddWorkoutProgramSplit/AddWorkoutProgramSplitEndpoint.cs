@@ -8,7 +8,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/api/workoutprograms/{programId:guid}/splits", async (
+            endpoints.MapPost("/api/workout-programs/{programId:guid}/splits", async (
                 Guid programId,
                 AddSplitRequest request,
                 ISender sender,
@@ -17,7 +17,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                 var command = new AddWorkoutProgramSplitCommand(programId, request.Name, request.Order);
                 var result = await sender.Send(command, ct);
 
-                return result.IsSuccess ? Results.Created($"/api/workoutprograms/{programId}/splits/{result.Data}", new AddSplitResponse(result.Data))
+                return result.IsSuccess ? Results.Created($"/api/workout-programs/{programId}/splits/{result.Data}", new AddSplitResponse(result.Data))
                                         : Results.Problem(title: "Add split failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
             })
             .WithName("AddWorkoutProgramSplit")

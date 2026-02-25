@@ -8,13 +8,13 @@ public sealed class ActivateSplitExerciseEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPut("/api/workoutprograms/{programId:guid}/splits/{splitId:guid}/exercises/{exerciseId:guid}/activate", async (Guid programId,
-                                                                                                                                    Guid splitId,
-                                                                                                                                    Guid exerciseId,
+        endpoints.MapPut("/api/workout-programs/{programId:guid}/splits/{splitId:guid}/exercises/{splitExerciseId:guid}/activate", async (Guid programId,
+                                                                                                                                     Guid splitId,
+                                                                                                                                     Guid splitExerciseId,
                                                                                                                                     ISender sender,
                                                                                                                                     CancellationToken ct) =>
         {
-            var result = await sender.Send(new ActivateSplitExerciseCommand(programId, splitId, exerciseId), ct);
+            var result = await sender.Send(new ActivateSplitExerciseCommand(programId, splitId, splitExerciseId), ct);
 
             return result.IsSuccess
                 ? Results.Ok(new ActivateExerciseResponse(result.Data))
