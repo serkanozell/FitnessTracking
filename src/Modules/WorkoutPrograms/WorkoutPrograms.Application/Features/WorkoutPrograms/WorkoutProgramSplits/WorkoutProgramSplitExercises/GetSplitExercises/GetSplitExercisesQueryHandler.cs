@@ -29,7 +29,13 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                     ExerciseName = allExercises.FirstOrDefault(ex => ex.Id == e.ExerciseId)?.Name ?? string.Empty,
                     Sets = e.Sets,
                     MinimumReps = e.MinimumReps,
-                    MaximumReps = e.MaximumReps
+                    MaximumReps = e.MaximumReps,
+                    IsActive = e.IsActive,
+                    IsDeleted = e.IsDeleted,
+                    CreatedDate = e.CreatedDate,
+                    CreatedBy = e.CreatedBy,
+                    UpdatedDate = e.UpdatedDate,
+                    UpdatedBy = e.UpdatedBy
                 })
                 .ToList();
         }

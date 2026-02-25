@@ -7,5 +7,11 @@
         public string PrimaryMuscleGroup { get; init; } = default!;
         public string? SecondaryMuscleGroup { get; init; }
         public string Description { get; init; } = default!;
+        public bool IsActive { get; init; }
+        public bool IsDeleted { get; init; }
+        public DateTime? CreatedDate { get; init; }
+        public string? CreatedBy { get; init; }
+        public DateTime? UpdatedDate { get; init; }
+        public string? UpdatedBy { get; init; }
     }
 }

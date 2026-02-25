@@ -15,7 +15,13 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
                     Name = e.Name,
                     PrimaryMuscleGroup = e.PrimaryMuscleGroup.ToString(),
                     SecondaryMuscleGroup = e.SecondaryMuscleGroup?.ToString(),
-                    Description = e.Description
+                    Description = e.Description,
+                    IsActive = e.IsActive,
+                    IsDeleted = e.IsDeleted,
+                    CreatedDate = e.CreatedDate,
+                    CreatedBy = e.CreatedBy,
+                    UpdatedDate = e.UpdatedDate,
+                    UpdatedBy = e.UpdatedBy
                 })
                 .ToList();
 

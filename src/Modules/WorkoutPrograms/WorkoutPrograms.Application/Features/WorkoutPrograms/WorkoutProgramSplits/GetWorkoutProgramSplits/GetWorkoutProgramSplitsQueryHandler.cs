@@ -18,7 +18,13 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                                              Id = s.Id,
                                              WorkoutProgramId = s.WorkoutProgramId,
                                              Name = s.Name,
-                                             Order = s.Order
+                                             Order = s.Order,
+                                             IsActive = s.IsActive,
+                                             IsDeleted = s.IsDeleted,
+                                             CreatedDate = s.CreatedDate,
+                                             CreatedBy = s.CreatedBy,
+                                             UpdatedDate = s.UpdatedDate,
+                                             UpdatedBy = s.UpdatedBy
                                          })
                                            .OrderBy(x => x.Order)
                                            .ToList();
