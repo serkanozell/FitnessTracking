@@ -1,7 +1,7 @@
-﻿using BuildingBlocks.Infrastructure.Pagination;
+using BuildingBlocks.Infrastructure.Pagination;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Repositories;
-using Exercises.Infrastructure.Persistance;
+using Exercises.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Exercises.Infrastructure.Repositories

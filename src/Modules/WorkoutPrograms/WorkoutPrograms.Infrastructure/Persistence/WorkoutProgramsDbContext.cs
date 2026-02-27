@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using WorkoutPrograms.Domain.Entity;
 
-namespace WorkoutPrograms.Infrastructure.Persistance
+namespace WorkoutPrograms.Infrastructure.Persistence
 {
     public sealed class WorkoutProgramsDbContext : DbContext
     {

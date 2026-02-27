@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WorkoutSessions.Domain.Repositories;
-using WorkoutSessions.Infrastructure.Persistance;
+using WorkoutSessions.Infrastructure.Persistence;
 using WorkoutSessions.Infrastructure.Repositories;
 
 namespace WorkoutSessions.Infrastructure

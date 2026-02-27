@@ -1,5 +1,4 @@
 ﻿using Exercises.Domain.Entity;
-using Exercises.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

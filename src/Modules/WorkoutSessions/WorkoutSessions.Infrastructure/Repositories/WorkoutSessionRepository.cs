@@ -1,8 +1,8 @@
-﻿using BuildingBlocks.Infrastructure.Pagination;
+using BuildingBlocks.Infrastructure.Pagination;
 using Microsoft.EntityFrameworkCore;
 using WorkoutSessions.Domain.Entity;
 using WorkoutSessions.Domain.Repositories;
-using WorkoutSessions.Infrastructure.Persistance;
+using WorkoutSessions.Infrastructure.Persistence;
 
 namespace WorkoutSessions.Infrastructure.Repositories
 {

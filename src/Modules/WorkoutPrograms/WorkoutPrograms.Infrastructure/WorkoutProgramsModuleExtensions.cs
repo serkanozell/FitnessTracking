@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WorkoutPrograms.Contracts;
 using WorkoutPrograms.Domain.Repositories;
-using WorkoutPrograms.Infrastructure.Persistance;
+using WorkoutPrograms.Infrastructure.Persistence;
 using WorkoutPrograms.Infrastructure.Repositories;
 using WorkoutPrograms.Infrastructure.Services;
 

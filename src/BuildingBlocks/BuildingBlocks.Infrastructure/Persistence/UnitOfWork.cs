@@ -9,7 +9,11 @@ namespace BuildingBlocks.Infrastructure.Persistence
     {
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var domainEvents = domainEventDispatcher.CollectDomainEvents(context);
+            var aggregates = context.ChangeTracker.Entries<IAggregate>()
+                                                  .Select(a => a.Entity)
+                                                  .ToList();
+
+            var domainEvents = domainEventDispatcher.CollectDomainEvents(aggregates);
 
             var result = await context.SaveChangesAsync(cancellationToken);
 

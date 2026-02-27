@@ -1,6 +1,6 @@
-﻿using Exercises.Contracts;
+using Exercises.Contracts;
 using Exercises.Domain.Repositories;
-using Exercises.Infrastructure.Persistance;
+using Exercises.Infrastructure.Persistence;
 using Exercises.Infrastructure.Repositories;
 using Exercises.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;

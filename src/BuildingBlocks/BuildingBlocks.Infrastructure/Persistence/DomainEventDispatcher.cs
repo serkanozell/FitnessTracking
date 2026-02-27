@@ -1,22 +1,18 @@
 using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Events;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace BuildingBlocks.Infrastructure.Persistence
 {
     public sealed class DomainEventDispatcher(IMediator mediator) : IDomainEventDispatcher
     {
-        public IReadOnlyList<IDomainEvent> CollectDomainEvents(DbContext context)
+        public IReadOnlyList<IDomainEvent> CollectDomainEvents(IEnumerable<IAggregate> aggregates)
         {
-            var aggregates = context.ChangeTracker.Entries<IAggregate>()
-                                                  .Where(a => a.Entity.DomainEvents.Any())
-                                                  .Select(a => a.Entity)
-                                                  .ToList();
+            var aggregatesWithEvents = aggregates.Where(a => a.DomainEvents.Any()).ToList();
 
-            var domainEvents = aggregates.SelectMany(a => a.DomainEvents).ToList();
+            var domainEvents = aggregatesWithEvents.SelectMany(a => a.DomainEvents).ToList();
 
-            aggregates.ForEach(a => a.ClearDomainEvents());
+            aggregatesWithEvents.ForEach(a => a.ClearDomainEvents());
 
             return domainEvents;
         }

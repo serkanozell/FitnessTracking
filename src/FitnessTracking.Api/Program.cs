@@ -36,7 +36,7 @@ builder.Services.AddExercisesInfrastructure(builder.Configuration)
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
-// Modülleri yükle
+// ModÃ¼lleri yÃ¼kle
 IModule[] modules =
 [
     new ExercisesModule(),
@@ -44,7 +44,7 @@ IModule[] modules =
     new WorkoutSessionsModule()
 ];
 
-// MediatR: handler'lar + validator'lar modül assembly'lerinden, behavior'lar tek sefer
+// MediatR: handler'lar + validator'lar modÃ¼l assembly'lerinden, behavior'lar tek sefer
 var moduleAssemblies = modules.Select(m => m.ApplicationAssembly).ToArray();
 
 builder.Services.AddMediatR(cfg =>
@@ -66,11 +66,13 @@ foreach (var module in modules)
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("BlazorClient", policy =>
     {
-        policy.WithOrigins("https://localhost:7073") // FitnessTracking.Web dev URL’i
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
