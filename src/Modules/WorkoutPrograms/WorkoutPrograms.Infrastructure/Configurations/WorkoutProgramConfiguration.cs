@@ -36,6 +36,9 @@ namespace WorkoutPrograms.Infrastructure.Configurations
             builder.Property(x => x.UpdatedBy)
                 .HasMaxLength(100);
 
+            builder.Property(x => x.RowVersion)
+                .IsRowVersion();
+
             // WorkoutProgramSplits (owned collection)
             builder.OwnsMany(
                 x => x.Splits,

@@ -39,6 +39,9 @@ namespace Exercises.Infrastructure.Configurations
 
             builder.Property(x => x.UpdatedBy)
                 .HasMaxLength(100);
+
+            builder.Property(x => x.RowVersion)
+                .IsRowVersion();
         }
     }
 }

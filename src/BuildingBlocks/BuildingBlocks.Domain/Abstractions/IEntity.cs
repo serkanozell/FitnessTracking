@@ -11,4 +11,5 @@ public interface IEntity
     public string? UpdatedBy { get; set; }
     public bool IsActive { get; }
     public bool IsDeleted { get; }
+    public byte[]? RowVersion { get; set; }
 }

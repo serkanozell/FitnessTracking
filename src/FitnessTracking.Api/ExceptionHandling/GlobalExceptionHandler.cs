@@ -2,6 +2,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracking.Api.ExceptionHandling
 {
@@ -12,6 +13,9 @@ namespace FitnessTracking.Api.ExceptionHandling
             var problemDetails = exception switch
             {
                 ValidationException validationException => CreateValidationProblem(validationException),
+                DbUpdateConcurrencyException => CreateProblem(StatusCodes.Status409Conflict,
+                                                              "Concurrency Conflict",
+                                                              "The record was modified by another user. Please refresh and try again."),
                 BusinessRuleViolationException => CreateProblem(StatusCodes.Status409Conflict,
                                                                 "Business Rule Violation",
                                                                 exception.Message),
