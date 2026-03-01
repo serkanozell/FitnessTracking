@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkoutSessions.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using WorkoutSessions.Infrastructure.Persistence;
 namespace WorkoutSessions.Infrastructure.Migrations
 {
     [DbContext(typeof(WorkoutSessionsDbContext))]
-    partial class WorkoutSessionsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260301195514_Concurrency-Add")]
+    partial class ConcurrencyAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
