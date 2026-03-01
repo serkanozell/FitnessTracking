@@ -38,7 +38,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.EventHandlers
         private async Task InvalidateProgramAsync(Guid programId, CancellationToken cancellationToken)
         {
             await cacheService.RemoveAsync($"workoutprograms:{programId}", cancellationToken);
-            await cacheService.RemoveAsync("workoutprograms:all", cancellationToken);
+            await cacheService.RemoveByPrefixAsync("workoutprograms:all", cancellationToken);
         }
     }
 }

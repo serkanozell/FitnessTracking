@@ -24,7 +24,7 @@ namespace Exercises.Application.Features.Exercises.EventHandlers
         private async Task InvalidateAsync(Guid exerciseId, CancellationToken cancellationToken)
         {
             await cacheService.RemoveAsync($"exercises:{exerciseId}", cancellationToken);
-            await cacheService.RemoveAsync("exercises:all", cancellationToken);
+            await cacheService.RemoveByPrefixAsync("exercises:all", cancellationToken);
         }
     }
 }

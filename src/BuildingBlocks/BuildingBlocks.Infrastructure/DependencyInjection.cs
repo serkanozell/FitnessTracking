@@ -1,11 +1,11 @@
 ﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Abstractions.Caching;
-using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Infrastructure.Email;
-using BuildingBlocks.Infrastructure.Persistence;
+using BuildingBlocks.Infrastructure.Outbox;
 using BuildingBlocks.Infrastructure.Persistence.Caching;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using BuildingBlocks.Infrastructure.Resilience;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +13,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
+using StackExchange.Redis;
 
 namespace BuildingBlocks.Infrastructure
 {
@@ -21,8 +22,9 @@ namespace BuildingBlocks.Infrastructure
         public static IServiceCollection AddBuildingBlocksInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-            services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+            services.AddScoped<ISaveChangesInterceptor, OutboxInterceptor>();
 
+            AddOutbox(services, configuration);
             AddEmail(services, configuration);
             AddRedisCaching(services, configuration);
             AddHealthChecks(services, configuration);
@@ -51,9 +53,13 @@ namespace BuildingBlocks.Infrastructure
 
             services.Configure<CacheOptions>(configuration.GetSection("Caching"));
 
+            var redisConnectionString = configuration.GetConnectionString("Redis") ?? configuration["Redis:ConnectionString"];
+
+            services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString!));
+
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = configuration.GetConnectionString("Redis") ?? configuration["Redis:ConnectionString"];
+                options.Configuration = redisConnectionString;
             });
 
             services.AddSingleton<ICacheService, RedisCacheService>();
@@ -130,6 +136,20 @@ namespace BuildingBlocks.Infrastructure
                     })
                     .AddTimeout(TimeSpan.FromSeconds(5));
             });
+        }
+
+        private static void AddOutbox(IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
+
+            var connectionString = configuration.GetConnectionString("FitnessDbConnection");
+
+            services.AddDbContext<OutboxDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
+
+            services.AddHostedService<OutboxBackgroundService>();
         }
     }
 }

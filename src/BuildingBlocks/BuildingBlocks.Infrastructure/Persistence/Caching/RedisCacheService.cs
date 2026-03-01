@@ -2,9 +2,13 @@
 using BuildingBlocks.Infrastructure.Persistence.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 using System.Text.Json;
 
-internal sealed class RedisCacheService(IDistributedCache _distributedCache, IOptions<RedisOptions> _redisOptions) : ICacheService
+internal sealed class RedisCacheService(
+    IDistributedCache _distributedCache,
+    IConnectionMultiplexer _connectionMultiplexer,
+    IOptions<RedisOptions> _redisOptions) : ICacheService
 {
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
@@ -39,6 +43,21 @@ internal sealed class RedisCacheService(IDistributedCache _distributedCache, IOp
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
         await _distributedCache.RemoveAsync(key, cancellationToken);
+    }
+
+    public async Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default)
+    {
+        var database = _connectionMultiplexer.GetDatabase();
+
+        foreach (var endpoint in _connectionMultiplexer.GetEndPoints())
+        {
+            var server = _connectionMultiplexer.GetServer(endpoint);
+
+            await foreach (var key in server.KeysAsync(pattern: $"{prefixKey}*"))
+            {
+                await database.KeyDeleteAsync(key);
+            }
+        }
     }
 
     public async Task<bool> ExistsAsync(string key, CancellationToken cancellationToken = default)

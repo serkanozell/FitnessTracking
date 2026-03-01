@@ -12,28 +12,28 @@ namespace WorkoutSessions.Application.Feature.WorkoutSessions.EventHandlers
     {
         public async Task Handle(WorkoutSessionCreatedEvent notification, CancellationToken cancellationToken)
         {
-            await cacheService.RemoveAsync("workoutsessions:all", cancellationToken);
-            await cacheService.RemoveAsync($"workoutsessions:program:{notification.ProgramId}", cancellationToken);
+            await cacheService.RemoveByPrefixAsync("workoutsessions:all", cancellationToken);
+            await cacheService.RemoveByPrefixAsync($"workoutsessions:program:{notification.ProgramId}", cancellationToken);
         }
 
         public async Task Handle(WorkoutSessionUpdatedEvent notification, CancellationToken cancellationToken)
         {
             await cacheService.RemoveAsync($"workoutsessions:{notification.SessionId}", cancellationToken);
-            await cacheService.RemoveAsync("workoutsessions:all", cancellationToken);
-            await cacheService.RemoveAsync($"workoutsessions:program:{notification.ProgramId}", cancellationToken);
+            await cacheService.RemoveByPrefixAsync("workoutsessions:all", cancellationToken);
+            await cacheService.RemoveByPrefixAsync($"workoutsessions:program:{notification.ProgramId}", cancellationToken);
         }
 
         public async Task Handle(WorkoutSessionDeletedEvent notification, CancellationToken cancellationToken)
         {
             await cacheService.RemoveAsync($"workoutsessions:{notification.SessionId}", cancellationToken);
-            await cacheService.RemoveAsync("workoutsessions:all", cancellationToken);
-            await cacheService.RemoveAsync($"workoutsessions:program:{notification.ProgramId}", cancellationToken);
+            await cacheService.RemoveByPrefixAsync("workoutsessions:all", cancellationToken);
+            await cacheService.RemoveByPrefixAsync($"workoutsessions:program:{notification.ProgramId}", cancellationToken);
         }
 
         public async Task Handle(WorkoutSessionActivatedEvent notification, CancellationToken cancellationToken)
         {
             await cacheService.RemoveAsync($"workoutsessions:{notification.SessionId}", cancellationToken);
-            await cacheService.RemoveAsync("workoutsessions:all", cancellationToken);
+            await cacheService.RemoveByPrefixAsync("workoutsessions:all", cancellationToken);
         }
 
         public async Task Handle(SessionExerciseChangedEvent notification, CancellationToken cancellationToken)

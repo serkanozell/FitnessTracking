@@ -8,6 +8,8 @@
 
         Task RemoveAsync(string key, CancellationToken cancellationToken = default);
 
+        Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default);
+
         Task<bool> ExistsAsync(string key, CancellationToken cancellationToken = default);
     }
 }
