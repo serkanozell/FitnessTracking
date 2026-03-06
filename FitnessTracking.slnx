@@ -37,12 +37,15 @@
   <Folder Name="/tests/" />
   <Folder Name="/tests/Modules/" />
   <Folder Name="/tests/Modules/Exercises/">
+    <Project Path="tests/Modules/Exercises/Exercises.Application.UnitTests/Exercises.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/Exercises/Exercises.Domain.UnitTests/Exercises.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/WorkoutPrograms/">
+    <Project Path="tests/Modules/WorkoutPrograms/WorkoutPrograms.Application.UnitTests/WorkoutPrograms.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/WorkoutPrograms/WorkoutPrograms.Domain.UnitTests/WorkoutPrograms.Domain.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/WorkoutSessions/">
+    <Project Path="tests/Modules/WorkoutSessions/WorkoutSessions.Application.UnitTests/WorkoutSessions.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/WorkoutSessions/WorkoutSessions.Domain.UnitTests/WorkoutSessions.Domain.UnitTests.csproj" />
   </Folder>
 </Solution>

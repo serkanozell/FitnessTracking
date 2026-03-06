@@ -1,0 +1,46 @@
+using FluentAssertions;
+using NSubstitute;
+using WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProgram;
+using WorkoutPrograms.Domain.Entity;
+using WorkoutPrograms.Domain.Repositories;
+using Xunit;
+
+namespace WorkoutPrograms.Application.UnitTests.Handlers;
+
+public class DeleteWorkoutProgramCommandHandlerTests
+{
+    private readonly IWorkoutProgramRepository _repository = Substitute.For<IWorkoutProgramRepository>();
+    private readonly IWorkoutProgramsUnitOfWork _unitOfWork = Substitute.For<IWorkoutProgramsUnitOfWork>();
+    private readonly DeleteWorkoutProgramCommandHandler _sut;
+
+    public DeleteWorkoutProgramCommandHandlerTests()
+    {
+        _sut = new DeleteWorkoutProgramCommandHandler(_repository, _unitOfWork);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldDeleteProgram_WhenExists()
+    {
+        var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var command = new DeleteWorkoutProgramCommand(program.Id);
+        _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        program.IsDeleted.Should().BeTrue();
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnNotFoundError_WhenNotExists()
+    {
+        var command = new DeleteWorkoutProgramCommand(Guid.NewGuid());
+        _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns((WorkoutProgram?)null);
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("WorkoutProgram.NotFound");
+    }
+}
