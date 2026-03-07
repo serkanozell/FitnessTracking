@@ -39,6 +39,9 @@
     <Project Path="tests/BuildingBlocks/BuildingBlocks.Application.UnitTests/BuildingBlocks.Application.UnitTests.csproj" />
     <Project Path="tests/BuildingBlocks/BuildingBlocks.Infrastructure.UnitTests/BuildingBlocks.Infrastructure.UnitTests.csproj" />
   </Folder>
+  <Folder Name="/tests/Exercises/">
+    <Project Path="tests/Modules/Exercises/Exercises.Infrastructure.IntegrationTests/Exercises.Infrastructure.IntegrationTests.csproj" />
+  </Folder>
   <Folder Name="/tests/Modules/" />
   <Folder Name="/tests/Modules/Exercises/">
     <Project Path="tests/Modules/Exercises/Exercises.Application.UnitTests/Exercises.Application.UnitTests.csproj" />
@@ -51,5 +54,11 @@
   <Folder Name="/tests/Modules/WorkoutSessions/">
     <Project Path="tests/Modules/WorkoutSessions/WorkoutSessions.Application.UnitTests/WorkoutSessions.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/WorkoutSessions/WorkoutSessions.Domain.UnitTests/WorkoutSessions.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/WorkoutPrograms/">
+    <Project Path="tests/Modules/WorkoutPrograms/WorkoutPrograms.Infrastructure.IntegrationTests/WorkoutPrograms.Infrastructure.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/WorkoutSessions/">
+    <Project Path="tests/Modules/WorkoutSessions/WorkoutSessions.Infrastructure.IntegrationTests/WorkoutSessions.Infrastructure.IntegrationTests.csproj" />
   </Folder>
 </Solution>
