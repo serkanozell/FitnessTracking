@@ -37,6 +37,7 @@
   <Folder Name="/tests/" />
   <Folder Name="/tests/BuildingBlocks/">
     <Project Path="tests/BuildingBlocks/BuildingBlocks.Application.UnitTests/BuildingBlocks.Application.UnitTests.csproj" />
+    <Project Path="tests/BuildingBlocks/BuildingBlocks.Infrastructure.UnitTests/BuildingBlocks.Infrastructure.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/" />
   <Folder Name="/tests/Modules/Exercises/">

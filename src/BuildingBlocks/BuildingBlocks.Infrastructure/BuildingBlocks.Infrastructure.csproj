@@ -26,4 +26,8 @@
 	  <ProjectReference Include="..\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <InternalsVisibleTo Include="BuildingBlocks.Infrastructure.UnitTests" />
+	</ItemGroup>
+
 </Project>
