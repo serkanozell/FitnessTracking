@@ -24,8 +24,7 @@ namespace WorkoutSessions.Infrastructure.Configurations
                    .IsUnique();
 
             // Audit
-            builder.Property(x => x.CreatedDate)
-                .IsRequired();
+            builder.Property(x => x.CreatedDate);
 
             builder.Property(x => x.UpdatedDate);
 

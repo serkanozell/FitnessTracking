@@ -25,8 +25,7 @@ namespace WorkoutPrograms.Infrastructure.Configurations
                    .IsRequired();
 
             // Audit
-            builder.Property(x => x.CreatedDate)
-                .IsRequired();
+            builder.Property(x => x.CreatedDate);
 
             builder.Property(x => x.UpdatedDate);
 

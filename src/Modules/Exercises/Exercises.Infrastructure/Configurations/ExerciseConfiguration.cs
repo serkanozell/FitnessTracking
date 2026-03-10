@@ -29,8 +29,7 @@ namespace Exercises.Infrastructure.Configurations
                    .HasMaxLength(500);
 
             // Audit
-            builder.Property(x => x.CreatedDate)
-                .IsRequired();
+            builder.Property(x => x.CreatedDate);
 
             builder.Property(x => x.UpdatedDate);
 

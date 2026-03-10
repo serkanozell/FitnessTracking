@@ -37,7 +37,8 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.CreatedBy = entry.Entity.CreatedBy ?? actor;
-                    entry.Entity.CreatedDate = entry.Entity.CreatedDate ?? now;
+                    //entry.Entity.CreatedDate = entry.Entity.CreatedDate ?? now;
+                    entry.Entity.CreatedDate = now;
                     entry.Property(nameof(IEntity.IsActive)).CurrentValue = true;
                     entry.Property(nameof(IEntity.IsDeleted)).CurrentValue = false;
                 }
