@@ -35,6 +35,7 @@
     <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Infrastructure/WorkoutSessions.Infrastructure.csproj" Id="862ff880-dc9d-43b2-8491-947b1b3df9e8" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ArchitectureTests/ArchitectureTests.csproj" />
     <Project Path="tests/FitnessTracking.Api.IntegrationTests/FitnessTracking.Api.IntegrationTests.csproj" />
   </Folder>
   <Folder Name="/tests/BuildingBlocks/">
