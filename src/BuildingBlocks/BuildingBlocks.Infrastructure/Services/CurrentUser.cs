@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BuildingBlocks.Application.Abstractions;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
 namespace BuildingBlocks.Infrastructure.Services

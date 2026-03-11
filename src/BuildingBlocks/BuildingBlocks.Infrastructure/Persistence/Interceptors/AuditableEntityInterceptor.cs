@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Domain.Abstractions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -37,7 +39,6 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.CreatedBy = entry.Entity.CreatedBy ?? actor;
-                    //entry.Entity.CreatedDate = entry.Entity.CreatedDate ?? now;
                     entry.Entity.CreatedDate = now;
                     entry.Property(nameof(IEntity.IsActive)).CurrentValue = true;
                     entry.Property(nameof(IEntity.IsDeleted)).CurrentValue = false;

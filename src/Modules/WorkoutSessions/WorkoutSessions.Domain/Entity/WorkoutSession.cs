@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Domain.Exceptions;
+﻿using BuildingBlocks.Domain.Abstractions;
+using BuildingBlocks.Domain.Exceptions;
 using WorkoutSessions.Domain.Events;
 
 namespace WorkoutSessions.Domain.Entity

@@ -1,4 +1,6 @@
-﻿namespace WorkoutSessions.Domain.Entity
+﻿using BuildingBlocks.Domain.Abstractions;
+
+namespace WorkoutSessions.Domain.Entity
 {
     public class SessionExercise : Entity<Guid>
     {

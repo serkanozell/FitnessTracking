@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;

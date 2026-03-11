@@ -1,4 +1,5 @@
-﻿using Exercises.Domain.Enums;
+﻿using BuildingBlocks.Domain.Abstractions;
+using Exercises.Domain.Enums;
 using Exercises.Domain.Events;
 
 namespace Exercises.Domain.Entity

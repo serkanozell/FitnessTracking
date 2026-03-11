@@ -1,21 +1,22 @@
-﻿using BuildingBlocks.Domain.Abstractions;
-
-public abstract class AggregateRoot<TId> : Entity<TId>, IAggregate<TId>
+﻿namespace BuildingBlocks.Domain.Abstractions
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
-    public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
-
-    public void AddDomainEvent(IDomainEvent domainEvent)
+    public abstract class AggregateRoot<TId> : Entity<TId>, IAggregate<TId>
     {
-        _domainEvents.Add(domainEvent);
-    }
+        private readonly List<IDomainEvent> _domainEvents = new();
+        public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    public IDomainEvent[] ClearDomainEvents()
-    {
-        IDomainEvent[] dequeuedEvents = _domainEvents.ToArray();
+        public void AddDomainEvent(IDomainEvent domainEvent)
+        {
+            _domainEvents.Add(domainEvent);
+        }
 
-        _domainEvents.Clear();
+        public IDomainEvent[] ClearDomainEvents()
+        {
+            IDomainEvent[] dequeuedEvents = _domainEvents.ToArray();
 
-        return dequeuedEvents;
+            _domainEvents.Clear();
+
+            return dequeuedEvents;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Abstractions;
 using System.Reflection;
 using FluentAssertions;
 using MediatR;

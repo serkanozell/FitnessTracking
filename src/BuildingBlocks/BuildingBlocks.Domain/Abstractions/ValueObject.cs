@@ -1,19 +1,22 @@
-﻿public abstract class ValueObject
+﻿namespace BuildingBlocks.Domain.Abstractions
 {
-    protected abstract IEnumerable<object?> GetEqualityComponents();
-
-    public override bool Equals(object? obj)
+    public abstract class ValueObject
     {
-        if (obj is not ValueObject other)
-            return false;
+        protected abstract IEnumerable<object?> GetEqualityComponents();
 
-        return GetEqualityComponents()
-            .SequenceEqual(other.GetEqualityComponents());
-    }
+        public override bool Equals(object? obj)
+        {
+            if (obj is not ValueObject other)
+                return false;
 
-    public override int GetHashCode()
-    {
-        return GetEqualityComponents()
-            .Aggregate(0, HashCode.Combine);
+            return GetEqualityComponents()
+                .SequenceEqual(other.GetEqualityComponents());
+        }
+
+        public override int GetHashCode()
+        {
+            return GetEqualityComponents()
+                .Aggregate(0, HashCode.Combine);
+        }
     }
 }

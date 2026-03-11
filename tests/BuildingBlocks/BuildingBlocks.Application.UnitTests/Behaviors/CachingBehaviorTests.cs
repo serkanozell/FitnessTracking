@@ -1,5 +1,6 @@
 using BuildingBlocks.Application.Abstractions.Caching;
 using BuildingBlocks.Application.Behaviors;
+using BuildingBlocks.Application.CQRS;
 using BuildingBlocks.Application.Results;
 using FluentAssertions;
 using MediatR;

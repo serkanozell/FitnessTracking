@@ -1,4 +1,6 @@
-﻿namespace WorkoutPrograms.Domain.Entity
+﻿using BuildingBlocks.Domain.Abstractions;
+
+namespace WorkoutPrograms.Domain.Entity
 {
     public class WorkoutSplitExercise : Entity<Guid>
     {

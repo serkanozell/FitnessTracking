@@ -1,5 +1,8 @@
-﻿public interface ICurrentUser
+﻿namespace BuildingBlocks.Application.Abstractions
 {
-    string? UserId { get; }
-    bool IsAuthenticated { get; }
+    public interface ICurrentUser
+    {
+        string? UserId { get; }
+        bool IsAuthenticated { get; }
+    }
 }
