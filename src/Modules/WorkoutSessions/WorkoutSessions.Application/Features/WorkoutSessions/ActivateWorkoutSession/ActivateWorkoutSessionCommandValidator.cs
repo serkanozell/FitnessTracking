@@ -1,0 +1,11 @@
+namespace WorkoutSessions.Application.Features.WorkoutSessions.ActivateWorkoutSession
+{
+    public sealed class ActivateWorkoutSessionCommandValidator : AbstractValidator<ActivateWorkoutSessionCommand>
+    {
+        public ActivateWorkoutSessionCommandValidator()
+        {
+            RuleFor(x => x.WorkoutSessionId)
+                .NotEmpty();
+        }
+    }
+}

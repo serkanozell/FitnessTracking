@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
-using WorkoutSessions.Application.Feature.WorkoutSessions.GetWorkoutSessions;
+using WorkoutSessions.Application.Features.WorkoutSessions.GetWorkoutSessions;
 using WorkoutSessions.Domain.Entity;
 using WorkoutSessions.Domain.Repositories;
 using Xunit;

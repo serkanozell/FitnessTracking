@@ -1,6 +1,6 @@
 using BuildingBlocks.Application.Abstractions.Caching;
 using NSubstitute;
-using WorkoutSessions.Application.Feature.WorkoutSessions.EventHandlers;
+using WorkoutSessions.Application.Features.WorkoutSessions.EventHandlers;
 using WorkoutSessions.Domain.Events;
 using Xunit;
 

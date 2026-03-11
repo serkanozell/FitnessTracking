@@ -1,5 +1,5 @@
 using FluentValidation.TestHelper;
-using WorkoutSessions.Application.Feature.WorkoutSessions.UpdateWorkoutSession;
+using WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSession;
 using Xunit;
 
 namespace WorkoutSessions.Application.UnitTests.Validators;
