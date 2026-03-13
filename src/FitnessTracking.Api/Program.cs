@@ -1,3 +1,5 @@
+﻿using Asp.Versioning;
+using Asp.Versioning.Builder;
 using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Behaviors;
 using BuildingBlocks.Infrastructure;
@@ -9,6 +11,7 @@ using FitnessTracking.Api.ExceptionHandling;
 using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Scalar.AspNetCore;
 using Serilog;
 using System.Threading.RateLimiting;
 using WorkoutPrograms.Api;
@@ -23,10 +26,16 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
-// Add services to the container.
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
 
 builder.Services.AddBuildingBlocksInfrastructure(builder.Configuration);
 
@@ -99,10 +108,20 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-// Endpointleri map et
+// API Versioning
+ApiVersionSet versionSet = app.NewApiVersionSet()
+    .HasApiVersion(new ApiVersion(1, 0))
+    .ReportApiVersions()
+    .Build();
+
+var v1 = app.MapGroup("/api/v{version:apiVersion}")
+            .WithApiVersionSet(versionSet)
+            .MapToApiVersion(new ApiVersion(1, 0));
+
+// Endpointleri versioned group üzerinden map et
 foreach (var module in modules)
 {
-    module.MapEndpoints(app);
+    module.MapEndpoints(v1);
 }
 
 app.UseHttpsRedirection();
@@ -111,11 +130,13 @@ app.UseCors("BlazorClient");
 
 app.UseRateLimiter();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// OpenAPI & Scalar
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    app.MapOpenApi();
-}
+    options.WithTitle("FitnessTracking API");
+    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+});
 
 // Health check endpoints
 app.MapHealthChecks("/health", new HealthCheckOptions

@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Web.Models;
+using FitnessTracking.Web.Models;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -11,7 +11,7 @@ public sealed class WorkoutProgramsService : IWorkoutProgramsService
         _httpClient = httpClient;
     }
 
-    private const string BaseUrl = "api/workoutprograms";
+    private const string BaseUrl = "api/v1/workoutprograms";
 
     public async Task<IReadOnlyList<WorkoutProgramDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {

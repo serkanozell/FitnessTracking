@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Exercises.Application.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -9,7 +9,7 @@ namespace Exercises.Application.Features.Exercises.GetExerciseById
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/exercises/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
+            endpoints.MapGet("/exercises/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new GetExerciseByIdQuery(id), ct);
 

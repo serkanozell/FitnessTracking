@@ -9,7 +9,7 @@ public sealed class GetWorkoutSessionByIdEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/workout-sessions/{sessionId:guid}", async (Guid sessionId, ISender sender, CancellationToken ct) =>
+        endpoints.MapGet("/workout-sessions/{sessionId:guid}", async (Guid sessionId, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new GetWorkoutSessionByIdQuery(sessionId), ct);
 

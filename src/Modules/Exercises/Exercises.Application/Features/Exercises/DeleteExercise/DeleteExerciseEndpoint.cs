@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,7 +8,7 @@ namespace Exercises.Application.Features.Exercises.DeleteExercise
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapDelete("/api/exercises/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
+            endpoints.MapDelete("/exercises/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new DeleteExerciseCommand(id), ct);
 

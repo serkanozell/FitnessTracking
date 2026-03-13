@@ -1,11 +1,11 @@
-﻿using FitnessTracking.Web.Models;
+using FitnessTracking.Web.Models;
 using System.Net;
 using System.Net.Http.Json;
 
 public sealed class ExercisesService : IExercisesService
 {
     private readonly HttpClient _httpClient;
-    private const string BaseUrl = "api/exercises";
+    private const string BaseUrl = "api/v1/exercises";
 
     public ExercisesService(HttpClient httpClient)
     {

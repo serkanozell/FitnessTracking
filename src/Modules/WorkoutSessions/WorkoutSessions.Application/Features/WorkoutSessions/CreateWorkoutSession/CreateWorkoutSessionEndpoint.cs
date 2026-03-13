@@ -8,13 +8,13 @@ public sealed class CreateWorkoutSessionEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/workout-sessions", async (CreateSessionRequest request, ISender sender, CancellationToken ct) =>
+        endpoints.MapPost("/workout-sessions", async (CreateSessionRequest request, ISender sender, CancellationToken ct) =>
         {
             var command = new CreateWorkoutSessionCommand(request.WorkoutProgramId, request.Date);
             var result = await sender.Send(command, ct);
 
             return result.IsSuccess
-                ? Results.Created($"/api/workout-sessions/{result.Data}", new CreateSessionResponse(result.Data))
+                ? Results.Created($"/api/v1/workout-sessions/{result.Data}", new CreateSessionResponse(result.Data))
                 : Results.Problem(title: "Create session failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
         })
         .WithName("CreateWorkoutSession")

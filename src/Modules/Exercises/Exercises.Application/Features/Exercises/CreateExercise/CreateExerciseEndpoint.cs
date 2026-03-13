@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,7 +8,7 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/api/exercises", async (CreateExerciseRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/exercises", async (CreateExerciseRequest request, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(
                     new CreateExerciseCommand(request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description),
@@ -21,7 +21,7 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
                                            statusCode: StatusCodes.Status400BadRequest);
                 }
 
-                return Results.Created($"/api/exercises/{result.Data}", new CreateExerciseResponse(result.Data));
+                return Results.Created($"/api/v1/exercises/{result.Data}", new CreateExerciseResponse(result.Data));
             })
                 .WithName("CreateExercise")
                 .WithTags("Exercises")

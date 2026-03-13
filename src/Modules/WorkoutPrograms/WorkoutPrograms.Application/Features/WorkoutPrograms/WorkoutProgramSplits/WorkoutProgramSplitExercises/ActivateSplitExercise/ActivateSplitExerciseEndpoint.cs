@@ -8,7 +8,7 @@ public sealed class ActivateSplitExerciseEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPut("/api/workout-programs/{programId:guid}/splits/{splitId:guid}/exercises/{splitExerciseId:guid}/activate", async (Guid programId,
+        endpoints.MapPut("/workout-programs/{programId:guid}/splits/{splitId:guid}/exercises/{splitExerciseId:guid}/activate", async (Guid programId,
                                                                                                                                      Guid splitId,
                                                                                                                                      Guid splitExerciseId,
                                                                                                                                     ISender sender,

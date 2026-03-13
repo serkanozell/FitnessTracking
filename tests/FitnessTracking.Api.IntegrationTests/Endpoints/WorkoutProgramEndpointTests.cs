@@ -24,7 +24,7 @@ public class WorkoutProgramEndpointTests : IClassFixture<FitnessTrackingWebAppFa
             EndDate = new DateTime(2025, 3, 31)
         };
 
-        var response = await _client.PostAsJsonAsync("/api/workout-programs", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/workout-programs", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var body = await response.Content.ReadFromJsonAsync<IdResponse>();
@@ -41,7 +41,7 @@ public class WorkoutProgramEndpointTests : IClassFixture<FitnessTrackingWebAppFa
             EndDate = new DateTime(2025, 3, 31)
         };
 
-        var response = await _client.PostAsJsonAsync("/api/workout-programs", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/workout-programs", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -49,7 +49,7 @@ public class WorkoutProgramEndpointTests : IClassFixture<FitnessTrackingWebAppFa
     [Fact]
     public async Task GetWorkoutProgramById_ShouldReturn404_WhenNotExists()
     {
-        var response = await _client.GetAsync($"/api/workout-programs/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"/api/v1/workout-programs/{Guid.NewGuid()}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -57,7 +57,7 @@ public class WorkoutProgramEndpointTests : IClassFixture<FitnessTrackingWebAppFa
     [Fact]
     public async Task GetWorkoutPrograms_ShouldReturn200()
     {
-        var response = await _client.GetAsync("/api/workout-programs");
+        var response = await _client.GetAsync("/api/v1/workout-programs");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -71,10 +71,10 @@ public class WorkoutProgramEndpointTests : IClassFixture<FitnessTrackingWebAppFa
             StartDate = new DateTime(2025, 4, 1),
             EndDate = new DateTime(2025, 6, 30)
         };
-        var createResponse = await _client.PostAsJsonAsync("/api/workout-programs", createRequest);
+        var createResponse = await _client.PostAsJsonAsync("/api/v1/workout-programs", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<IdResponse>();
 
-        var getResponse = await _client.GetAsync($"/api/workout-programs/{created!.Id}");
+        var getResponse = await _client.GetAsync($"/api/v1/workout-programs/{created!.Id}");
 
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
     }

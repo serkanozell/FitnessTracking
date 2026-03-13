@@ -8,7 +8,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.ActivateWorkoutPr
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPut("/api/workout-programs/{programId:guid}/activate", async (Guid programId, ISender sender, CancellationToken ct) =>
+            endpoints.MapPut("/workout-programs/{programId:guid}/activate", async (Guid programId, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new ActivateWorkoutProgramCommand(programId), ct);
 

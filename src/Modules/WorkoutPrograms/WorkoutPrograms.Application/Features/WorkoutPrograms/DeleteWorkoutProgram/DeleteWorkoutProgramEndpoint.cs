@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,7 +8,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProg
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapDelete("/api/workout-programs/{programId:guid}", async (Guid programId, ISender sender, CancellationToken ct) =>
+            endpoints.MapDelete("/workout-programs/{programId:guid}", async (Guid programId, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new DeleteWorkoutProgramCommand(programId), ct);
 

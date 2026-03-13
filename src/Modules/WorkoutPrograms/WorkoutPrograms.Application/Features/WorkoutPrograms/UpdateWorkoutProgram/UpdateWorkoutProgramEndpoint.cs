@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,7 +8,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPut("/api/workout-programs/{programId:guid}", async (Guid programId, UpdateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPut("/workout-programs/{programId:guid}", async (Guid programId, UpdateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
             {
                 var command = new UpdateWorkoutProgramCommand(programId, request.Name, request.StartDate, request.EndDate);
                 var result = await sender.Send(command, ct);

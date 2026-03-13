@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,13 +8,13 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProg
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/api/workout-programs", async (CreateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/workout-programs", async (CreateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
             {
                 var command = new CreateWorkoutProgramCommand(request.Name, request.StartDate, request.EndDate);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess
-                    ? Results.Created($"/api/workout-programs/{result.Data}", new CreateWorkoutProgramResponse(result.Data))
+                    ? Results.Created($"/api/v1/workout-programs/{result.Data}", new CreateWorkoutProgramResponse(result.Data))
                     : Results.Problem(title: "Create failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
             })
             .WithName("CreateWorkoutProgram")

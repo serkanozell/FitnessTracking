@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Pagination;
+using BuildingBlocks.Application.Pagination;
 using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -10,7 +10,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgram
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/workout-programs", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
+            endpoints.MapGet("/workout-programs", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
             {
                 var query = new GetWorkoutProgramListQuery(
                     pageNumber ?? PaginationDefaults.DefaultPageNumber,

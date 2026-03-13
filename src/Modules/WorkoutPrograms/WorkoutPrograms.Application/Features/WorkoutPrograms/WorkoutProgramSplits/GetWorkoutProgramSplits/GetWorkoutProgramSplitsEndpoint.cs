@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using WorkoutPrograms.Application.Dtos;
@@ -9,7 +9,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/workout-programs/{programId:guid}/splits", async (Guid programId,
+            endpoints.MapGet("/workout-programs/{programId:guid}/splits", async (Guid programId,
                                                                                     ISender sender,
                                                                                     CancellationToken ct) =>
             {

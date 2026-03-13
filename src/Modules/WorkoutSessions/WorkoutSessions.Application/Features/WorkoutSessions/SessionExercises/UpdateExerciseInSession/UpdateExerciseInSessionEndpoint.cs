@@ -8,7 +8,7 @@ public sealed class UpdateExerciseInSessionEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPut("/api/workout-sessions/{sessionId:guid}/exercises/{sessionExerciseId:guid}", async (
+        endpoints.MapPut("/workout-sessions/{sessionId:guid}/exercises/{sessionExerciseId:guid}", async (
             Guid sessionId,
             Guid sessionExerciseId,
             UpdateExerciseRequest request,

@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,7 +8,7 @@ namespace Exercises.Application.Features.Exercises.ActivateExercise
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPut("/api/exercises/{id:guid}/activate", async (Guid id, ISender sender, CancellationToken ct) =>
+            endpoints.MapPut("/exercises/{id:guid}/activate", async (Guid id, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(new ActivateExerciseCommand(id), ct);
 

@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Pagination;
+using BuildingBlocks.Application.Pagination;
 using BuildingBlocks.Web;
 using Exercises.Application.Dtos;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/api/exercises", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
+            endpoints.MapGet("/exercises", async (int? pageNumber, int? pageSize, ISender sender, CancellationToken ct) =>
             {
                 var query = new GetAllExercisesQuery(pageNumber ?? PaginationDefaults.DefaultPageNumber,
                                                      pageSize ?? PaginationDefaults.DefaultPageSize);

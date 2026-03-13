@@ -23,7 +23,7 @@ public class WorkoutSessionEndpointTests : IClassFixture<FitnessTrackingWebAppFa
             Date = new DateTime(2025, 6, 15)
         };
 
-        var response = await _client.PostAsJsonAsync("/api/workout-sessions", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/workout-sessions", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var body = await response.Content.ReadFromJsonAsync<IdResponse>();
@@ -39,7 +39,7 @@ public class WorkoutSessionEndpointTests : IClassFixture<FitnessTrackingWebAppFa
             Date = new DateTime(2025, 6, 15)
         };
 
-        var response = await _client.PostAsJsonAsync("/api/workout-sessions", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/workout-sessions", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -47,7 +47,7 @@ public class WorkoutSessionEndpointTests : IClassFixture<FitnessTrackingWebAppFa
     [Fact]
     public async Task GetWorkoutSessions_ShouldReturn200()
     {
-        var response = await _client.GetAsync("/api/workout-sessions");
+        var response = await _client.GetAsync("/api/v1/workout-sessions");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -55,7 +55,7 @@ public class WorkoutSessionEndpointTests : IClassFixture<FitnessTrackingWebAppFa
     [Fact]
     public async Task GetWorkoutSessionById_ShouldReturn404_WhenNotExists()
     {
-        var response = await _client.GetAsync($"/api/workout-sessions/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"/api/v1/workout-sessions/{Guid.NewGuid()}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

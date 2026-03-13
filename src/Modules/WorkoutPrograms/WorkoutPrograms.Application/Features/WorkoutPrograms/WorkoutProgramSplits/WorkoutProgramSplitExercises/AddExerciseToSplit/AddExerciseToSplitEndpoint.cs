@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -8,7 +8,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/api/workout-programs/{programId:guid}/splits/{splitId:guid}/exercises", async (Guid programId,
+            endpoints.MapPost("/workout-programs/{programId:guid}/splits/{splitId:guid}/exercises", async (Guid programId,
                                                                                                               Guid splitId,
                                                                                                               AddExerciseRequest request,
                                                                                                               ISender sender,
@@ -24,7 +24,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                 var result = await sender.Send(exerciseToSplitCommand, ct);
 
                 return result.IsSuccess
-                    ? Results.Created($"/api/workout-programs/{programId}/splits/{splitId}/exercises/{result.Data}", new AddExerciseResponse(result.Data))
+                    ? Results.Created($"/api/v1/workout-programs/{programId}/splits/{splitId}/exercises/{result.Data}", new AddExerciseResponse(result.Data))
                     : Results.Problem(title: "Add exercise failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
             })
             .WithName("AddExerciseToSplit")

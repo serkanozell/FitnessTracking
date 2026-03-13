@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Exercises.Application.Features.Exercises.UpdateExercise;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -7,7 +7,7 @@ public sealed class UpdateExerciseEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPut("/api/exercises/{id:guid}", async (Guid id, UpdateExerciseRequest request, ISender sender, CancellationToken ct) =>
+        endpoints.MapPut("/exercises/{id:guid}", async (Guid id, UpdateExerciseRequest request, ISender sender, CancellationToken ct) =>
         {
             var command = new UpdateExerciseCommand(id, request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description);
             var result = await sender.Send(command, ct);

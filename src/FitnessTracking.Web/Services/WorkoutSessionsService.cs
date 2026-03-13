@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Web.Models;
+using FitnessTracking.Web.Models;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -7,14 +7,14 @@ namespace FitnessTracking.Web.Services
     public sealed class WorkoutSessionsService : IWorkoutSessionsService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "api/workoutsessions";
+        private const string BaseUrl = "api/v1/workoutsessions";
 
         public WorkoutSessionsService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        // GET: api/workoutsessions
+        // GET: api/v1/workoutsessions
         public async Task<IReadOnlyList<WorkoutSessionDto>> GetAllAsync(
             CancellationToken cancellationToken = default)
         {
@@ -26,7 +26,7 @@ namespace FitnessTracking.Web.Services
             return result ?? Array.Empty<WorkoutSessionDto>();
         }
 
-        // GET: api/workoutsessions/{id}
+        // GET: api/v1/workoutsessions/{id}
         public async Task<WorkoutSessionDto?> GetByIdAsync(
             Guid id,
             CancellationToken cancellationToken = default)
@@ -44,7 +44,7 @@ namespace FitnessTracking.Web.Services
                 cancellationToken: cancellationToken);
         }
 
-        // POST: api/workoutsessions
+        // POST: api/v1/workoutsessions
         // Controller: 201 + body: Guid
         public async Task<Guid> CreateAsync(
             WorkoutSessionEditModel model,
@@ -67,7 +67,7 @@ namespace FitnessTracking.Web.Services
             return id;
         }
 
-        // PUT: api/workoutsessions/{id}
+        // PUT: api/v1/workoutsessions/{id}
         // 204 / 404
         public async Task<bool> UpdateAsync(
             Guid id,
@@ -93,7 +93,7 @@ namespace FitnessTracking.Web.Services
             return true;
         }
 
-        // DELETE: api/workoutsessions/{id}
+        // DELETE: api/v1/workoutsessions/{id}
         public async Task<bool> DeleteAsync(
             Guid id,
             CancellationToken cancellationToken = default)
@@ -111,7 +111,7 @@ namespace FitnessTracking.Web.Services
             return true;
         }
 
-        // GET: api/workoutsessions/{id} (details dto)
+        // GET: api/v1/workoutsessions/{id} (details dto)
         public async Task<WorkoutSessionDetailsDto?> GetDetailsAsync(
             Guid id,
             CancellationToken cancellationToken = default)
@@ -129,7 +129,7 @@ namespace FitnessTracking.Web.Services
                 cancellationToken: cancellationToken);
         }
 
-        // GET: api/workoutsessions/{sessionId}/exercises
+        // GET: api/v1/workoutsessions/{sessionId}/exercises
         public async Task<IReadOnlyList<WorkoutExerciseDto>> GetWorkoutExercisesAsync(
             Guid sessionId,
             CancellationToken cancellationToken = default)
@@ -152,7 +152,7 @@ namespace FitnessTracking.Web.Services
             return result ?? Array.Empty<WorkoutExerciseDto>();
         }
 
-        // POST: api/workoutsessions/{sessionId}/exercises
+        // POST: api/v1/workoutsessions/{sessionId}/exercises
         public async Task<Guid> AddWorkoutExerciseAsync(
             Guid sessionId,
             WorkoutExerciseEditModel model,
@@ -177,7 +177,7 @@ namespace FitnessTracking.Web.Services
             return id;
         }
 
-        // PUT: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
+        // PUT: api/v1/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
         public async Task<bool> UpdateWorkoutExerciseAsync(
             Guid sessionId,
             Guid workoutExerciseId,
@@ -205,7 +205,7 @@ namespace FitnessTracking.Web.Services
             return true;
         }
 
-        // DELETE: api/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
+        // DELETE: api/v1/workoutsessions/{sessionId}/exercises/{workoutExerciseId}
         public async Task<bool> DeleteWorkoutExerciseAsync(
             Guid sessionId,
             Guid workoutExerciseId,

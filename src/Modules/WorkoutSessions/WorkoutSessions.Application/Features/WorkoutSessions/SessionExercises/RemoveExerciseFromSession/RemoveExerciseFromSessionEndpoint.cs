@@ -8,7 +8,7 @@ public sealed class RemoveExerciseFromSessionEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapDelete("/api/workout-sessions/{sessionId:guid}/exercises/{sessionExerciseId:guid}", async (
+        endpoints.MapDelete("/workout-sessions/{sessionId:guid}/exercises/{sessionExerciseId:guid}", async (
             Guid sessionId,
             Guid sessionExerciseId,
             ISender sender,

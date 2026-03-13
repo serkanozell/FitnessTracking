@@ -29,12 +29,12 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
             Description = "Flat bench press"
         };
 
-        var response = await _client.PostAsJsonAsync("/api/exercises", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/exercises", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var body = await response.Content.ReadFromJsonAsync<CreateExerciseResponse>();
         body!.Id.Should().NotBeEmpty();
-        response.Headers.Location!.ToString().Should().Contain($"/api/exercises/{body.Id}");
+        response.Headers.Location!.ToString().Should().Contain($"/api/v1/exercises/{body.Id}");
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
             Description = "test"
         };
 
-        var response = await _client.PostAsJsonAsync("/api/exercises", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/exercises", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -56,7 +56,7 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
     public async Task GetAllExercises_ShouldReturn200()
     {
         // Temporarily disable exception handler to see raw exception
-        var response = await _client.GetAsync("/api/exercises");
+        var response = await _client.GetAsync("/api/v1/exercises");
         var body = await response.Content.ReadAsStringAsync();
 
         // Check logs via factory server for actual exception
@@ -76,7 +76,7 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
     [Fact]
     public async Task GetAllExercises_ShouldSupportPagination()
     {
-        var response = await _client.GetAsync("/api/exercises?pageNumber=1&pageSize=5");
+        var response = await _client.GetAsync("/api/v1/exercises?pageNumber=1&pageSize=5");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -84,7 +84,7 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
     [Fact]
     public async Task GetExerciseById_ShouldReturn404_WhenNotExists()
     {
-        var response = await _client.GetAsync($"/api/exercises/{Guid.NewGuid()}");
+        var response = await _client.GetAsync($"/api/v1/exercises/{Guid.NewGuid()}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -100,11 +100,11 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
             SecondaryMuscleGroup = "Glutes",
             Description = "Barbell squat"
         };
-        var createResponse = await _client.PostAsJsonAsync("/api/exercises", createRequest);
+        var createResponse = await _client.PostAsJsonAsync("/api/v1/exercises", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateExerciseResponse>();
 
         // Get
-        var getResponse = await _client.GetAsync($"/api/exercises/{created!.Id}");
+        var getResponse = await _client.GetAsync($"/api/v1/exercises/{created!.Id}");
 
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var body = await getResponse.Content.ReadFromJsonAsync<ExerciseResponse>();
@@ -122,11 +122,11 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
             PrimaryMuscleGroup = "Chest",
             Description = "will be deleted"
         };
-        var createResponse = await _client.PostAsJsonAsync("/api/exercises", request);
+        var createResponse = await _client.PostAsJsonAsync("/api/v1/exercises", request);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateExerciseResponse>();
 
         // Delete
-        var deleteResponse = await _client.DeleteAsync($"/api/exercises/{created!.Id}");
+        var deleteResponse = await _client.DeleteAsync($"/api/v1/exercises/{created!.Id}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -134,7 +134,7 @@ public class ExerciseEndpointTests : IClassFixture<FitnessTrackingWebAppFactory>
     [Fact]
     public async Task DeleteExercise_ShouldReturn404_WhenNotExists()
     {
-        var response = await _client.DeleteAsync($"/api/exercises/{Guid.NewGuid()}");
+        var response = await _client.DeleteAsync($"/api/v1/exercises/{Guid.NewGuid()}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
