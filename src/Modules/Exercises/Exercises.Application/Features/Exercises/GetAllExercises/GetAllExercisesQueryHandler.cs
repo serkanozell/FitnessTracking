@@ -10,20 +10,7 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
             var (items, totalCount) = await _exerciseRepository.GetPagedAsync(request.PageNumber, request.PageSize, cancellationToken);
 
             var dtos = items
-                .Select(e => new ExerciseDto
-                {
-                    Id = e.Id,
-                    Name = e.Name,
-                    PrimaryMuscleGroup = e.PrimaryMuscleGroup.ToString(),
-                    SecondaryMuscleGroup = e.SecondaryMuscleGroup?.ToString(),
-                    Description = e.Description,
-                    IsActive = e.IsActive,
-                    IsDeleted = e.IsDeleted,
-                    CreatedDate = e.CreatedDate,
-                    CreatedBy = e.CreatedBy,
-                    UpdatedDate = e.UpdatedDate,
-                    UpdatedBy = e.UpdatedBy
-                })
+                .Select(ExerciseDto.FromEntity)
                 .ToList();
 
             return PagedResult<ExerciseDto>.Create(dtos, request.PageNumber, request.PageSize, totalCount);

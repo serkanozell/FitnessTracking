@@ -11,19 +11,6 @@ internal sealed class GetExerciseByIdQueryHandler(IExerciseRepository _exerciseR
         if (exercise is null)
             return ExerciseErrors.NotFound(request.Id);
 
-        return new ExerciseDto
-        {
-            Id = exercise.Id,
-            Name = exercise.Name,
-            PrimaryMuscleGroup = exercise.PrimaryMuscleGroup.ToString(),
-            SecondaryMuscleGroup = exercise.SecondaryMuscleGroup?.ToString(),
-            Description = exercise.Description,
-            IsActive = exercise.IsActive,
-            IsDeleted = exercise.IsDeleted,
-            CreatedDate = exercise.CreatedDate,
-            CreatedBy = exercise.CreatedBy,
-            UpdatedDate = exercise.UpdatedDate,
-            UpdatedBy = exercise.UpdatedBy
-        };
+        return ExerciseDto.FromEntity(exercise);
     }
 }

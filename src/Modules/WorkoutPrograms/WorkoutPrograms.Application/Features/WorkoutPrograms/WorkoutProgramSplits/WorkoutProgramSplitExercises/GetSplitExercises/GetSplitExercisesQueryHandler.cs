@@ -21,23 +21,9 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             // Tüm exercise’ları bir kere çek
             var allExercises = await _exerciseModule.GetExercisesAsync(cancellationToken);
 
-            return split.Exercises
-                .Select(e => new WorkoutProgramSplitExerciseDto
-                {
-                    WorkoutProgramExerciseId = e.Id,
-                    ExerciseId = e.ExerciseId,
-                    ExerciseName = allExercises.FirstOrDefault(ex => ex.Id == e.ExerciseId)?.Name ?? string.Empty,
-                    Sets = e.Sets,
-                    MinimumReps = e.MinimumReps,
-                    MaximumReps = e.MaximumReps,
-                    IsActive = e.IsActive,
-                    IsDeleted = e.IsDeleted,
-                    CreatedDate = e.CreatedDate,
-                    CreatedBy = e.CreatedBy,
-                    UpdatedDate = e.UpdatedDate,
-                    UpdatedBy = e.UpdatedBy
-                })
-                .ToList();
+            return split.Exercises.Select(e => WorkoutProgramSplitExerciseDto.FromEntity(e, allExercises.FirstOrDefault(ex => ex.Id == e.ExerciseId)?.Name
+                                                                                            ?? string.Empty))
+                                  .ToList();
         }
     }
 }

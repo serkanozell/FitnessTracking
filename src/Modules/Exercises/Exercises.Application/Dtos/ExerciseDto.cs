@@ -1,4 +1,6 @@
-﻿namespace Exercises.Application.Dtos
+﻿using Exercises.Domain.Entity;
+
+namespace Exercises.Application.Dtos
 {
     public sealed class ExerciseDto
     {
@@ -13,5 +15,21 @@
         public string? CreatedBy { get; init; }
         public DateTime? UpdatedDate { get; init; }
         public string? UpdatedBy { get; init; }
+
+        public static ExerciseDto FromEntity(Exercise entity) =>
+            new()
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                PrimaryMuscleGroup = entity.PrimaryMuscleGroup.ToString(),
+                SecondaryMuscleGroup = entity.SecondaryMuscleGroup?.ToString(),
+                Description = entity.Description,
+                IsActive = entity.IsActive,
+                IsDeleted = entity.IsDeleted,
+                CreatedDate = entity.CreatedDate,
+                CreatedBy = entity.CreatedBy,
+                UpdatedDate = entity.UpdatedDate,
+                UpdatedBy = entity.UpdatedBy
+            };
     }
 }

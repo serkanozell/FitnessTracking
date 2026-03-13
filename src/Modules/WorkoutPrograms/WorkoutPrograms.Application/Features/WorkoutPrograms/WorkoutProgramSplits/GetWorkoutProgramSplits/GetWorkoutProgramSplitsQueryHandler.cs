@@ -12,22 +12,9 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             if (program is null)
                 return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
 
-            return program.Splits.Select(s =>
-                                         new WorkoutProgramSplitDto
-                                         {
-                                             Id = s.Id,
-                                             WorkoutProgramId = s.WorkoutProgramId,
-                                             Name = s.Name,
-                                             Order = s.Order,
-                                             IsActive = s.IsActive,
-                                             IsDeleted = s.IsDeleted,
-                                             CreatedDate = s.CreatedDate,
-                                             CreatedBy = s.CreatedBy,
-                                             UpdatedDate = s.UpdatedDate,
-                                             UpdatedBy = s.UpdatedBy
-                                         })
-                                           .OrderBy(x => x.Order)
-                                           .ToList();
+            return program.Splits.Select(WorkoutProgramSplitDto.FromEntity)
+                                 .OrderBy(x => x.Order)
+                                 .ToList();
         }
     }
 }

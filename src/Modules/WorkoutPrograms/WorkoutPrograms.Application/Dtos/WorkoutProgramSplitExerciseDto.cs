@@ -1,4 +1,6 @@
-﻿namespace WorkoutPrograms.Application.Dtos
+﻿using WorkoutPrograms.Domain.Entity;
+
+namespace WorkoutPrograms.Application.Dtos
 {
     public sealed class WorkoutProgramSplitExerciseDto
     {
@@ -14,5 +16,22 @@
         public string? CreatedBy { get; init; }
         public DateTime? UpdatedDate { get; init; }
         public string? UpdatedBy { get; init; }
+
+        public static WorkoutProgramSplitExerciseDto FromEntity(WorkoutSplitExercise entity, string exerciseName) =>
+            new()
+            {
+                WorkoutProgramExerciseId = entity.Id,
+                ExerciseId = entity.ExerciseId,
+                ExerciseName = exerciseName,
+                Sets = entity.Sets,
+                MinimumReps = entity.MinimumReps,
+                MaximumReps = entity.MaximumReps,
+                IsActive = entity.IsActive,
+                IsDeleted = entity.IsDeleted,
+                CreatedDate = entity.CreatedDate,
+                CreatedBy = entity.CreatedBy,
+                UpdatedDate = entity.UpdatedDate,
+                UpdatedBy = entity.UpdatedBy
+            };
     }
 }
