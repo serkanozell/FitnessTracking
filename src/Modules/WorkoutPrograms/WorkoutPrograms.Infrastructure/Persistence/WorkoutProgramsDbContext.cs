@@ -1,25 +1,17 @@
-using BuildingBlocks.Infrastructure.Outbox;
+using BuildingBlocks.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using WorkoutPrograms.Domain.Entity;
 
 namespace WorkoutPrograms.Infrastructure.Persistence
 {
-    public sealed class WorkoutProgramsDbContext : DbContext
+    public sealed class WorkoutProgramsDbContext(DbContextOptions<WorkoutProgramsDbContext> options)
+        : ModuleDbContext(options)
     {
-        public WorkoutProgramsDbContext(DbContextOptions<WorkoutProgramsDbContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<WorkoutProgram> WorkoutPrograms => Set<WorkoutProgram>();
-        public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Sadece WorkoutPrograms modülünün konfigürasyonlarını uygula
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(WorkoutProgramsDbContext).Assembly);
-
-            modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }
