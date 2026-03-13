@@ -7,12 +7,12 @@
 
     public interface IEntity
     {
-        public DateTime? CreatedDate { get; set; }
-        public string? CreatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string? UpdatedBy { get; set; }
+        public DateTime? CreatedDate { get; }
+        public string? CreatedBy { get; }
+        public DateTime? UpdatedDate { get; }
+        public string? UpdatedBy { get; }
         public bool IsActive { get; }
         public bool IsDeleted { get; }
-        public byte[]? RowVersion { get; set; }
+        public byte[]? RowVersion { get; }
     }
 }

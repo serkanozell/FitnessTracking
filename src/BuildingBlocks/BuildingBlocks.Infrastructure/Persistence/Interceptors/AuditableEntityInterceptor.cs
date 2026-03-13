@@ -38,16 +38,16 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = entry.Entity.CreatedBy ?? actor;
-                    entry.Entity.CreatedDate = now;
+                    entry.Property(nameof(IEntity.CreatedBy)).CurrentValue ??= actor;
+                    entry.Property(nameof(IEntity.CreatedDate)).CurrentValue = now;
                     entry.Property(nameof(IEntity.IsActive)).CurrentValue = true;
                     entry.Property(nameof(IEntity.IsDeleted)).CurrentValue = false;
                 }
 
                 else if (entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
                 {
-                    entry.Entity.UpdatedBy = actor;
-                    entry.Entity.UpdatedDate = now;
+                    entry.Property(nameof(IEntity.UpdatedBy)).CurrentValue = actor;
+                    entry.Property(nameof(IEntity.UpdatedDate)).CurrentValue = now;
                 }
 
                 else if (entry.State == EntityState.Deleted)
@@ -55,8 +55,8 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors
                     entry.State = EntityState.Modified;
                     entry.Property(nameof(IEntity.IsActive)).CurrentValue = false;
                     entry.Property(nameof(IEntity.IsDeleted)).CurrentValue = true;
-                    entry.Entity.UpdatedBy = actor;
-                    entry.Entity.UpdatedDate = now;
+                    entry.Property(nameof(IEntity.UpdatedBy)).CurrentValue = actor;
+                    entry.Property(nameof(IEntity.UpdatedDate)).CurrentValue = now;
                 }
             }
         }
