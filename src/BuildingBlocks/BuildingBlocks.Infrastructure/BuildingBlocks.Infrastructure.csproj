@@ -19,6 +19,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
 		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 		<PackageReference Include="Serilog" />
+		<PackageReference Include="Serilog.Sinks.Console" />
 		<PackageReference Include="Serilog.Sinks.File" />
 	</ItemGroup>
 
@@ -30,4 +31,7 @@
 	  <InternalsVisibleTo Include="BuildingBlocks.Infrastructure.UnitTests" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Logging\" />
+	</ItemGroup>
 </Project>

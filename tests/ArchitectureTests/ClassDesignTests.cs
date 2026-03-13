@@ -120,7 +120,7 @@ public class ClassDesignTests
             because: $"Command/Query handlers should be internal. Failing: {FailingNames(result)}");
     }
 
-    private static string FailingNames(TestResult result) =>
+    private static string FailingNames(NetArchTest.Rules.TestResult result) =>
         result.FailingTypeNames is null
             ? string.Empty
             : string.Join(", ", result.FailingTypeNames);

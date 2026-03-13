@@ -103,7 +103,7 @@ public class NamingConventionTests
         result.IsSuccessful.Should().BeTrue();
     }
 
-    private static string FailingTypeNames(TestResult result) =>
+    private static string FailingTypeNames(NetArchTest.Rules.TestResult result) =>
         result.FailingTypeNames is null
             ? string.Empty
             : string.Join(", ", result.FailingTypeNames);
