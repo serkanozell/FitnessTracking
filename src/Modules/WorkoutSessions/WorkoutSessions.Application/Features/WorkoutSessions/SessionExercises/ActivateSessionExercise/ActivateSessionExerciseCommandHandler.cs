@@ -21,7 +21,7 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
 
             workoutSession.ActivateEntry(request.SessionExerciseId);
 
-            await _workoutSessionRepository.UpdateAsync(workoutSession, cancellationToken);
+            _workoutSessionRepository.Update(workoutSession);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return request.SessionExerciseId;

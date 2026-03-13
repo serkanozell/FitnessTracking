@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -129,7 +129,7 @@ public class WorkoutSessionRepositoryTests : IDisposable
         await _context.SaveChangesAsync();
 
         session.UpdateDate(new DateTime(2025, 7, 1));
-        await _sut.UpdateAsync(session);
+        _sut.Update(session);
         await _context.SaveChangesAsync();
 
         var saved = await _context.WorkoutSessions.FindAsync(session.Id);

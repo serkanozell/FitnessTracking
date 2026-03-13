@@ -13,7 +13,7 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSess
 
             session.UpdateDate(request.Date);
 
-            await _workoutSessionRepository.UpdateAsync(session, cancellationToken);
+            _workoutSessionRepository.Update(session);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

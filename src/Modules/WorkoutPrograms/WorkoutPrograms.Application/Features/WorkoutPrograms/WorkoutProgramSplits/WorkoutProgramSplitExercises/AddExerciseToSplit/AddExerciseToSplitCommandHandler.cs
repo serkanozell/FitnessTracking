@@ -1,4 +1,4 @@
-﻿using WorkoutPrograms.Domain.Repositories;
+using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.AddExerciseToSplit
 {
@@ -22,7 +22,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                                                                   request.MinimumReps,
                                                                   request.MaximumReps);
 
-            await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
+            _workoutProgramRepository.Update(workoutProgram);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return splitExercise.Id;

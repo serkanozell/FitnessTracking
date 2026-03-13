@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.Pagination;
+﻿using BuildingBlocks.Infrastructure.Pagination;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Repositories;
 using Exercises.Infrastructure.Persistence;
@@ -26,17 +26,9 @@ namespace Exercises.Infrastructure.Repositories
 
         public async Task AddAsync(Exercise exercise, CancellationToken cancellationToken = default) => await _dbContext.Exercises.AddAsync(exercise, cancellationToken);
 
-        public Task UpdateAsync(Exercise exercise, CancellationToken cancellationToken = default)
-        {
-            _dbContext.Exercises.Update(exercise);
-            return Task.CompletedTask;
-        }
+        public void Update(Exercise exercise) => _dbContext.Exercises.Update(exercise);
 
-        public Task DeleteAsync(Exercise exercise, CancellationToken cancellationToken = default)
-        {
-            _dbContext.Exercises.Remove(exercise);
-            return Task.CompletedTask;
-        }
+        public void Delete(Exercise exercise) => _dbContext.Exercises.Remove(exercise);
 
         public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default) => await _dbContext.Exercises.AnyAsync(x => x.Id == id, cancellationToken);
     }

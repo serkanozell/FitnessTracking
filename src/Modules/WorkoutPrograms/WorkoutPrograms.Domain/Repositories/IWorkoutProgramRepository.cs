@@ -9,7 +9,7 @@ namespace WorkoutPrograms.Domain.Repositories
         Task<(IReadOnlyList<WorkoutProgram> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task<WorkoutProgram?> GetByIdWithExercisesAsync(Guid id, CancellationToken cancellationToken = default);
         Task AddAsync(WorkoutProgram program, CancellationToken cancellationToken = default);
-        Task UpdateAsync(WorkoutProgram program, CancellationToken cancellationToken = default);
+        void Update(WorkoutProgram program);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

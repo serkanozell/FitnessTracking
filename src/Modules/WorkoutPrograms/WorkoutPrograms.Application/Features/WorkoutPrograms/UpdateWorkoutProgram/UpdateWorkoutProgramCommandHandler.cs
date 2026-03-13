@@ -1,4 +1,4 @@
-﻿using WorkoutPrograms.Domain.Repositories;
+using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram
 {
@@ -16,7 +16,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
 
             workoutProgram.Update(request.Name, request.StartDate, request.EndDate);
 
-            await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
+            _workoutProgramRepository.Update(workoutProgram);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

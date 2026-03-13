@@ -1,5 +1,4 @@
 ﻿using Exercises.Application.Errors;
-using Exercises.Domain.Entity;
 
 namespace Exercises.Application.Features.Exercises.ActivateExercise
 {
@@ -7,7 +6,7 @@ namespace Exercises.Application.Features.Exercises.ActivateExercise
     {
         public async Task<Result<Guid>> Handle(ActivateExerciseCommand request, CancellationToken cancellationToken)
         {
-            Exercise? exercise = await exerciseRepository.GetByIdAsync(request.Id, cancellationToken);
+            var exercise = await exerciseRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (exercise is null)
                 return ExerciseErrors.NotFound(request.Id);
@@ -17,7 +16,7 @@ namespace Exercises.Application.Features.Exercises.ActivateExercise
 
             exercise.Activate();
 
-            await exerciseRepository.UpdateAsync(exercise, cancellationToken);
+            exerciseRepository.Update(exercise);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return exercise.Id;

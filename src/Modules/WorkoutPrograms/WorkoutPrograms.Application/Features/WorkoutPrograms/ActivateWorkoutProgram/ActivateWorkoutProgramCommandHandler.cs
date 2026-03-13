@@ -16,7 +16,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.ActivateWorkoutPr
 
             workoutProgram.Activate();
 
-            await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
+            _workoutProgramRepository.Update(workoutProgram);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return workoutProgram.Id;

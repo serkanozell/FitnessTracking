@@ -18,7 +18,7 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
 
             workoutSession.RemoveEntry(request.SessionExerciseId);
 
-            await _workoutSessionRepository.UpdateAsync(workoutSession, cancellationToken);
+            _workoutSessionRepository.Update(workoutSession);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

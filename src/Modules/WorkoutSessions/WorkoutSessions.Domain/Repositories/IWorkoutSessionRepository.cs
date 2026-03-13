@@ -10,7 +10,7 @@ namespace WorkoutSessions.Domain.Repositories
         Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByProgramAsync(Guid workoutProgramId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task AddAsync(WorkoutSession session, CancellationToken cancellationToken = default);
-        Task UpdateAsync(WorkoutSession session, CancellationToken cancellationToken = default);
+        void Update(WorkoutSession session);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

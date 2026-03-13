@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;
@@ -130,7 +130,7 @@ public class ExerciseRepositoryTests : IDisposable
         await _context.SaveChangesAsync();
 
         exercise.Update("New Name", MuscleGroup.Back, MuscleGroup.Biceps, "Updated desc");
-        await _sut.UpdateAsync(exercise);
+        _sut.Update(exercise);
         await _context.SaveChangesAsync();
 
         var updated = await _context.Exercises.FindAsync(exercise.Id);
@@ -145,7 +145,7 @@ public class ExerciseRepositoryTests : IDisposable
         await _context.Exercises.AddAsync(exercise);
         await _context.SaveChangesAsync();
 
-        await _sut.DeleteAsync(exercise);
+        _sut.Delete(exercise);
         await _context.SaveChangesAsync();
 
         var deleted = await _context.Exercises.FindAsync(exercise.Id);

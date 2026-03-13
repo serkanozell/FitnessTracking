@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.Pagination;
+﻿using BuildingBlocks.Infrastructure.Pagination;
 using Microsoft.EntityFrameworkCore;
 using WorkoutPrograms.Domain.Entity;
 using WorkoutPrograms.Domain.Repositories;
@@ -19,7 +19,7 @@ namespace WorkoutPrograms.Infrastructure.Repositories
         {
             return await _context.WorkoutPrograms.Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
-                                                 .ToListAsync();
+                                                 .ToListAsync(cancellationToken: cancellationToken);
         }
 
         public async Task<(IReadOnlyList<WorkoutProgram> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
@@ -49,10 +49,9 @@ namespace WorkoutPrograms.Infrastructure.Repositories
             await _context.WorkoutPrograms.AddAsync(program, cancellationToken);
         }
 
-        public Task UpdateAsync(WorkoutProgram program, CancellationToken cancellationToken = default)
+        public void Update(WorkoutProgram program)
         {
             _context.WorkoutPrograms.Update(program);
-            return Task.CompletedTask;
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

@@ -1,4 +1,4 @@
-﻿using WorkoutPrograms.Domain.Repositories;
+using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.DeleteWorkoutProgramSplit
 {
@@ -18,7 +18,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
             workoutProgram.RemoveSplit(request.SplitId);
 
-            await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
+            _workoutProgramRepository.Update(workoutProgram);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

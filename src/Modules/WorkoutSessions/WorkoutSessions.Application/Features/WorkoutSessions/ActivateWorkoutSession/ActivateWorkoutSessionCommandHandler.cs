@@ -16,7 +16,7 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.ActivateWorkoutSe
 
             session.Activate();
 
-            await _workoutSessionRepository.UpdateAsync(session, cancellationToken);
+            _workoutSessionRepository.Update(session);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return session.Id;

@@ -5,6 +5,7 @@
     <File Path="README.md" />
     <File Path="docs/ARCHITECTURE.md" />
     <File Path=".github/copilot-instructions.md" />
+    <File Path=".editorconfig" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/FitnessTracking.Api/FitnessTracking.Api.csproj" />

@@ -18,7 +18,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
             program.UpdateSplit(request.SplitId, request.Name, request.Order);
 
-            await _workoutProgramRepository.UpdateAsync(program, cancellationToken);
+            _workoutProgramRepository.Update(program);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

@@ -34,7 +34,7 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
 
             var entry = workoutSession.AddEntry(request.ExerciseId, request.SetNumber, request.Weight, request.Reps);
 
-            await _workoutSessionRepository.UpdateAsync(workoutSession, cancellationToken);
+            _workoutSessionRepository.Update(workoutSession);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entry.Id;

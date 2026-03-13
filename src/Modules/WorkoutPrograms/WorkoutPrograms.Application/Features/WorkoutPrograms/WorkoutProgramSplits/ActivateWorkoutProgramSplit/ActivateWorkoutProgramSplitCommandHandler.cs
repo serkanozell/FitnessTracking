@@ -21,7 +21,7 @@ internal sealed class ActivateWorkoutProgramSplitCommandHandler(IWorkoutProgramR
 
         workoutProgram.ActivateSplit(request.SplitId);
 
-        await _workoutProgramRepository.UpdateAsync(workoutProgram, cancellationToken);
+        _workoutProgramRepository.Update(workoutProgram);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return split.Id;

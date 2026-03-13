@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.Pagination;
+﻿using BuildingBlocks.Infrastructure.Pagination;
 using Microsoft.EntityFrameworkCore;
 using WorkoutSessions.Domain.Entity;
 using WorkoutSessions.Domain.Repositories;
@@ -58,11 +58,7 @@ namespace WorkoutSessions.Infrastructure.Repositories
 
         public async Task AddAsync(WorkoutSession session, CancellationToken cancellationToken = default) => await _context.WorkoutSessions.AddAsync(session, cancellationToken);
 
-        public Task UpdateAsync(WorkoutSession session, CancellationToken cancellationToken = default)
-        {
-            _context.WorkoutSessions.Update(session);
-            return Task.CompletedTask;
-        }
+        public void Update(WorkoutSession session) => _context.WorkoutSessions.Update(session);
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {

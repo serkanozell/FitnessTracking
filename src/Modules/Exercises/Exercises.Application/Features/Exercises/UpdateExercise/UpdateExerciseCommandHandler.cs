@@ -18,7 +18,7 @@ internal sealed class UpdateExerciseCommandHandler(IExerciseRepository _exercise
 
         exercise.Update(request.Name, primaryMuscleGroup, secondaryMuscleGroup, request.Description);
 
-        await _exerciseRepository.UpdateAsync(exercise, cancellationToken);
+        _exerciseRepository.Update(exercise);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<bool>.Success(true);
