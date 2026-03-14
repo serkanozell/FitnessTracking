@@ -1,4 +1,4 @@
-# FitnessTracking — Mimari & Geliştirme Kılavuzu
+﻿# FitnessTracking — Mimari & Geliştirme Kılavuzu
 
 > Bu doküman, projede tutarlılığı korumak ve yeni geliştirmelerde mimariyi bozmamak için referans olarak kullanılmalıdır.
 
@@ -61,9 +61,25 @@ Domain ← Application ← Infrastructure ← Api
 - Tüm entity'ler `Entity<TId>` base class'ından türer.
 - Aggregate root'lar `AggregateRoot<TId>` base class'ından türer.
 - Her entity'de `Id`, `IsActive`, `IsDeleted`, audit alanları (`CreatedDate`, `CreatedBy`, `UpdatedDate`, `UpdatedBy`) ve `RowVersion` (concurrency) bulunur.
+- Audit alanları `IEntity` interface'inde **read-only** (`get;`), `Entity<T>` sınıfında **`internal set`** olarak tanımlanır. Dışarıdan değiştirilemez, yalnızca `AuditableEntityInterceptor` Property API üzerinden erişir.
 - Property'ler **`private set`** kullanır — dışarıdan doğrudan değiştirilemez.
 - Entity oluşturma **static factory method** (`Create`) ile yapılır.
 - Her entity'nin **parametresiz private constructor**'ı vardır (EF Core materialization için).
+
+### 4.2 Value Object'ler
+
+- Value object'ler `ValueObject` base class'ından türer ve `GetEqualityComponents()` override eder.
+- Domain mantığı ve iş kuralı içerir (örn: `RepRange` — min ≤ max kontrolü).
+- EF Core'da `OwnsOne` ile aynı tabloya map edilir.
+
+```csharp
+public sealed class RepRange : ValueObject
+{
+    public int Minimum { get; }
+    public int Maximum { get; }
+    public RepRange(int minimum, int maximum) { ... }
+}
+```
 
 ```csharp
 // ✅ Doğru
@@ -185,7 +201,7 @@ public sealed class CreateExerciseEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/exercises", async (...) => { ... })
+        endpoints.MapPost("/exercises", async (...) => { ... })
             .WithName("CreateExercise")
             .WithTags("Exercises")
             .WithSummary("...")
@@ -200,7 +216,23 @@ public sealed class CreateExerciseEndpoint : IEndpoint
 }
 ```
 
-### 5.6 Caching
+> **Not:** Endpoint path'leri `/api/` prefix'i içermez. API versioning route group'u (`/api/v{version}`) prefix'i otomatik ekler. Son URL: `POST /api/v1/exercises`.
+
+### 5.6 DTO Mapping
+
+- DTO'larda `FromEntity` static factory method pattern'i kullanılır.
+- Handler'larda inline mapping yerine `ExerciseDto.FromEntity(entity)` çağrısı tercih edilir.
+- Command/Query ve DTO'lar flat kalır (Value Object'ler handler'da oluşturulur, DTO'ya açılır).
+
+```csharp
+public sealed class ExerciseDto
+{
+    // ... properties ...
+    public static ExerciseDto FromEntity(Exercise entity) => new() { ... };
+}
+```
+
+### 5.7 Caching
 
 - Cache'lenecek query'ler `ICacheableQuery` interface'ini implement eder.
 - `CacheKey` ve opsiyonel `Expiration` tanımlanır.
@@ -208,7 +240,7 @@ public sealed class CreateExerciseEndpoint : IEndpoint
 - Cache servisi: Redis (`ICacheService`, `ICacheAsideService`).
 - Cache key formatı: `{entity}:{id}` veya `{entity}:all` (liste için).
 
-### 5.7 Feature Klasör Yapısı
+### 5.8 Feature Klasör Yapısı
 
 ```
 Features/{Entity}/{FeatureName}/
@@ -218,7 +250,7 @@ Features/{Entity}/{FeatureName}/
 └── {FeatureName}Endpoint.cs
 ```
 
-### 5.8 Global Usings
+### 5.9 Global Usings
 
 Her modülün Application katmanında `GlobalUsings.cs` dosyası bulunur:
 
@@ -237,21 +269,25 @@ global using Microsoft.AspNetCore.Builder;
 
 ### 6.1 EF Core & DbContext
 
-- Her modülün kendi DbContext'i vardır (`{ModuleName}DbContext`).
+- Tüm modül DbContext'leri `ModuleDbContext` abstract base class'ından türer.
+- `ModuleDbContext` outbox altyapısını (`DbSet<OutboxMessage>`, `OutboxMessageConfiguration`) merkezileştirir.
 - Entity konfigürasyonları `IEntityTypeConfiguration<T>` ile ayrı dosyalarda tanımlanır.
 - `OutboxInterceptor` domain event'leri Outbox tablosuna yazar (SaveChanges sırasında).
-- `AuditableEntityInterceptor` audit alanlarını otomatik doldurur.
+- `AuditableEntityInterceptor` audit alanlarını EF Property API üzerinden otomatik doldurur.
 
 ### 6.2 Outbox Pattern
 
 - Domain event'ler `OutboxInterceptor` tarafından yakalanır ve `OutboxMessage` tablosuna serialize edilir.
 - `OutboxBackgroundService` arka planda outbox mesajlarını işler ve MediatR ile publish eder.
-- Bu sayede domain event'ler transactional olarak garanti altına alınır.
+- **Retry mekanizması**: Başarısız mesajlar `RetryCount` ile takip edilir, `MaxRetries` (varsayılan 3) aşıldığında dead letter olarak işaretlenir.
+- Çözümlenemeyen tip veya deserialize hataları direkt dead letter olur (retry anlamsız).
 
 ### 6.3 Repository Implementasyonu
 
 - Repository'ler Infrastructure katmanında `{ModuleName}.Infrastructure/Repositories/` altında implement edilir.
 - `UnitOfWork<TContext>` abstract sınıfı kullanılır.
+- **Senkron operasyonlar** (`Update`, `Delete` with entity) `void` olarak tanımlanır — sahte async imza kullanılmaz.
+- Gerçekten async olan operasyonlar (DB sorgusu içeren `DeleteAsync(Guid id)`) `Task` döner.
 
 ### 6.4 Concurrency Control
 
@@ -306,10 +342,12 @@ Pipeline sırası:
 
 ### 7.4 Cross-Cutting Concerns
 
+- **API Versioning**: `Asp.Versioning.Http` ile URL segment tabanlı (`/api/v1/...`). Varsayılan versiyon `v1.0`.
+- **OpenAPI & Scalar**: `Scalar.AspNetCore` ile interaktif API dokümanı (`/scalar/v1`).
 - **CORS**: Blazor client için `BlazorClient` policy
 - **Rate Limiting**: IP tabanlı fixed window (20 request/dakika, 5 queue)
 - **Health Checks**: SQL Server, Redis, SMTP (`/health`, `/health/ready`, `/health/live`)
-- **Logging**: Serilog (configuration-based)
+- **Logging**: Serilog (configuration-based, Console + File sink)
 
 ---
 
@@ -349,9 +387,11 @@ tests/
 ### Test Katmanları
 - **Domain Unit Tests**: Entity business logic, domain event raise kontrolü
 - **Application Unit Tests**: Handler logic, validation rule testleri
-- **Infrastructure Integration Tests**: Repository + DB testleri
+- **Infrastructure Integration Tests**: Repository + DB testleri (**Testcontainers.MsSql** ile gerçek SQL Server container)
 - **API Integration Tests**: End-to-end endpoint testleri
 - **Architecture Tests**: Katman bağımlılık, naming convention, class design kuralları
+
+> **Not:** Integration testleri çalıştırmak için Docker Desktop gereklidir.
 
 ---
 
@@ -393,16 +433,21 @@ Yeni bir modül eklerken aşağıdaki adımları takip edin:
 
 | Kural | Detay |
 |---|---|
-| Entity property'leri | `private set` |
+| Entity property'leri | `private set` (audit alanları `internal set`) |
 | Entity oluşturma | Static factory method (`Create`) |
 | EF Constructor | Parametresiz `private` constructor |
 | Domain Event raise | Yalnızca domain metodu içinde |
 | Child entity operasyonları | Aggregate root wrapper metodu üzerinden |
+| Value Object | `ValueObject` base class, `OwnsOne` ile EF mapping |
 | Command/Query | `sealed record` |
 | Handler | `internal sealed class` |
 | Validator | `public sealed class` |
 | Endpoint request/response | Endpoint içinde nested `sealed record` |
+| Endpoint path | `/api/` prefix yok, versioned group otomatik ekler |
+| DTO mapping | `FromEntity` static factory method |
+| Senkron repo metotları | `void Update(T)`, `void Delete(T)` — sahte async yok |
 | Hata dönüşü | `Result<T>.Failure(error)` (exception yerine) |
 | Domain hataları | `BusinessRuleViolationException`, `DomainNotFoundException` |
 | Cache key | `{entity}:{id}` veya `{entity}:all` |
+| Zaman damgası | `DateTime.Now` (tüm projede tutarlı) |
 | Minimal API | `WithName`, `WithTags`, `WithSummary`, `Produces`, `ProducesProblem` |
