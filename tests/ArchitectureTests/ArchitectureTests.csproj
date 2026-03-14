@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -18,14 +18,17 @@
 
   <ItemGroup>
     <!-- Domain -->
+    <ProjectReference Include="..\..\src\Modules\Users\Users.Domain\Users.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Exercises\Exercises.Domain\Exercises.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\WorkoutPrograms\WorkoutPrograms.Domain\WorkoutPrograms.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\WorkoutSessions\WorkoutSessions.Domain\WorkoutSessions.Domain.csproj" />
     <!-- Application -->
+    <ProjectReference Include="..\..\src\Modules\Users\Users.Application\Users.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Exercises\Exercises.Application\Exercises.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\WorkoutPrograms\WorkoutPrograms.Application\WorkoutPrograms.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\WorkoutSessions\WorkoutSessions.Application\WorkoutSessions.Application.csproj" />
     <!-- Infrastructure -->
+    <ProjectReference Include="..\..\src\Modules\Users\Users.Infrastructure\Users.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Modules\Exercises\Exercises.Infrastructure\Exercises.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Modules\WorkoutPrograms\WorkoutPrograms.Infrastructure\WorkoutPrograms.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Modules\WorkoutSessions\WorkoutSessions.Infrastructure\WorkoutSessions.Infrastructure.csproj" />

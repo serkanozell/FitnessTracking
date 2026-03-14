@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace BuildingBlocks.Infrastructure.Persistence

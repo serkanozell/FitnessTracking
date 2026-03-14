@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.Security;
+﻿using BuildingBlocks.Infrastructure.Security;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
@@ -95,7 +95,7 @@ public class TokenServiceTests
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.ReadJwtToken(token);
 
-        jwt.ValidTo.Should().BeAfter(DateTime.Now);
+        jwt.ValidTo.ToLocalTime().Should().BeAfter(DateTime.Now);
     }
 
     [Fact]

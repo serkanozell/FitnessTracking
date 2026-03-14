@@ -26,6 +26,12 @@
     <Project Path="src/Modules/Exercises/Exercises.Domain/Exercises.Domain.csproj" Id="e41c4981-50e3-4141-952f-2570d03ce65f" />
     <Project Path="src/Modules/Exercises/Exercises.Infrastructure/Exercises.Infrastructure.csproj" Id="afa571e3-8775-4699-a05e-d9fc4c6cb1de" />
   </Folder>
+  <Folder Name="/src/Modules/Users/">
+    <Project Path="src/Modules/Users/Users.Api/Users.Api.csproj" />
+    <Project Path="src/Modules/Users/Users.Application/Users.Application.csproj" />
+    <Project Path="src/Modules/Users/Users.Domain/Users.Domain.csproj" />
+    <Project Path="src/Modules/Users/Users.Infrastructure/Users.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/WorkoutPrograms/">
     <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Api/WorkoutPrograms.Api.csproj" Id="5c9158b3-acaf-4086-acc1-49d9dae262c9" />
     <Project Path="src/Modules/WorkoutPrograms/WorkoutPrograms.Application/WorkoutPrograms.Application.csproj" Id="4ee012ce-60b3-40a8-bca3-de22b8c1eb0b" />
@@ -54,6 +60,11 @@
   <Folder Name="/tests/Modules/Exercises/">
     <Project Path="tests/Modules/Exercises/Exercises.Application.UnitTests/Exercises.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/Exercises/Exercises.Domain.UnitTests/Exercises.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Modules/Users/">
+    <Project Path="tests/Modules/Users/Users.Application.UnitTests/Users.Application.UnitTests.csproj" />
+    <Project Path="tests/Modules/Users/Users.Domain.UnitTests/Users.Domain.UnitTests.csproj" />
+    <Project Path="tests/Modules/Users/Users.Infrastructure.IntegrationTests/Users.Infrastructure.IntegrationTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/WorkoutPrograms/">
     <Project Path="tests/Modules/WorkoutPrograms/WorkoutPrograms.Application.UnitTests/WorkoutPrograms.Application.UnitTests.csproj" />

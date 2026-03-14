@@ -1,23 +1,5 @@
-﻿using Asp.Versioning;
-using Asp.Versioning.Builder;
-using BuildingBlocks.Application.Abstractions;
-using BuildingBlocks.Application.Behaviors;
-using BuildingBlocks.Infrastructure;
-using BuildingBlocks.Infrastructure.Services;
-using BuildingBlocks.Web;
-using Exercises.Api;
-using Exercises.Infrastructure;
-using FitnessTracking.Api.ExceptionHandling;
-using FluentValidation;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Scalar.AspNetCore;
+﻿using FitnessTracking.Api.Extensions;
 using Serilog;
-using System.Threading.RateLimiting;
-using WorkoutPrograms.Api;
-using WorkoutPrograms.Infrastructure;
-using WorkoutSessions.Api;
-using WorkoutSessions.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,134 +9,14 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-builder.Services.AddOpenApi();
+builder.Services.AddApiConfiguration(builder.Configuration)
+                .AddJwtAuthentication(builder.Configuration)
+                .AddInfrastructure(builder.Configuration);
 
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
-    options.ApiVersionReader = new UrlSegmentApiVersionReader();
-});
-
-builder.Services.AddBuildingBlocksInfrastructure(builder.Configuration);
-
-builder.Services.AddExercisesInfrastructure(builder.Configuration)
-                .WorkoutProgramsInfrastructure(builder.Configuration)
-                .WorkoutSessionsInfrastructure(builder.Configuration);
-
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
-
-// Modülleri yükle
-IModule[] modules =
-[
-    new ExercisesModule(),
-    new WorkoutProgramsModule(),
-    new WorkoutSessionsModule()
-];
-
-// MediatR: handler'lar + validator'lar modül assembly'lerinden, behavior'lar tek sefer
-var moduleAssemblies = modules.Select(m => m.ApplicationAssembly).ToArray();
-
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssemblies(moduleAssemblies);
-    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-    cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
-    cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
-});
-
-foreach (var assembly in moduleAssemblies)
-    builder.Services.AddValidatorsFromAssembly(assembly);
-
-foreach (var module in modules)
-{
-    module.Register(builder.Services, builder.Configuration);
-}
-
-builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        RateLimitPartition.GetFixedWindowLimiter(partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown", factory: _ => new FixedWindowRateLimiterOptions
-        {
-            PermitLimit = 20,
-            Window = TimeSpan.FromMinutes(1),
-            QueueLimit = 5,
-            QueueProcessingOrder = QueueProcessingOrder.OldestFirst
-        }));
-
-});
-
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("BlazorClient", policy =>
-    {
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+var modules = builder.Services.AddModules(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
-
-// API Versioning
-ApiVersionSet versionSet = app.NewApiVersionSet()
-    .HasApiVersion(new ApiVersion(1, 0))
-    .ReportApiVersions()
-    .Build();
-
-var v1 = app.MapGroup("/api/v{version:apiVersion}")
-            .WithApiVersionSet(versionSet)
-            .MapToApiVersion(new ApiVersion(1, 0));
-
-// Endpointleri versioned group üzerinden map et
-foreach (var module in modules)
-{
-    module.MapEndpoints(v1);
-}
-
-app.UseHttpsRedirection();
-
-app.UseCors("BlazorClient");
-
-app.UseRateLimiter();
-
-// OpenAPI & Scalar
-app.MapOpenApi();
-app.MapScalarApiReference(options =>
-{
-    options.WithTitle("FitnessTracking API");
-    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-});
-
-// Health check endpoints
-app.MapHealthChecks("/health", new HealthCheckOptions
-{
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-});
-
-app.MapHealthChecks("/health/ready", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("ready"),
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-});
-
-app.MapHealthChecks("/health/live", new HealthCheckOptions
-{
-    Predicate = _ => false
-});
-
-//app.UseAuthorization();
+app.UseApiMiddleware(modules);
 
 app.Run();

@@ -21,6 +21,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Modules\Users\Users.Api\Users.Api.csproj" />
+		<ProjectReference Include="..\Modules\Users\Users.Infrastructure\Users.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\Exercises\Exercises.Api\Exercises.Api.csproj" />
 		<ProjectReference Include="..\Modules\Exercises\Exercises.Infrastructure\Exercises.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\WorkoutPrograms\WorkoutPrograms.Api\WorkoutPrograms.Api.csproj" />
