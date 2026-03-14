@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +42,7 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     public async Task AddAsync_ShouldPersistSessionWithExercises()
     {
         var programId = Guid.NewGuid();
-        var session = WorkoutSession.Create(programId, new DateTime(2025, 6, 15));
+        var session = WorkoutSession.Create(Guid.NewGuid(), programId, new DateTime(2025, 6, 15));
         session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
 
         await _sut.AddAsync(session);
@@ -59,7 +59,7 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetByIdAsync_ShouldReturnSessionWithExercises()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         session.AddEntry(Guid.NewGuid(), 1, 60m, 12);
         session.AddEntry(Guid.NewGuid(), 2, 65m, 10);
         await _context.WorkoutSessions.AddAsync(session);
@@ -84,7 +84,7 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     {
         for (int i = 1; i <= 5; i++)
         {
-            var s = WorkoutSession.Create(Guid.NewGuid(), new DateTime(2025, 6, i));
+            var s = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, i));
             await _context.WorkoutSessions.AddAsync(s);
         }
         await _context.SaveChangesAsync();
@@ -101,9 +101,9 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
         var targetProgramId = Guid.NewGuid();
         var otherProgramId = Guid.NewGuid();
 
-        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(targetProgramId, new DateTime(2025, 6, 1)));
-        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(targetProgramId, new DateTime(2025, 6, 2)));
-        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(otherProgramId, new DateTime(2025, 6, 3)));
+        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(Guid.NewGuid(), targetProgramId, new DateTime(2025, 6, 1)));
+        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(Guid.NewGuid(), targetProgramId, new DateTime(2025, 6, 2)));
+        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(Guid.NewGuid(), otherProgramId, new DateTime(2025, 6, 3)));
         await _context.SaveChangesAsync();
 
         var (items, totalCount) = await _sut.GetPagedByProgramAsync(targetProgramId, 1, 10);
@@ -117,8 +117,8 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     public async Task GetListByProgramAsync_ShouldReturnOnlyMatchingSessions()
     {
         var targetId = Guid.NewGuid();
-        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(targetId, new DateTime(2025, 6, 1)));
-        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(Guid.NewGuid(), new DateTime(2025, 6, 2)));
+        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(Guid.NewGuid(), targetId, new DateTime(2025, 6, 1)));
+        await _context.WorkoutSessions.AddAsync(WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 2)));
         await _context.SaveChangesAsync();
 
         var result = await _sut.GetListByProgramAsync(targetId);
@@ -130,7 +130,7 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task UpdateAsync_ShouldModifySession()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 1));
         await _context.WorkoutSessions.AddAsync(session);
         await _context.SaveChangesAsync();
 
@@ -145,7 +145,7 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task DeleteAsync_ShouldSoftDeleteSession()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         await _context.WorkoutSessions.AddAsync(session);
         await _context.SaveChangesAsync();
 
@@ -161,9 +161,9 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetAllAsync_ShouldReturnAllSessionsWithExercises()
     {
-        var s1 = WorkoutSession.Create(Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var s1 = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 1));
         s1.AddEntry(Guid.NewGuid(), 1, 80m, 10);
-        var s2 = WorkoutSession.Create(Guid.NewGuid(), new DateTime(2025, 6, 2));
+        var s2 = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 2));
         await _context.WorkoutSessions.AddRangeAsync(s1, s2);
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();

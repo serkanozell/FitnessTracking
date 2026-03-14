@@ -6,6 +6,7 @@ namespace WorkoutSessions.Domain.Entity
 {
     public class WorkoutSession : AggregateRoot<Guid>
     {
+        public Guid UserId { get; private set; }
         public Guid WorkoutProgramId { get; private set; }
         public DateTime Date { get; private set; }
 
@@ -14,16 +15,17 @@ namespace WorkoutSessions.Domain.Entity
 
         private WorkoutSession() { }
 
-        public WorkoutSession(Guid id, Guid workoutProgramId, DateTime date)
+        public WorkoutSession(Guid id, Guid userId, Guid workoutProgramId, DateTime date)
         {
             Id = id;
+            UserId = userId;
             WorkoutProgramId = workoutProgramId;
             Date = date;
         }
 
-        public static WorkoutSession Create(Guid workoutProgramId, DateTime dateTime)
+        public static WorkoutSession Create(Guid userId, Guid workoutProgramId, DateTime dateTime)
         {
-            var workoutSession = new WorkoutSession(Guid.NewGuid(), workoutProgramId, dateTime);
+            var workoutSession = new WorkoutSession(Guid.NewGuid(), userId, workoutProgramId, dateTime);
 
             workoutSession.AddDomainEvent(new WorkoutSessionCreatedEvent(workoutSession.Id, workoutProgramId));
 

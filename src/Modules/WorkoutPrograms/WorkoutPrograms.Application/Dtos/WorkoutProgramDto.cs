@@ -5,6 +5,7 @@ namespace WorkoutPrograms.Application.Dtos
     public sealed class WorkoutProgramDto
     {
         public Guid Id { get; init; }
+        public Guid UserId { get; init; }
         public string Name { get; init; } = default!;
         public DateTime StartDate { get; init; }
         public DateTime EndDate { get; init; }
@@ -19,6 +20,7 @@ namespace WorkoutPrograms.Application.Dtos
             new()
             {
                 Id = entity.Id,
+                UserId = entity.UserId,
                 Name = entity.Name,
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,

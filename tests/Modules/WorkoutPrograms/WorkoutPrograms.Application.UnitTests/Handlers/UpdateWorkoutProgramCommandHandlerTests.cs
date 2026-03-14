@@ -21,7 +21,7 @@ public class UpdateWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldUpdateProgram_WhenExistsAndDateRangeValid()
     {
-        var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new UpdateWorkoutProgramCommand(program.Id, "Updated", new DateTime(2025, 4, 1), new DateTime(2025, 6, 30));
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -48,7 +48,7 @@ public class UpdateWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnInvalidDateRangeError_WhenEndDateBeforeStartDate()
     {
-        var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new UpdateWorkoutProgramCommand(program.Id, "Name", new DateTime(2025, 6, 1), new DateTime(2025, 1, 1));
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);
 

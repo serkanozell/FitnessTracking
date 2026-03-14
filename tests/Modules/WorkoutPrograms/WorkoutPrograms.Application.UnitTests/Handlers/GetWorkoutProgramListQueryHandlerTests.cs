@@ -1,4 +1,5 @@
-using FluentAssertions;
+﻿using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgramList;
 using WorkoutPrograms.Domain.Entity;
@@ -10,11 +11,14 @@ namespace WorkoutPrograms.Application.UnitTests.Handlers;
 public class GetWorkoutProgramListQueryHandlerTests
 {
     private readonly IWorkoutProgramRepository _repository = Substitute.For<IWorkoutProgramRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private readonly Guid _userId = Guid.NewGuid();
     private readonly GetWorkoutProgramListQueryHandler _sut;
 
     public GetWorkoutProgramListQueryHandlerTests()
     {
-        _sut = new GetWorkoutProgramListQueryHandler(_repository);
+        _currentUser.UserId.Returns(_userId.ToString());
+        _sut = new GetWorkoutProgramListQueryHandler(_repository, _currentUser);
     }
 
     [Fact]
@@ -22,11 +26,11 @@ public class GetWorkoutProgramListQueryHandlerTests
     {
         var programs = new List<WorkoutProgram>
         {
-            WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31)),
-            WorkoutProgram.Create("Upper Lower", new DateTime(2025, 4, 1), new DateTime(2025, 6, 30))
+            WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31)),
+            WorkoutProgram.Create(Guid.NewGuid(), "Upper Lower", new DateTime(2025, 4, 1), new DateTime(2025, 6, 30))
         };
         var query = new GetWorkoutProgramListQuery(1, 10);
-        _repository.GetPagedAsync(1, 10, Arg.Any<CancellationToken>())
+        _repository.GetPagedByUserAsync(_userId, 1, 10, Arg.Any<CancellationToken>())
             .Returns(((IReadOnlyList<WorkoutProgram>)programs, 2));
 
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -41,7 +45,7 @@ public class GetWorkoutProgramListQueryHandlerTests
     public async Task Handle_ShouldReturnEmptyPagedResult_WhenNoPrograms()
     {
         var query = new GetWorkoutProgramListQuery(1, 10);
-        _repository.GetPagedAsync(1, 10, Arg.Any<CancellationToken>())
+        _repository.GetPagedByUserAsync(_userId, 1, 10, Arg.Any<CancellationToken>())
             .Returns(((IReadOnlyList<WorkoutProgram>)new List<WorkoutProgram>(), 0));
 
         var result = await _sut.Handle(query, CancellationToken.None);

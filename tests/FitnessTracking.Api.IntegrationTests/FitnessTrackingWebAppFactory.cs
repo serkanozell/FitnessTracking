@@ -1,3 +1,4 @@
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Abstractions.Caching;
 using BuildingBlocks.Infrastructure.Outbox;
 using Exercises.Infrastructure.Persistence;
@@ -16,6 +17,8 @@ namespace FitnessTracking.Api.IntegrationTests;
 
 public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
 {
+    public static readonly Guid TestUserId = Guid.NewGuid();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -47,6 +50,13 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
 
             // CacheAsideService pass-through: just call the factory delegate (no caching)
             services.AddSingleton<ICacheAsideService>(new PassThroughCacheAsideService());
+
+            // Fake authenticated user for integration tests
+            RemoveAllOfType<ICurrentUser>(services);
+            var fakeUser = Substitute.For<ICurrentUser>();
+            fakeUser.UserId.Returns(TestUserId.ToString());
+            fakeUser.IsAuthenticated.Returns(true);
+            services.AddSingleton(fakeUser);
 
             RemoveAllOfType<IHostedService>(services);
 

@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +42,7 @@ public class WorkoutProgramRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task AddAsync_ShouldPersistProgramWithSplitsAndExercises()
     {
-        var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
 
@@ -61,7 +61,7 @@ public class WorkoutProgramRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetByIdAsync_ShouldReturnProgramWithSplits()
     {
-        var program = WorkoutProgram.Create("UL", new DateTime(2025, 1, 1), new DateTime(2025, 6, 30));
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "UL", new DateTime(2025, 1, 1), new DateTime(2025, 6, 30));
         program.AddSplit("Upper", 1);
         program.AddSplit("Lower", 2);
         await _context.WorkoutPrograms.AddAsync(program);
@@ -84,7 +84,7 @@ public class WorkoutProgramRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetByIdWithExercisesAsync_ShouldIncludeNestedExercises()
     {
-        var program = WorkoutProgram.Create("Full Body", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "Full Body", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Day A", 1);
         program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 3, new RepRange(10, 15));
         program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(6, 8));
@@ -103,7 +103,7 @@ public class WorkoutProgramRepositoryTests : IAsyncLifetime
     {
         for (int i = 1; i <= 5; i++)
         {
-            var p = WorkoutProgram.Create($"Program {i}", new DateTime(2025, i, 1), new DateTime(2025, i + 1, 1));
+            var p = WorkoutProgram.Create(Guid.NewGuid(), $"Program {i}", new DateTime(2025, i, 1), new DateTime(2025, i + 1, 1));
             await _context.WorkoutPrograms.AddAsync(p);
         }
         await _context.SaveChangesAsync();
@@ -117,7 +117,7 @@ public class WorkoutProgramRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task UpdateAsync_ShouldModifyProgram()
     {
-        var program = WorkoutProgram.Create("Old", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "Old", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         await _context.WorkoutPrograms.AddAsync(program);
         await _context.SaveChangesAsync();
 
@@ -133,7 +133,7 @@ public class WorkoutProgramRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task DeleteAsync_ShouldSoftDeleteProgram()
     {
-        var program = WorkoutProgram.Create("ToDelete", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "ToDelete", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         await _context.WorkoutPrograms.AddAsync(program);
         await _context.SaveChangesAsync();
 
@@ -149,9 +149,9 @@ public class WorkoutProgramRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetListAsync_ShouldReturnAllWithSplitsAndExercises()
     {
-        var p1 = WorkoutProgram.Create("P1", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var p1 = WorkoutProgram.Create(Guid.NewGuid(), "P1", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         p1.AddSplit("S1", 1);
-        var p2 = WorkoutProgram.Create("P2", new DateTime(2025, 4, 1), new DateTime(2025, 6, 30));
+        var p2 = WorkoutProgram.Create(Guid.NewGuid(), "P2", new DateTime(2025, 4, 1), new DateTime(2025, 6, 30));
         await _context.WorkoutPrograms.AddRangeAsync(p1, p2);
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();

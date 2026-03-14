@@ -13,7 +13,7 @@ public class WorkoutProgramTests
     private static readonly DateTime DefaultEnd = new(2025, 3, 31);
 
     private static WorkoutProgram CreateDefaultProgram()
-        => WorkoutProgram.Create("PPL Program", DefaultStart, DefaultEnd);
+        => WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", DefaultStart, DefaultEnd);
 
     private static WorkoutProgram CreateActiveProgramWithSplit(out Guid splitId)
     {
@@ -30,7 +30,7 @@ public class WorkoutProgramTests
     [Fact]
     public void Create_ShouldSetProperties()
     {
-        var program = WorkoutProgram.Create("PPL Program", DefaultStart, DefaultEnd);
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", DefaultStart, DefaultEnd);
 
         program.Id.Should().NotBeEmpty();
         program.Name.Should().Be("PPL Program");
@@ -42,7 +42,7 @@ public class WorkoutProgramTests
     [Fact]
     public void Create_ShouldRaiseWorkoutProgramCreatedEvent()
     {
-        var program = WorkoutProgram.Create("PPL Program", DefaultStart, DefaultEnd);
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", DefaultStart, DefaultEnd);
 
         program.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<WorkoutProgramCreatedEvent>()

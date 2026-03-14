@@ -21,7 +21,7 @@ public class ActivateSessionExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldActivateEntry_WhenSessionActiveAndEntryExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         session.Activate();
         var entry = session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
         var command = new ActivateSessionExerciseCommand(session.Id, entry.Id);
@@ -49,7 +49,7 @@ public class ActivateSessionExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNotActiveError_WhenSessionNotActive()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var entry = session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
         var command = new ActivateSessionExerciseCommand(session.Id, entry.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
@@ -63,7 +63,7 @@ public class ActivateSessionExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenEntryNotExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         session.Activate();
         var command = new ActivateSessionExerciseCommand(session.Id, Guid.NewGuid());
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);

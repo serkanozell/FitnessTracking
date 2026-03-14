@@ -14,6 +14,11 @@ namespace WorkoutSessions.Infrastructure.Configurations
 
             builder.HasKey(x => x.Id);
 
+            builder.Property(x => x.UserId)
+                   .IsRequired();
+
+            builder.HasIndex(x => x.UserId);
+
             builder.Property(x => x.WorkoutProgramId)
                    .IsRequired();
 

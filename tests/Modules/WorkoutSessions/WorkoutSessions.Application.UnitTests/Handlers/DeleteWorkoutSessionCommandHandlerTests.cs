@@ -21,7 +21,7 @@ public class DeleteWorkoutSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldDeleteSession_WhenExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var command = new DeleteWorkoutSessionCommand(session.Id);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);
 

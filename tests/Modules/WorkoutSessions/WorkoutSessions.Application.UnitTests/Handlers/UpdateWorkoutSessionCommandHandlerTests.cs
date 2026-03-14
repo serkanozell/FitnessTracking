@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSession;
 using WorkoutSessions.Domain.Entity;
@@ -21,7 +21,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldUpdateDate_WhenSessionExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 1));
         var newDate = new DateTime(2025, 7, 1);
         var command = new UpdateWorkoutSessionCommand(session.Id, newDate);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);

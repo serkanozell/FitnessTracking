@@ -5,6 +5,7 @@ namespace WorkoutSessions.Application.Dtos
     public sealed class WorkoutSessionDto
     {
         public Guid Id { get; init; }
+        public Guid UserId { get; init; }
         public Guid WorkoutProgramId { get; init; }
         public DateTime Date { get; init; }
         public bool IsActive { get; init; }
@@ -18,6 +19,7 @@ namespace WorkoutSessions.Application.Dtos
             new()
             {
                 Id = entity.Id,
+                UserId = entity.UserId,
                 WorkoutProgramId = entity.WorkoutProgramId,
                 Date = entity.Date,
                 IsActive = entity.IsActive,

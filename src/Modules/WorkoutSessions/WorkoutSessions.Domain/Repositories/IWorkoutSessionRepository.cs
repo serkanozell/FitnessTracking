@@ -8,6 +8,8 @@ namespace WorkoutSessions.Domain.Repositories
         Task<IReadOnlyList<WorkoutSession>> GetListByProgramAsync(Guid workoutProgramId, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<WorkoutSession>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByUserAndProgramAsync(Guid userId, Guid workoutProgramId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByProgramAsync(Guid workoutProgramId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task AddAsync(WorkoutSession session, CancellationToken cancellationToken = default);
         void Update(WorkoutSession session);

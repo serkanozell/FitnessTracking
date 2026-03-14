@@ -39,6 +39,24 @@ namespace WorkoutSessions.Infrastructure.Repositories
                                                  .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
         }
 
+        public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _context.WorkoutSessions.Include(x => x.SessionExercises)
+                                                 .AsNoTracking()
+                                                 .Where(x => x.UserId == userId)
+                                                 .OrderByDescending(x => x.Date)
+                                                 .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+        }
+
+        public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByUserAndProgramAsync(Guid userId, Guid workoutProgramId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _context.WorkoutSessions.Include(x => x.SessionExercises)
+                                                 .AsNoTracking()
+                                                 .Where(x => x.UserId == userId && x.WorkoutProgramId == workoutProgramId)
+                                                 .OrderByDescending(x => x.Date)
+                                                 .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+        }
+
         public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByProgramAsync(Guid workoutProgramId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
             return await _context.WorkoutSessions.Include(x => x.SessionExercises)

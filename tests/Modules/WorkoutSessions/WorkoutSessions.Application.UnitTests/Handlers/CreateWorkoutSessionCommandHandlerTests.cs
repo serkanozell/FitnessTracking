@@ -1,4 +1,5 @@
-using FluentAssertions;
+﻿using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.CreateWorkoutSession;
 using WorkoutSessions.Domain.Entity;
@@ -10,12 +11,14 @@ namespace WorkoutSessions.Application.UnitTests.Handlers;
 public class CreateWorkoutSessionCommandHandlerTests
 {
     private readonly IWorkoutSessionRepository _repository = Substitute.For<IWorkoutSessionRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
     private readonly IWorkoutSessionsUnitOfWork _unitOfWork = Substitute.For<IWorkoutSessionsUnitOfWork>();
     private readonly CreateWorkoutSessionCommandHandler _sut;
 
     public CreateWorkoutSessionCommandHandlerTests()
     {
-        _sut = new CreateWorkoutSessionCommandHandler(_repository, _unitOfWork);
+        _currentUser.UserId.Returns(Guid.NewGuid().ToString());
+        _sut = new CreateWorkoutSessionCommandHandler(_repository, _unitOfWork, _currentUser);
     }
 
     [Fact]

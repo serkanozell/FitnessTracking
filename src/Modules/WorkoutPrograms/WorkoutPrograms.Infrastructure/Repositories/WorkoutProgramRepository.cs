@@ -30,6 +30,15 @@ namespace WorkoutPrograms.Infrastructure.Repositories
                                                  .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
         }
 
+        public async Task<(IReadOnlyList<WorkoutProgram> Items, int TotalCount)> GetPagedByUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _context.WorkoutPrograms.Include(x => x.Splits)
+                                                 .ThenInclude(x => x.Exercises)
+                                                 .Where(x => x.UserId == userId)
+                                                 .OrderByDescending(x => x.CreatedDate)
+                                                 .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+        }
+
         public async Task<WorkoutProgram?> GetByIdWithExercisesAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _context.WorkoutPrograms.Include(x => x.Splits)
