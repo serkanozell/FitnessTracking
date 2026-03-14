@@ -25,7 +25,7 @@ public class AddExerciseToSessionCommandHandlerTests
     {
         var programId = Guid.NewGuid();
         var exerciseId = Guid.NewGuid();
-        var session = WorkoutSession.Create(programId, DateTime.UtcNow);
+        var session = WorkoutSession.Create(programId, DateTime.Now);
         var command = new AddExerciseToSessionCommand(session.Id, exerciseId, 1, 80m, 10);
 
         _sessionRepository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
@@ -55,7 +55,7 @@ public class AddExerciseToSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnProgramNotFoundError_WhenProgramNotExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.UtcNow);
+        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
         var command = new AddExerciseToSessionCommand(session.Id, Guid.NewGuid(), 1, 80m, 10);
         _sessionRepository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
         _programModule.ExistsAsync(session.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(false);
@@ -71,7 +71,7 @@ public class AddExerciseToSessionCommandHandlerTests
     {
         var programId = Guid.NewGuid();
         var exerciseId = Guid.NewGuid();
-        var session = WorkoutSession.Create(programId, DateTime.UtcNow);
+        var session = WorkoutSession.Create(programId, DateTime.Now);
         var command = new AddExerciseToSessionCommand(session.Id, exerciseId, 1, 80m, 10);
 
         _sessionRepository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
@@ -90,7 +90,7 @@ public class AddExerciseToSessionCommandHandlerTests
     {
         var programId = Guid.NewGuid();
         var exerciseId = Guid.NewGuid();
-        var session = WorkoutSession.Create(programId, DateTime.UtcNow);
+        var session = WorkoutSession.Create(programId, DateTime.Now);
         session.AddEntry(exerciseId, 1, 80m, 10);
         session.AddEntry(exerciseId, 2, 80m, 10);
         var command = new AddExerciseToSessionCommand(session.Id, exerciseId, 3, 80m, 10);
@@ -111,7 +111,7 @@ public class AddExerciseToSessionCommandHandlerTests
     {
         var programId = Guid.NewGuid();
         var exerciseId = Guid.NewGuid();
-        var session = WorkoutSession.Create(programId, DateTime.UtcNow);
+        var session = WorkoutSession.Create(programId, DateTime.Now);
         session.AddEntry(exerciseId, 1, 80m, 10);
         var command = new AddExerciseToSessionCommand(session.Id, exerciseId, 1, 90m, 8);
 

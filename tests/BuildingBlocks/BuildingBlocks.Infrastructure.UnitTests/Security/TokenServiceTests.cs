@@ -95,7 +95,7 @@ public class TokenServiceTests
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.ReadJwtToken(token);
 
-        jwt.ValidTo.Should().BeAfter(DateTime.UtcNow);
+        jwt.ValidTo.Should().BeAfter(DateTime.Now);
     }
 
     [Fact]

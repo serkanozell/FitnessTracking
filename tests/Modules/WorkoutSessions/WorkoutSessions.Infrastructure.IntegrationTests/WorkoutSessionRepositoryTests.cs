@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -59,7 +59,7 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetByIdAsync_ShouldReturnSessionWithExercises()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.UtcNow);
+        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
         session.AddEntry(Guid.NewGuid(), 1, 60m, 12);
         session.AddEntry(Guid.NewGuid(), 2, 65m, 10);
         await _context.WorkoutSessions.AddAsync(session);
@@ -145,7 +145,7 @@ public class WorkoutSessionRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task DeleteAsync_ShouldSoftDeleteSession()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.UtcNow);
+        var session = WorkoutSession.Create(Guid.NewGuid(), DateTime.Now);
         await _context.WorkoutSessions.AddAsync(session);
         await _context.SaveChangesAsync();
 

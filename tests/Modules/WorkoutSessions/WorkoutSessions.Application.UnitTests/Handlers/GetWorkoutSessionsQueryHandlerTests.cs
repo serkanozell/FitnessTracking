@@ -22,8 +22,8 @@ public class GetWorkoutSessionsQueryHandlerTests
     {
         var sessions = new List<WorkoutSession>
         {
-            WorkoutSession.Create(Guid.NewGuid(), DateTime.UtcNow),
-            WorkoutSession.Create(Guid.NewGuid(), DateTime.UtcNow)
+            WorkoutSession.Create(Guid.NewGuid(), DateTime.Now),
+            WorkoutSession.Create(Guid.NewGuid(), DateTime.Now)
         };
         var query = new GetWorkoutSessionsQuery(null, 1, 10);
         _repository.GetPagedAsync(1, 10, Arg.Any<CancellationToken>())
@@ -41,7 +41,7 @@ public class GetWorkoutSessionsQueryHandlerTests
     public async Task Handle_ShouldFilterByProgram_WhenProgramIdProvided()
     {
         var programId = Guid.NewGuid();
-        var sessions = new List<WorkoutSession> { WorkoutSession.Create(programId, DateTime.UtcNow) };
+        var sessions = new List<WorkoutSession> { WorkoutSession.Create(programId, DateTime.Now) };
         var query = new GetWorkoutSessionsQuery(programId, 1, 10);
         _repository.GetPagedByProgramAsync(programId, 1, 10, Arg.Any<CancellationToken>())
             .Returns(((IReadOnlyList<WorkoutSession>)sessions, 1));

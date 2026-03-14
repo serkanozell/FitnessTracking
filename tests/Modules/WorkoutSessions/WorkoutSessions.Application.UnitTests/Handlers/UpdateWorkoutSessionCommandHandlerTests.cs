@@ -36,7 +36,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNotFoundError_WhenSessionNotExists()
     {
-        var command = new UpdateWorkoutSessionCommand(Guid.NewGuid(), DateTime.UtcNow);
+        var command = new UpdateWorkoutSessionCommand(Guid.NewGuid(), DateTime.Now);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns((WorkoutSession?)null);
 
         var result = await _sut.Handle(command, CancellationToken.None);

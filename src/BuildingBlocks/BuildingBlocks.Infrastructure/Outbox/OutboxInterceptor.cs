@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -48,7 +48,7 @@ namespace BuildingBlocks.Infrastructure.Outbox
                 EventType = domainEvent.GetType().AssemblyQualifiedName!,
                 Content = JsonSerializer.Serialize(domainEvent, domainEvent.GetType()),
                 IsProcessed = false,
-                OccurredOnUtc = DateTime.UtcNow,
+                OccurredOnUtc = DateTime.Now,
                 ProcessedOnUtc = null,
                 Error = null
             }).ToList();

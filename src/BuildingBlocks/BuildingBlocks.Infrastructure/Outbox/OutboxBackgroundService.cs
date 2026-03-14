@@ -86,7 +86,7 @@ namespace BuildingBlocks.Infrastructure.Outbox
                     await mediator.Publish(domainEvent, cancellationToken);
 
                     message.IsProcessed = true;
-                    message.ProcessedOnUtc = DateTime.UtcNow;
+                    message.ProcessedOnUtc = DateTime.Now;
                     message.Error = null;
 
                     _logger.LogDebug("Successfully processed outbox message {MessageId} of type {EventType}",
@@ -117,7 +117,7 @@ namespace BuildingBlocks.Infrastructure.Outbox
         private static void MarkAsDeadLetter(OutboxMessage message, string error)
         {
             message.IsProcessed = true;
-            message.ProcessedOnUtc = DateTime.UtcNow;
+            message.ProcessedOnUtc = DateTime.Now;
             message.Error = error;
         }
     }

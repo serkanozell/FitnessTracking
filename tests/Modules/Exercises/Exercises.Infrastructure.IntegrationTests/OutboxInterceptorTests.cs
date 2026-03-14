@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Outbox;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using Exercises.Domain.Entity;
@@ -94,7 +94,7 @@ public class OutboxInterceptorTests : IAsyncLifetime
         message.EventType.Should().NotBeNullOrEmpty();
         message.Content.Should().NotBeNullOrEmpty();
         message.IsProcessed.Should().BeFalse();
-        message.OccurredOnUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+        message.OccurredOnUtc.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(5));
         message.ProcessedOnUtc.Should().BeNull();
         message.Error.Should().BeNull();
     }
