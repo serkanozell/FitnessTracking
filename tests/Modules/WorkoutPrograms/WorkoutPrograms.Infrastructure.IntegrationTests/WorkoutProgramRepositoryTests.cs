@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using WorkoutPrograms.Domain.Entity;
+using WorkoutPrograms.Domain.ValueObjects;
 using WorkoutPrograms.Infrastructure.Persistence;
 using WorkoutPrograms.Infrastructure.Repositories;
 using Xunit;
@@ -37,7 +38,7 @@ public class WorkoutProgramRepositoryTests : IDisposable
     {
         var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
-        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, 8, 12);
+        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
 
         await _sut.AddAsync(program);
         await _context.SaveChangesAsync();
@@ -79,8 +80,8 @@ public class WorkoutProgramRepositoryTests : IDisposable
     {
         var program = WorkoutProgram.Create("Full Body", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Day A", 1);
-        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 3, 10, 15);
-        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, 6, 8);
+        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 3, new RepRange(10, 15));
+        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(6, 8));
         await _context.WorkoutPrograms.AddAsync(program);
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();

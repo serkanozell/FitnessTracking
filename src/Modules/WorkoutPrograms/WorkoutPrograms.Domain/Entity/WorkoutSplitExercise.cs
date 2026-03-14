@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Domain.Abstractions;
+using WorkoutPrograms.Domain.ValueObjects;
 
 namespace WorkoutPrograms.Domain.Entity
 {
@@ -7,31 +8,27 @@ namespace WorkoutPrograms.Domain.Entity
         public Guid ExerciseId { get; private set; }
         public Guid WorkoutProgramSplitId { get; private set; }
         public int Sets { get; private set; }
-        public int MinimumReps { get; private set; }
-        public int MaximumReps { get; private set; }
+        public RepRange RepRange { get; private set; }
 
         private WorkoutSplitExercise() { }
 
         public WorkoutSplitExercise(Guid id,
                                       Guid exerciseId,
                                       int sets,
-                                      int minimumReps,
-                                      int maximumReps,
+                                      RepRange repRange,
                                       Guid workoutProgramSplitId)
         {
             Id = id;
             ExerciseId = exerciseId;
             Sets = sets;
-            MinimumReps = minimumReps;
-            MaximumReps = maximumReps;
+            RepRange = repRange;
             WorkoutProgramSplitId = workoutProgramSplitId;
         }
 
-        public void Update(int sets, int minimumReps, int maximumReps)
+        public void Update(int sets, RepRange repRange)
         {
             Sets = sets;
-            MinimumReps = minimumReps;
-            MaximumReps = maximumReps;
+            RepRange = repRange;
         }
 
         public void Activate()

@@ -1,4 +1,5 @@
-using WorkoutPrograms.Domain.Repositories;
+﻿using WorkoutPrograms.Domain.Repositories;
+using WorkoutPrograms.Domain.ValueObjects;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.AddExerciseToSplit
 {
@@ -16,11 +17,11 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             if (programSplit is null)
                 return WorkoutProgramErrors.SplitNotFound(request.WorkoutProgramId, request.WorkoutProgramSplitId);
 
+            var repRange = new RepRange(request.MinimumReps, request.MaximumReps);
             var splitExercise = workoutProgram.AddExerciseToSplit(request.WorkoutProgramSplitId,
                                                                   request.ExerciseId,
                                                                   request.Sets,
-                                                                  request.MinimumReps,
-                                                                  request.MaximumReps);
+                                                                  repRange);
 
             _workoutProgramRepository.Update(workoutProgram);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

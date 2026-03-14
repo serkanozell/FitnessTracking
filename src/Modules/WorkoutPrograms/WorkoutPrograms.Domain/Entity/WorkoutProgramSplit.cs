@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Exceptions;
+using WorkoutPrograms.Domain.ValueObjects;
 
 namespace WorkoutPrograms.Domain.Entity
 {
@@ -38,7 +39,7 @@ namespace WorkoutPrograms.Domain.Entity
             IsDeleted = false;
         }
 
-        public WorkoutSplitExercise AddExercise(Guid exerciseId, int sets, int minimumReps, int maximumReps)
+        public WorkoutSplitExercise AddExercise(Guid exerciseId, int sets, RepRange repRange)
         {
             if (Exercises.Any(x => x.ExerciseId == exerciseId))
             {
@@ -50,8 +51,7 @@ namespace WorkoutPrograms.Domain.Entity
                 Guid.NewGuid(),
                 exerciseId,
                 sets,
-                minimumReps,
-                maximumReps,
+                repRange,
                 Id // SplitId
             );
 
@@ -60,11 +60,11 @@ namespace WorkoutPrograms.Domain.Entity
             return workoutSplitExercise;
         }
 
-        public void UpdateExercise(Guid workoutSplitExerciseId, int sets, int minimumReps, int maximumReps)
+        public void UpdateExercise(Guid workoutSplitExerciseId, int sets, RepRange repRange)
         {
             var item = Exercises.SingleOrDefault(x => x.Id == workoutSplitExerciseId) ?? throw new DomainNotFoundException("WorkoutSplitExercise", workoutSplitExerciseId, "Split", Id);
 
-            item.Update(sets, minimumReps, maximumReps);
+            item.Update(sets, repRange);
         }
 
         public void ActivateExercise(Guid workoutSplitExerciseId)

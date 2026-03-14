@@ -1,6 +1,7 @@
 using BuildingBlocks.Domain.Exceptions;
 using FluentAssertions;
 using WorkoutPrograms.Domain.Entity;
+using WorkoutPrograms.Domain.ValueObjects;
 using WorkoutPrograms.Domain.Events;
 using Xunit;
 
@@ -305,12 +306,12 @@ public class WorkoutProgramTests
         var program = CreateActiveProgramWithSplit(out var splitId);
         var exerciseId = Guid.NewGuid();
 
-        var exercise = program.AddExerciseToSplit(splitId, exerciseId, 4, 8, 12);
+        var exercise = program.AddExerciseToSplit(splitId, exerciseId, 4, new RepRange(8, 12));
 
         exercise.ExerciseId.Should().Be(exerciseId);
         exercise.Sets.Should().Be(4);
-        exercise.MinimumReps.Should().Be(8);
-        exercise.MaximumReps.Should().Be(12);
+        exercise.RepRange.Minimum.Should().Be(8);
+        exercise.RepRange.Maximum.Should().Be(12);
         program.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<SplitExerciseChangedEvent>();
     }
@@ -320,7 +321,7 @@ public class WorkoutProgramTests
     {
         var program = CreateDefaultProgram();
 
-        var act = () => program.AddExerciseToSplit(Guid.NewGuid(), Guid.NewGuid(), 4, 8, 12);
+        var act = () => program.AddExerciseToSplit(Guid.NewGuid(), Guid.NewGuid(), 4, new RepRange(8, 12));
 
         act.Should().Throw<DomainNotFoundException>();
     }
@@ -330,10 +331,10 @@ public class WorkoutProgramTests
     {
         var program = CreateActiveProgramWithSplit(out var splitId);
         var exerciseId = Guid.NewGuid();
-        program.AddExerciseToSplit(splitId, exerciseId, 4, 8, 12);
+        program.AddExerciseToSplit(splitId, exerciseId, 4, new RepRange(8, 12));
         program.ClearDomainEvents();
 
-        var act = () => program.AddExerciseToSplit(splitId, exerciseId, 3, 6, 10);
+        var act = () => program.AddExerciseToSplit(splitId, exerciseId, 3, new RepRange(6, 10));
 
         act.Should().Throw<BusinessRuleViolationException>()
             .WithMessage("*already part of split*");
@@ -348,15 +349,15 @@ public class WorkoutProgramTests
     {
         var program = CreateActiveProgramWithSplit(out var splitId);
         var exerciseId = Guid.NewGuid();
-        var exercise = program.AddExerciseToSplit(splitId, exerciseId, 4, 8, 12);
+        var exercise = program.AddExerciseToSplit(splitId, exerciseId, 4, new RepRange(8, 12));
         program.ClearDomainEvents();
 
-        program.UpdateExerciseInSplit(splitId, exercise.Id, 5, 6, 10);
+        program.UpdateExerciseInSplit(splitId, exercise.Id, 5, new RepRange(6, 10));
 
         var updated = program.Splits.Single().Exercises.Single();
         updated.Sets.Should().Be(5);
-        updated.MinimumReps.Should().Be(6);
-        updated.MaximumReps.Should().Be(10);
+        updated.RepRange.Minimum.Should().Be(6);
+        updated.RepRange.Maximum.Should().Be(10);
         program.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<SplitExerciseChangedEvent>();
     }
@@ -366,7 +367,7 @@ public class WorkoutProgramTests
     {
         var program = CreateDefaultProgram();
 
-        var act = () => program.UpdateExerciseInSplit(Guid.NewGuid(), Guid.NewGuid(), 5, 6, 10);
+        var act = () => program.UpdateExerciseInSplit(Guid.NewGuid(), Guid.NewGuid(), 5, new RepRange(6, 10));
 
         act.Should().Throw<DomainNotFoundException>();
     }
@@ -380,7 +381,7 @@ public class WorkoutProgramTests
     {
         var program = CreateActiveProgramWithSplit(out var splitId);
         var exerciseId = Guid.NewGuid();
-        var exercise = program.AddExerciseToSplit(splitId, exerciseId, 4, 8, 12);
+        var exercise = program.AddExerciseToSplit(splitId, exerciseId, 4, new RepRange(8, 12));
         program.ClearDomainEvents();
 
         program.RemoveExerciseFromSplit(splitId, exercise.Id);
@@ -410,7 +411,7 @@ public class WorkoutProgramTests
         var program = CreateActiveProgramWithSplit(out var splitId);
         var split = program.Splits.Single();
         program.ActivateSplit(splitId);
-        var exercise = program.AddExerciseToSplit(splitId, Guid.NewGuid(), 4, 8, 12);
+        var exercise = program.AddExerciseToSplit(splitId, Guid.NewGuid(), 4, new RepRange(8, 12));
         program.ClearDomainEvents();
 
         program.ActivateSplitExercise(splitId, exercise.Id);
@@ -457,7 +458,7 @@ public class WorkoutProgramTests
     {
         var program = CreateActiveProgramWithSplit(out var splitId);
         var exerciseId = Guid.NewGuid();
-        program.AddExerciseToSplit(splitId, exerciseId, 4, 8, 12);
+        program.AddExerciseToSplit(splitId, exerciseId, 4, new RepRange(8, 12));
 
         program.ContainsExercise(exerciseId).Should().BeTrue();
     }

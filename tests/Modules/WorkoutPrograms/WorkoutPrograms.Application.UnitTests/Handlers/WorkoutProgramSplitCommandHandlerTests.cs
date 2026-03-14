@@ -10,6 +10,7 @@ using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.
 using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.RemoveSplitExercise;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.UpdateSplitExercise;
 using WorkoutPrograms.Domain.Entity;
+using WorkoutPrograms.Domain.ValueObjects;
 using WorkoutPrograms.Domain.Repositories;
 using Xunit;
 
@@ -352,7 +353,7 @@ public class UpdateSplitExerciseCommandHandlerTests
     {
         var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
-        var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, 8, 12);
+        var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
         var command = new UpdateSplitExerciseCommand(program.Id, split.Id, exercise.Id, 5, 6, 10);
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -360,8 +361,8 @@ public class UpdateSplitExerciseCommandHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         exercise.Sets.Should().Be(5);
-        exercise.MinimumReps.Should().Be(6);
-        exercise.MaximumReps.Should().Be(10);
+        exercise.RepRange.Minimum.Should().Be(6);
+        exercise.RepRange.Maximum.Should().Be(10);
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
@@ -421,7 +422,7 @@ public class RemoveSplitExerciseCommandHandlerTests
     {
         var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
-        var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, 8, 12);
+        var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
         var command = new RemoveSplitExerciseCommand(program.Id, split.Id, exercise.Id);
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -490,7 +491,7 @@ public class ActivateSplitExerciseCommandHandlerTests
         program.Activate();
         var split = program.AddSplit("Push Day", 1);
         program.ActivateSplit(split.Id);
-        var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, 8, 12);
+        var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
         var command = new ActivateSplitExerciseCommand(program.Id, split.Id, exercise.Id);
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 

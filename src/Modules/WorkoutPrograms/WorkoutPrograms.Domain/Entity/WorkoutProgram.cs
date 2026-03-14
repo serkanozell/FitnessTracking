@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Exceptions;
 using WorkoutPrograms.Domain.Events;
+using WorkoutPrograms.Domain.ValueObjects;
 
 namespace WorkoutPrograms.Domain.Entity
 {
@@ -135,24 +136,24 @@ namespace WorkoutPrograms.Domain.Entity
                          .Any(x => x.ExerciseId == exerciseId);
         }
 
-        public WorkoutSplitExercise AddExerciseToSplit(Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps)
+        public WorkoutSplitExercise AddExerciseToSplit(Guid splitId, Guid exerciseId, int sets, RepRange repRange)
         {
             var split = Splits.SingleOrDefault(x => x.Id == splitId)
                         ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
 
-            var exercise = split.AddExercise(exerciseId, sets, minimumReps, maximumReps);
+            var exercise = split.AddExercise(exerciseId, sets, repRange);
 
             AddDomainEvent(new SplitExerciseChangedEvent(Id, splitId));
 
             return exercise;
         }
 
-        public void UpdateExerciseInSplit(Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps)
+        public void UpdateExerciseInSplit(Guid splitId, Guid exerciseId, int sets, RepRange repRange)
         {
             var split = Splits.SingleOrDefault(x => x.Id == splitId)
                         ?? throw new DomainNotFoundException("Split", splitId, "WorkoutProgram", Id);
 
-            split.UpdateExercise(exerciseId, sets, minimumReps, maximumReps);
+            split.UpdateExercise(exerciseId, sets, repRange);
 
             AddDomainEvent(new SplitExerciseChangedEvent(Id, splitId));
         }

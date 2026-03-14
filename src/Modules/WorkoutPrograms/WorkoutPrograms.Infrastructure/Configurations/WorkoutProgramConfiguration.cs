@@ -96,11 +96,16 @@ namespace WorkoutPrograms.Infrastructure.Configurations
                             pe.Property(x => x.Sets)
                               .IsRequired();
 
-                            pe.Property(x => x.MinimumReps)
-                              .IsRequired();
+                            pe.OwnsOne(x => x.RepRange, rr =>
+                            {
+                                rr.Property(x => x.Minimum)
+                                  .HasColumnName("MinimumReps")
+                                  .IsRequired();
 
-                            pe.Property(x => x.MaximumReps)
-                              .IsRequired();
+                                rr.Property(x => x.Maximum)
+                                  .HasColumnName("MaximumReps")
+                                  .IsRequired();
+                            });
 
                             // Audit
                             pe.Property(x => x.CreatedDate)

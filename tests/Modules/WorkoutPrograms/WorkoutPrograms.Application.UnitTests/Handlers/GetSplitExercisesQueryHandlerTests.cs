@@ -3,6 +3,7 @@ using FluentAssertions;
 using NSubstitute;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.GetSplitExercises;
 using WorkoutPrograms.Domain.Entity;
+using WorkoutPrograms.Domain.ValueObjects;
 using WorkoutPrograms.Domain.Repositories;
 using Xunit;
 
@@ -25,7 +26,7 @@ public class GetSplitExercisesQueryHandlerTests
         var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var exerciseId = Guid.NewGuid();
-        program.AddExerciseToSplit(split.Id, exerciseId, 4, 8, 12);
+        program.AddExerciseToSplit(split.Id, exerciseId, 4, new RepRange(8, 12));
 
         var query = new GetSplitExercisesQuery(program.Id, split.Id);
         _repository.GetByIdWithExercisesAsync(query.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -51,7 +52,7 @@ public class GetSplitExercisesQueryHandlerTests
     {
         var program = WorkoutProgram.Create("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
-        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, 8, 12);
+        program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
 
         var query = new GetSplitExercisesQuery(program.Id, split.Id);
         _repository.GetByIdWithExercisesAsync(query.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
