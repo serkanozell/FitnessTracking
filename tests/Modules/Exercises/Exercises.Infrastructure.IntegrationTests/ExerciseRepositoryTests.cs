@@ -11,19 +11,20 @@ using Xunit;
 
 namespace Exercises.Infrastructure.IntegrationTests;
 
-public class ExerciseRepositoryTests : IDisposable
+[Collection("SqlServer")]
+public class ExerciseRepositoryTests : IAsyncLifetime
 {
     private readonly ExercisesDbContext _context;
     private readonly ExerciseRepository _sut;
 
-    public ExerciseRepositoryTests()
+    public ExerciseRepositoryTests(SqlServerContainerFixture fixture)
     {
         var currentUser = Substitute.For<ICurrentUser>();
         currentUser.IsAuthenticated.Returns(true);
         currentUser.UserId.Returns("test-user");
 
         var options = new DbContextOptionsBuilder<ExercisesDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseSqlServer(fixture.GetDatabaseConnectionString("ExerciseRepoTests"))
             .AddInterceptors(new AuditableEntityInterceptor(currentUser))
             .Options;
 
@@ -31,7 +32,12 @@ public class ExerciseRepositoryTests : IDisposable
         _sut = new ExerciseRepository(_context);
     }
 
-    public void Dispose() => _context.Dispose();
+    public async ValueTask InitializeAsync() => await _context.Database.EnsureCreatedAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await _context.Database.EnsureDeletedAsync();
+        await _context.DisposeAsync();
+    }
 
     [Fact]
     public async Task AddAsync_ShouldPersistExercise()

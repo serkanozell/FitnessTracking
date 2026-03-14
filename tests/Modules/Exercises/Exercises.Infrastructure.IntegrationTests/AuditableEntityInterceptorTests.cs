@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;
@@ -10,12 +10,13 @@ using Xunit;
 
 namespace Exercises.Infrastructure.IntegrationTests;
 
-public class AuditableEntityInterceptorTests : IDisposable
+[Collection("SqlServer")]
+public class AuditableEntityInterceptorTests : IAsyncLifetime
 {
     private readonly ExercisesDbContext _context;
     private readonly ICurrentUser _currentUser;
 
-    public AuditableEntityInterceptorTests()
+    public AuditableEntityInterceptorTests(SqlServerContainerFixture fixture)
     {
         _currentUser = Substitute.For<ICurrentUser>();
         _currentUser.IsAuthenticated.Returns(true);
@@ -23,14 +24,19 @@ public class AuditableEntityInterceptorTests : IDisposable
 
         var interceptor = new AuditableEntityInterceptor(_currentUser);
         var options = new DbContextOptionsBuilder<ExercisesDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseSqlServer(fixture.GetDatabaseConnectionString("AuditableTests"))
             .AddInterceptors(interceptor)
             .Options;
 
         _context = new ExercisesDbContext(options);
     }
 
-    public void Dispose() => _context.Dispose();
+    public async ValueTask InitializeAsync() => await _context.Database.EnsureCreatedAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await _context.Database.EnsureDeletedAsync();
+        await _context.DisposeAsync();
+    }
 
     [Fact]
     public async Task SavingChanges_ShouldSetCreatedByAndCreatedDate_OnAdd()

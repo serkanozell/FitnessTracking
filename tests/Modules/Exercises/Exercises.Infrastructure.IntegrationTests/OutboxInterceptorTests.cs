@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Outbox;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using Exercises.Domain.Entity;
@@ -11,24 +11,30 @@ using Xunit;
 
 namespace Exercises.Infrastructure.IntegrationTests;
 
-public class OutboxInterceptorTests : IDisposable
+[Collection("SqlServer")]
+public class OutboxInterceptorTests : IAsyncLifetime
 {
     private readonly ExercisesDbContext _context;
 
-    public OutboxInterceptorTests()
+    public OutboxInterceptorTests(SqlServerContainerFixture fixture)
     {
         var currentUser = Substitute.For<ICurrentUser>();
         currentUser.IsAuthenticated.Returns(false);
 
         var options = new DbContextOptionsBuilder<ExercisesDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseSqlServer(fixture.GetDatabaseConnectionString("OutboxTests"))
             .AddInterceptors(new OutboxInterceptor(), new AuditableEntityInterceptor(currentUser))
             .Options;
 
         _context = new ExercisesDbContext(options);
     }
 
-    public void Dispose() => _context.Dispose();
+    public async ValueTask InitializeAsync() => await _context.Database.EnsureCreatedAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await _context.Database.EnsureDeletedAsync();
+        await _context.DisposeAsync();
+    }
 
     [Fact]
     public async Task SavingChanges_ShouldConvertDomainEventsToOutboxMessages()

@@ -10,19 +10,20 @@ using Xunit;
 
 namespace WorkoutSessions.Infrastructure.IntegrationTests;
 
-public class WorkoutSessionRepositoryTests : IDisposable
+[Collection("SqlServer")]
+public class WorkoutSessionRepositoryTests : IAsyncLifetime
 {
     private readonly WorkoutSessionsDbContext _context;
     private readonly WorkoutSessionRepository _sut;
 
-    public WorkoutSessionRepositoryTests()
+    public WorkoutSessionRepositoryTests(SqlServerContainerFixture fixture)
     {
         var currentUser = Substitute.For<ICurrentUser>();
         currentUser.IsAuthenticated.Returns(true);
         currentUser.UserId.Returns("test-user");
 
         var options = new DbContextOptionsBuilder<WorkoutSessionsDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseSqlServer(fixture.GetDatabaseConnectionString("WorkoutSessionRepoTests"))
             .AddInterceptors(new AuditableEntityInterceptor(currentUser))
             .Options;
 
@@ -30,7 +31,12 @@ public class WorkoutSessionRepositoryTests : IDisposable
         _sut = new WorkoutSessionRepository(_context);
     }
 
-    public void Dispose() => _context.Dispose();
+    public async ValueTask InitializeAsync() => await _context.Database.EnsureCreatedAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await _context.Database.EnsureDeletedAsync();
+        await _context.DisposeAsync();
+    }
 
     [Fact]
     public async Task AddAsync_ShouldPersistSessionWithExercises()

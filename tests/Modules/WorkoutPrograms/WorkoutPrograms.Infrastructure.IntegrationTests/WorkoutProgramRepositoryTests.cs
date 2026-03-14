@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -11,19 +11,20 @@ using Xunit;
 
 namespace WorkoutPrograms.Infrastructure.IntegrationTests;
 
-public class WorkoutProgramRepositoryTests : IDisposable
+[Collection("SqlServer")]
+public class WorkoutProgramRepositoryTests : IAsyncLifetime
 {
     private readonly WorkoutProgramsDbContext _context;
     private readonly WorkoutProgramRepository _sut;
 
-    public WorkoutProgramRepositoryTests()
+    public WorkoutProgramRepositoryTests(SqlServerContainerFixture fixture)
     {
         var currentUser = Substitute.For<ICurrentUser>();
         currentUser.IsAuthenticated.Returns(true);
         currentUser.UserId.Returns("test-user");
 
         var options = new DbContextOptionsBuilder<WorkoutProgramsDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseSqlServer(fixture.GetDatabaseConnectionString("WorkoutProgramRepoTests"))
             .AddInterceptors(new AuditableEntityInterceptor(currentUser))
             .Options;
 
@@ -31,7 +32,12 @@ public class WorkoutProgramRepositoryTests : IDisposable
         _sut = new WorkoutProgramRepository(_context);
     }
 
-    public void Dispose() => _context.Dispose();
+    public async ValueTask InitializeAsync() => await _context.Database.EnsureCreatedAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await _context.Database.EnsureDeletedAsync();
+        await _context.DisposeAsync();
+    }
 
     [Fact]
     public async Task AddAsync_ShouldPersistProgramWithSplitsAndExercises()
