@@ -26,7 +26,7 @@ public sealed class UpdateExerciseInSessionEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.Problem(title: "Update exercise failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                : result.Error!.ToProblem("Update exercise failed.");
         })
         .WithName("UpdateExerciseInSession")
         .WithTags("SessionExercises")

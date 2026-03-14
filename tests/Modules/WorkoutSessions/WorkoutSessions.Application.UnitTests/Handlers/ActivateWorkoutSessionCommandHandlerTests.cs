@@ -1,4 +1,5 @@
 using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.ActivateWorkoutSession;
 using WorkoutSessions.Domain.Entity;
@@ -10,18 +11,22 @@ namespace WorkoutSessions.Application.UnitTests.Handlers;
 public class ActivateWorkoutSessionCommandHandlerTests
 {
     private readonly IWorkoutSessionRepository _repository = Substitute.For<IWorkoutSessionRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private static readonly Guid TestUserId = Guid.NewGuid();
     private readonly IWorkoutSessionsUnitOfWork _unitOfWork = Substitute.For<IWorkoutSessionsUnitOfWork>();
     private readonly ActivateWorkoutSessionCommandHandler _sut;
 
     public ActivateWorkoutSessionCommandHandlerTests()
     {
-        _sut = new ActivateWorkoutSessionCommandHandler(_repository, _unitOfWork);
+        _currentUser.UserId.Returns(TestUserId.ToString());
+        _currentUser.IsAuthenticated.Returns(true);
+        _sut = new ActivateWorkoutSessionCommandHandler(_repository, _unitOfWork, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldActivateSession_WhenExistsAndNotActive()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         var command = new ActivateWorkoutSessionCommand(session.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
 
@@ -48,7 +53,7 @@ public class ActivateWorkoutSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnAlreadyActiveError_WhenAlreadyActive()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         session.Activate();
         var command = new ActivateWorkoutSessionCommand(session.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);

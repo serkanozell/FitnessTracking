@@ -1,8 +1,12 @@
+﻿using BuildingBlocks.Application.Abstractions;
 using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.DeleteWorkoutProgramSplit
 {
-    internal sealed class DeleteWorkoutProgramSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<DeleteWorkoutProgramSplitCommand, Result<bool>>
+    internal sealed class DeleteWorkoutProgramSplitCommandHandler(
+        IWorkoutProgramRepository _workoutProgramRepository,
+        IWorkoutProgramsUnitOfWork _unitOfWork,
+        ICurrentUser _currentUser) : ICommandHandler<DeleteWorkoutProgramSplitCommand, Result<bool>>
     {
         public async Task<Result<bool>> Handle(DeleteWorkoutProgramSplitCommand request, CancellationToken cancellationToken)
         {
@@ -10,6 +14,10 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
             if (workoutProgram is null)
                 return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
+
+            var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, workoutProgram.UserId);
+            if (ownershipError is not null)
+                return ownershipError;
 
             var split = workoutProgram.Splits.SingleOrDefault(s => s.Id == request.SplitId);
 

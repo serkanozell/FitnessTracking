@@ -1,4 +1,5 @@
 using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.ActivateWorkoutProgram;
 using WorkoutPrograms.Domain.Entity;
@@ -10,18 +11,22 @@ namespace WorkoutPrograms.Application.UnitTests.Handlers;
 public class ActivateWorkoutProgramCommandHandlerTests
 {
     private readonly IWorkoutProgramRepository _repository = Substitute.For<IWorkoutProgramRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private static readonly Guid TestUserId = Guid.NewGuid();
     private readonly IWorkoutProgramsUnitOfWork _unitOfWork = Substitute.For<IWorkoutProgramsUnitOfWork>();
     private readonly ActivateWorkoutProgramCommandHandler _sut;
 
     public ActivateWorkoutProgramCommandHandlerTests()
     {
-        _sut = new ActivateWorkoutProgramCommandHandler(_repository, _unitOfWork);
+        _currentUser.UserId.Returns(TestUserId.ToString());
+        _currentUser.IsAuthenticated.Returns(true);
+        _sut = new ActivateWorkoutProgramCommandHandler(_repository, _unitOfWork, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldActivateProgram_WhenExistsAndNotActive()
     {
-        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new ActivateWorkoutProgramCommand(program.Id);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -48,7 +53,7 @@ public class ActivateWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnAlreadyActiveError_WhenAlreadyActive()
     {
-        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.Activate();
         var command = new ActivateWorkoutProgramCommand(program.Id);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);

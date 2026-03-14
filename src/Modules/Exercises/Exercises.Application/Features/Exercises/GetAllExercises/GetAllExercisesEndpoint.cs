@@ -18,9 +18,7 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
                 var result = await sender.Send(query, ct);
 
                 return result.IsSuccess ? Results.Ok(result.Data)
-                                        : Results.Problem(title: "Failed to retrieve exercises.",
-                                                          detail: result.Error?.Message,
-                                                          statusCode: StatusCodes.Status400BadRequest);
+                                        : result.Error!.ToProblem("Failed to retrieve exercises.");
             })
             .WithName("GetAllExercises")
             .WithTags("Exercises")

@@ -14,7 +14,7 @@ public sealed class DeleteWorkoutSessionEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.Problem(title: "Delete session failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                : result.Error!.ToProblem("Delete session failed.");
         })
         .WithName("DeleteWorkoutSession")
         .WithTags("WorkoutSessions")

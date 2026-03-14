@@ -15,7 +15,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProg
 
                 return result.IsSuccess
                     ? Results.Created($"/api/v1/workout-programs/{result.Data}", new CreateWorkoutProgramResponse(result.Data))
-                    : Results.Problem(title: "Create failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
+                    : result.Error!.ToProblem("Create failed.");
             })
             .WithName("CreateWorkoutProgram")
             .WithTags("WorkoutPrograms")

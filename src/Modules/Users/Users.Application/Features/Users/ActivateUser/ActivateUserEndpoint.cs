@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,9 +14,7 @@ namespace Users.Application.Features.Users.ActivateUser
 
                 if (!result.IsSuccess)
                 {
-                    return Results.Problem(title: "Activate user failed.",
-                                           detail: result.Error?.Message,
-                                           statusCode: StatusCodes.Status400BadRequest);
+                    return result.Error!.ToProblem("Activate user failed.");
                 }
 
                 return Results.NoContent();

@@ -14,14 +14,15 @@ namespace Exercises.Application.Features.Exercises.ActivateExercise
 
                 return result.IsSuccess
                     ? Results.Ok(new ActivateExerciseResponse(result.Data))
-                    : Results.Problem(title: "Activation failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Activation failed.");
             })
             .WithName("ActivateExercise")
             .WithTags("Exercises")
             .WithSummary("Activates an exercise")
             .WithDescription("Activates a previously deactivated exercise")
             .Produces<ActivateExerciseResponse>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization("Admin");
         }
 
         public sealed record ActivateExerciseResponse(Guid Id);

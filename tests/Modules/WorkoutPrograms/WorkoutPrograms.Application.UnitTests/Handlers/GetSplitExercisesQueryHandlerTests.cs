@@ -1,5 +1,6 @@
 using Exercises.Contracts;
 using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.GetSplitExercises;
 using WorkoutPrograms.Domain.Entity;
@@ -12,18 +13,22 @@ namespace WorkoutPrograms.Application.UnitTests.Handlers;
 public class GetSplitExercisesQueryHandlerTests
 {
     private readonly IWorkoutProgramRepository _repository = Substitute.For<IWorkoutProgramRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private static readonly Guid TestUserId = Guid.NewGuid();
     private readonly IExerciseModule _exerciseModule = Substitute.For<IExerciseModule>();
     private readonly GetSplitExercisesQueryHandler _sut;
 
     public GetSplitExercisesQueryHandlerTests()
     {
-        _sut = new GetSplitExercisesQueryHandler(_repository, _exerciseModule);
+        _currentUser.UserId.Returns(TestUserId.ToString());
+        _currentUser.IsAuthenticated.Returns(true);
+        _sut = new GetSplitExercisesQueryHandler(_repository, _exerciseModule, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldReturnExercisesWithNames_WhenProgramAndSplitExist()
     {
-        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var exerciseId = Guid.NewGuid();
         program.AddExerciseToSplit(split.Id, exerciseId, 4, new RepRange(8, 12));
@@ -50,7 +55,7 @@ public class GetSplitExercisesQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnEmptyName_WhenExerciseNotFoundInModule()
     {
-        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
 
@@ -80,7 +85,7 @@ public class GetSplitExercisesQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var query = new GetSplitExercisesQuery(program.Id, Guid.NewGuid());
         _repository.GetByIdWithExercisesAsync(query.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 

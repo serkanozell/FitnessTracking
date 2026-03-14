@@ -14,7 +14,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProg
 
                 return result.IsSuccess
                     ? Results.NoContent()
-                    : Results.Problem(title: "Delete failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Delete failed.");
             })
             .WithName("DeleteWorkoutProgram")
             .WithTags("WorkoutPrograms")

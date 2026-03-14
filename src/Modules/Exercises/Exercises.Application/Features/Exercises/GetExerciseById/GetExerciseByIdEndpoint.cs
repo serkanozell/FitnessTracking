@@ -15,7 +15,7 @@ namespace Exercises.Application.Features.Exercises.GetExerciseById
 
                 return result.IsSuccess
                     ? Results.Ok(result.Data)
-                    : Results.Problem(title: "Exercise not found.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Exercise not found.");
             })
             .WithName("GetExerciseById")
             .WithTags("Exercises")

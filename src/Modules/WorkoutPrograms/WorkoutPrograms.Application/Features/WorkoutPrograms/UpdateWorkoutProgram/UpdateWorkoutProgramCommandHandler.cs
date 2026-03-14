@@ -1,8 +1,12 @@
+﻿using BuildingBlocks.Application.Abstractions;
 using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram
 {
-    internal sealed class UpdateWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<UpdateWorkoutProgramCommand, Result<bool>>
+    internal sealed class UpdateWorkoutProgramCommandHandler(
+        IWorkoutProgramRepository _workoutProgramRepository,
+        IWorkoutProgramsUnitOfWork _unitOfWork,
+        ICurrentUser _currentUser) : ICommandHandler<UpdateWorkoutProgramCommand, Result<bool>>
     {
         public async Task<Result<bool>> Handle(UpdateWorkoutProgramCommand request, CancellationToken cancellationToken)
         {
@@ -10,6 +14,10 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
 
             if (workoutProgram is null)
                 return WorkoutProgramErrors.NotFound(request.Id);
+
+            var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, workoutProgram.UserId);
+            if (ownershipError is not null)
+                return ownershipError;
 
             if (request.EndDate <= request.StartDate)
                 return WorkoutProgramErrors.InvalidDateRange();

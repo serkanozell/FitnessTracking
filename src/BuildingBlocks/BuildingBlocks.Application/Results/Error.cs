@@ -15,5 +15,8 @@
 
         public static Error Conflict(string message) =>
             new("Error.Conflict", message);
+
+        public static Error Forbidden() =>
+            new("Error.Forbidden", "You do not have permission to access this resource.");
     }
 }

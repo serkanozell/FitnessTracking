@@ -1,4 +1,5 @@
 using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.GetExercisesBySession;
 using WorkoutSessions.Domain.Entity;
@@ -10,17 +11,21 @@ namespace WorkoutSessions.Application.UnitTests.Handlers;
 public class GetExercisesBySessionQueryHandlerTests
 {
     private readonly IWorkoutSessionRepository _repository = Substitute.For<IWorkoutSessionRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private static readonly Guid TestUserId = Guid.NewGuid();
     private readonly GetExercisesBySessionQueryHandler _sut;
 
     public GetExercisesBySessionQueryHandlerTests()
     {
-        _sut = new GetExercisesBySessionQueryHandler(_repository);
+        _currentUser.UserId.Returns(TestUserId.ToString());
+        _currentUser.IsAuthenticated.Returns(true);
+        _sut = new GetExercisesBySessionQueryHandler(_repository, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldReturnExercises_WhenSessionExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         var exerciseId = Guid.NewGuid();
         session.AddEntry(exerciseId, 1, 80m, 10);
         session.AddEntry(exerciseId, 2, 85m, 8);

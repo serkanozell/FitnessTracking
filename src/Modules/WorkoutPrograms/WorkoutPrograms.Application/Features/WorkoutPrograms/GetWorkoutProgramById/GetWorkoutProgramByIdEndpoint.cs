@@ -15,7 +15,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgram
 
                 return result.IsSuccess
                     ? Results.Ok(result.Data)
-                    : Results.Problem(title: "Workout program not found.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Workout program not found.");
             })
             .WithName("GetWorkoutProgramById")
             .WithTags("WorkoutPrograms")

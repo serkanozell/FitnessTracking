@@ -14,14 +14,15 @@ namespace Exercises.Application.Features.Exercises.DeleteExercise
 
                 return result.IsSuccess
                     ? Results.NoContent()
-                    : Results.Problem(title: "Delete failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Delete failed.");
             })
             .WithName("DeleteExercise")
             .WithTags("Exercises")
             .WithSummary("Deletes an exercise")
             .WithDescription("Soft deletes the exercise with the specified ID")
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization("Admin");
         }
     }
 }

@@ -14,7 +14,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.ActivateWorkoutPr
 
                 return result.IsSuccess
                     ? Results.Ok(new ActivateWorkoutProgramResponse(result.Data))
-                    : Results.Problem(title: "Activation failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Activation failed.");
             })
             .WithName("ActivateWorkoutProgram")
             .WithTags("WorkoutPrograms")

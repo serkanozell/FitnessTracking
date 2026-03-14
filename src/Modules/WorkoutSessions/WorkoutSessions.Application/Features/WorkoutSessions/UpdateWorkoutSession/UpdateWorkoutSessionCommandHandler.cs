@@ -1,8 +1,12 @@
+﻿using BuildingBlocks.Application.Abstractions;
 using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSession
 {
-    internal sealed class UpdateWorkoutSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<UpdateWorkoutSessionCommand, Result<bool>>
+    internal sealed class UpdateWorkoutSessionCommandHandler(
+        IWorkoutSessionRepository _workoutSessionRepository,
+        IWorkoutSessionsUnitOfWork _unitOfWork,
+        ICurrentUser _currentUser) : ICommandHandler<UpdateWorkoutSessionCommand, Result<bool>>
     {
         public async Task<Result<bool>> Handle(UpdateWorkoutSessionCommand request, CancellationToken cancellationToken)
         {
@@ -10,6 +14,10 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSess
 
             if (session is null)
                 return WorkoutSessionErrors.NotFound(request.Id);
+
+            var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, session.UserId);
+            if (ownershipError is not null)
+                return ownershipError;
 
             session.UpdateDate(request.Date);
 

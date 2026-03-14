@@ -21,7 +21,7 @@ public sealed class GetWorkoutSessionsEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Data)
-                : Results.Problem(title: "Failed to retrieve sessions.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
+                : result.Error!.ToProblem("Failed to retrieve sessions.");
         })
         .WithName("GetWorkoutSessions")
         .WithTags("WorkoutSessions")

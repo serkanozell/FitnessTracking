@@ -1,9 +1,13 @@
-﻿using WorkoutPrograms.Domain.Repositories;
+﻿using BuildingBlocks.Application.Abstractions;
+using WorkoutPrograms.Domain.Repositories;
 using WorkoutPrograms.Domain.ValueObjects;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.UpdateSplitExercise
 {
-    internal sealed class UpdateSplitExerciseCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<UpdateSplitExerciseCommand, Result<bool>>
+    internal sealed class UpdateSplitExerciseCommandHandler(
+        IWorkoutProgramRepository _workoutProgramRepository,
+        IWorkoutProgramsUnitOfWork _unitOfWork,
+        ICurrentUser _currentUser) : ICommandHandler<UpdateSplitExerciseCommand, Result<bool>>
     {
         public async Task<Result<bool>> Handle(UpdateSplitExerciseCommand request, CancellationToken cancellationToken)
         {
@@ -11,6 +15,10 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
             if (workoutProgram is null)
                 return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
+
+            var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, workoutProgram.UserId);
+            if (ownershipError is not null)
+                return ownershipError;
 
             var programSplit = workoutProgram.Splits.SingleOrDefault(s => s.Id == request.WorkoutProgramSplitId);
 

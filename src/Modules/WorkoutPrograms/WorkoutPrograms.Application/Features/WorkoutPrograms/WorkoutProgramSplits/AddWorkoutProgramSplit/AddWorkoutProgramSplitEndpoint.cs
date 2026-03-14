@@ -18,7 +18,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess ? Results.Created($"/api/v1/workout-programs/{programId}/splits/{result.Data}", new AddSplitResponse(result.Data))
-                                        : Results.Problem(title: "Add split failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
+                                        : result.Error!.ToProblem("Add split failed.");
             })
             .WithName("AddWorkoutProgramSplit")
             .WithTags("WorkoutProgramSplits")

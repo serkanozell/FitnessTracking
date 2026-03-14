@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Users.Application.Dtos;
@@ -15,9 +15,7 @@ namespace Users.Application.Features.Users.GetProfile
 
                 if (!result.IsSuccess)
                 {
-                    return Results.Problem(title: "User not found.",
-                                           detail: result.Error?.Message,
-                                           statusCode: StatusCodes.Status404NotFound);
+                    return result.Error!.ToProblem("User not found.");
                 }
 
                 return Results.Ok(result.Data);

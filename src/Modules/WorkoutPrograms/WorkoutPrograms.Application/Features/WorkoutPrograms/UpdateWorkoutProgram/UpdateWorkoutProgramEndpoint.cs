@@ -15,7 +15,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
 
                 return result.IsSuccess
                     ? Results.NoContent()
-                    : Results.Problem(title: "Update failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Update failed.");
             })
             .WithName("UpdateWorkoutProgram")
             .WithTags("WorkoutPrograms")

@@ -20,7 +20,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgram
 
                 return result.IsSuccess
                     ? Results.Ok(result.Data)
-                    : Results.Problem(title: "Failed to retrieve workout programs.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
+                    : result.Error!.ToProblem("Failed to retrieve workout programs.");
             })
             .WithName("GetWorkoutProgramList")
             .WithTags("WorkoutPrograms")

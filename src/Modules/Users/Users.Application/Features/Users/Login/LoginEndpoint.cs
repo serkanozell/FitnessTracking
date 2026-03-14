@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -16,9 +16,7 @@ namespace Users.Application.Features.Users.Login
 
                 if (!result.IsSuccess)
                 {
-                    return Results.Problem(title: "Login failed.",
-                                           detail: result.Error?.Message,
-                                           statusCode: StatusCodes.Status401Unauthorized);
+                    return result.Error!.ToProblem("Login failed.");
                 }
 
                 return Results.Ok(result.Data);
@@ -29,7 +27,8 @@ namespace Users.Application.Features.Users.Login
                 .WithDescription("Authenticates a user with email and password, returns a JWT token")
                 .Accepts<LoginRequest>("application/json")
                 .Produces<LoginResponse>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status401Unauthorized);
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .AllowAnonymous();
         }
 
         public sealed record LoginRequest(string Email, string Password);

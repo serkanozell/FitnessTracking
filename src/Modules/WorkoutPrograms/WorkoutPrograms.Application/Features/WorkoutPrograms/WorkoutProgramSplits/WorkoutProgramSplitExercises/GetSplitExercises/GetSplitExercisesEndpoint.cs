@@ -19,7 +19,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
                 return result.IsSuccess
                     ? Results.Ok(result.Data)
-                    : Results.Problem(title: "Failed to retrieve exercises.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Failed to retrieve exercises.");
             })
             .WithName("GetSplitExercises")
             .WithTags("WorkoutProgramSplitExercises")

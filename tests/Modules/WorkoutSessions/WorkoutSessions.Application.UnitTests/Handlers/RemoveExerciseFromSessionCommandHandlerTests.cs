@@ -1,4 +1,5 @@
 using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.RemoveExerciseFromSession;
 using WorkoutSessions.Domain.Entity;
@@ -10,18 +11,22 @@ namespace WorkoutSessions.Application.UnitTests.Handlers;
 public class RemoveExerciseFromSessionCommandHandlerTests
 {
     private readonly IWorkoutSessionRepository _repository = Substitute.For<IWorkoutSessionRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private static readonly Guid TestUserId = Guid.NewGuid();
     private readonly IWorkoutSessionsUnitOfWork _unitOfWork = Substitute.For<IWorkoutSessionsUnitOfWork>();
     private readonly RemoveExerciseFromSessionCommandHandler _sut;
 
     public RemoveExerciseFromSessionCommandHandlerTests()
     {
-        _sut = new RemoveExerciseFromSessionCommandHandler(_repository, _unitOfWork);
+        _currentUser.UserId.Returns(TestUserId.ToString());
+        _currentUser.IsAuthenticated.Returns(true);
+        _sut = new RemoveExerciseFromSessionCommandHandler(_repository, _unitOfWork, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldRemoveEntry_WhenSessionAndExerciseExist()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         var entry = session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
         var command = new RemoveExerciseFromSessionCommand(session.Id, entry.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
@@ -48,7 +53,7 @@ public class RemoveExerciseFromSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenEntryNotExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         var command = new RemoveExerciseFromSessionCommand(session.Id, Guid.NewGuid());
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
 

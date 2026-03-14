@@ -14,7 +14,7 @@ public sealed class UpdateExerciseEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.Problem(title: "Update failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                : result.Error!.ToProblem("Update failed.");
         })
         .WithName("UpdateExercise")
         .WithTags("Exercises")
@@ -23,7 +23,8 @@ public sealed class UpdateExerciseEndpoint : IEndpoint
         .Accepts<UpdateExerciseRequest>("application/json")
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status404NotFound)
-        .ProducesProblem(StatusCodes.Status400BadRequest);
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .RequireAuthorization("Admin");
     }
 
     public sealed record UpdateExerciseRequest(string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description);

@@ -18,7 +18,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
                 return result.IsSuccess
                     ? Results.NoContent()
-                    : Results.Problem(title: "Remove exercise failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Remove exercise failed.");
             })
             .WithName("RemoveSplitExercise")
             .WithTags("WorkoutProgramSplitExercises")

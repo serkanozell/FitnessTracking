@@ -17,7 +17,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
                 return result.IsSuccess
                     ? Results.NoContent()
-                    : Results.Problem(title: "Delete split failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Delete split failed.");
             })
             .WithName("DeleteWorkoutProgramSplit")
             .WithTags("WorkoutProgramSplits")

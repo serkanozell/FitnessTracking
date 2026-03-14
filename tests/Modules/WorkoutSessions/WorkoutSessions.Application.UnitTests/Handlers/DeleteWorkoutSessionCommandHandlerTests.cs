@@ -1,4 +1,5 @@
 using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.DeleteWorkoutSession;
 using WorkoutSessions.Domain.Entity;
@@ -10,18 +11,22 @@ namespace WorkoutSessions.Application.UnitTests.Handlers;
 public class DeleteWorkoutSessionCommandHandlerTests
 {
     private readonly IWorkoutSessionRepository _repository = Substitute.For<IWorkoutSessionRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private static readonly Guid TestUserId = Guid.NewGuid();
     private readonly IWorkoutSessionsUnitOfWork _unitOfWork = Substitute.For<IWorkoutSessionsUnitOfWork>();
     private readonly DeleteWorkoutSessionCommandHandler _sut;
 
     public DeleteWorkoutSessionCommandHandlerTests()
     {
-        _sut = new DeleteWorkoutSessionCommandHandler(_repository, _unitOfWork);
+        _currentUser.UserId.Returns(TestUserId.ToString());
+        _currentUser.IsAuthenticated.Returns(true);
+        _sut = new DeleteWorkoutSessionCommandHandler(_repository, _unitOfWork, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldDeleteSession_WhenExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         var command = new DeleteWorkoutSessionCommand(session.Id);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);
 

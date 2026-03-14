@@ -14,7 +14,7 @@ public sealed class ActivateWorkoutSessionEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(new ActivateSessionResponse(result.Data))
-                : Results.Problem(title: "Activation failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                : result.Error!.ToProblem("Activation failed.");
         })
         .WithName("ActivateWorkoutSession")
         .WithTags("WorkoutSessions")

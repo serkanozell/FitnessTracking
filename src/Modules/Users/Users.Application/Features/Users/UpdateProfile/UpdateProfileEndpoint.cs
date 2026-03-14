@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,9 +14,7 @@ namespace Users.Application.Features.Users.UpdateProfile
 
                 if (!result.IsSuccess)
                 {
-                    return Results.Problem(title: "Update profile failed.",
-                                           detail: result.Error?.Message,
-                                           statusCode: StatusCodes.Status400BadRequest);
+                    return result.Error!.ToProblem("Update profile failed.");
                 }
 
                 return Results.NoContent();

@@ -19,7 +19,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
                 return result.IsSuccess
                     ? Results.NoContent()
-                    : Results.Problem(title: "Update split failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Update split failed.");
             })
             .WithName("UpdateWorkoutProgramSplit")
             .WithTags("WorkoutProgramSplits")

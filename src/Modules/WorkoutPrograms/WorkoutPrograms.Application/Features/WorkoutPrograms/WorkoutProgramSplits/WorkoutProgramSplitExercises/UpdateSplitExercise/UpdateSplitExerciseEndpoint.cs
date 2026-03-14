@@ -26,7 +26,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
                 return result.IsSuccess
                     ? Results.NoContent()
-                    : Results.Problem(title: "Update exercise failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                    : result.Error!.ToProblem("Update exercise failed.");
             })
             .WithName("UpdateSplitExercise")
             .WithTags("WorkoutProgramSplitExercises")

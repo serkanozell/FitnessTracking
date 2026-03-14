@@ -1,8 +1,12 @@
+using BuildingBlocks.Application.Abstractions;
 using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.RemoveExerciseFromSession
 {
-    internal sealed class RemoveExerciseFromSessionCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<RemoveExerciseFromSessionCommand, Result<bool>>
+    internal sealed class RemoveExerciseFromSessionCommandHandler(
+        IWorkoutSessionRepository _workoutSessionRepository,
+        IWorkoutSessionsUnitOfWork _unitOfWork,
+        ICurrentUser _currentUser) : ICommandHandler<RemoveExerciseFromSessionCommand, Result<bool>>
     {
         public async Task<Result<bool>> Handle(RemoveExerciseFromSessionCommand request, CancellationToken cancellationToken)
         {
@@ -10,6 +14,10 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
 
             if (workoutSession is null)
                 return WorkoutSessionErrors.NotFound(request.WorkoutSessionId);
+
+            var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, workoutSession.UserId);
+            if (ownershipError is not null)
+                return ownershipError;
 
             var entry = workoutSession.SessionExercises.FirstOrDefault(x => x.Id == request.SessionExerciseId);
 

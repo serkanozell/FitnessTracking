@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -16,9 +16,7 @@ namespace Users.Application.Features.Roles.CreateRole
 
                 if (!result.IsSuccess)
                 {
-                    return Results.Problem(title: "Create role failed.",
-                                           detail: result.Error?.Message,
-                                           statusCode: StatusCodes.Status400BadRequest);
+                    return result.Error!.ToProblem("Create role failed.");
                 }
 
                 return Results.Created($"/api/v1/roles/{result.Data}", new CreateRoleResponse(result.Data));
@@ -29,7 +27,8 @@ namespace Users.Application.Features.Roles.CreateRole
                 .WithDescription("Creates a new role with name and optional description")
                 .Accepts<CreateRoleRequest>("application/json")
                 .Produces<CreateRoleResponse>(StatusCodes.Status201Created)
-                .ProducesProblem(StatusCodes.Status400BadRequest);
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .RequireAuthorization("Admin");
         }
 
         public sealed record CreateRoleRequest(string Name, string? Description);

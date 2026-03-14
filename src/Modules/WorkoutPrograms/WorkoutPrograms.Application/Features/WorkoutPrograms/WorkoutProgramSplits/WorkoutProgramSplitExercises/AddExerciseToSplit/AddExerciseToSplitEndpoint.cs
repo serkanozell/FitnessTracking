@@ -25,7 +25,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
 
                 return result.IsSuccess
                     ? Results.Created($"/api/v1/workout-programs/{programId}/splits/{splitId}/exercises/{result.Data}", new AddExerciseResponse(result.Data))
-                    : Results.Problem(title: "Add exercise failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
+                    : result.Error!.ToProblem("Add exercise failed.");
             })
             .WithName("AddExerciseToSplit")
             .WithTags("WorkoutProgramSplitExercises")

@@ -16,9 +16,7 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
 
                 if (!result.IsSuccess)
                 {
-                    return Results.Problem(title: "Create exercise failed.",
-                                           detail: result.Error?.Message,
-                                           statusCode: StatusCodes.Status400BadRequest);
+                    return result.Error!.ToProblem("Create exercise failed.");
                 }
 
                 return Results.Created($"/api/v1/exercises/{result.Data}", new CreateExerciseResponse(result.Data));
@@ -29,8 +27,8 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
                 .WithDescription("Creates a new exercise with name, muscle group and description")
                 .Accepts<CreateExerciseRequest>("application/json")
                 .Produces<CreateExerciseResponse>(StatusCodes.Status201Created)
-                .ProducesProblem(StatusCodes.Status400BadRequest);
-            // auth yapısı sonrası RequireAuthorization eklenecek
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .RequireAuthorization("Admin");
 
         }
 

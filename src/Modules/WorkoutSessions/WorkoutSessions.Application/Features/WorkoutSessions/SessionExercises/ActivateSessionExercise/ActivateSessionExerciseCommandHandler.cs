@@ -1,8 +1,12 @@
+using BuildingBlocks.Application.Abstractions;
 using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.ActivateSessionExercise
 {
-    internal sealed class ActivateSessionExerciseCommandHandler(IWorkoutSessionRepository _workoutSessionRepository, IWorkoutSessionsUnitOfWork _unitOfWork) : ICommandHandler<ActivateSessionExerciseCommand, Result<Guid>>
+    internal sealed class ActivateSessionExerciseCommandHandler(
+        IWorkoutSessionRepository _workoutSessionRepository,
+        IWorkoutSessionsUnitOfWork _unitOfWork,
+        ICurrentUser _currentUser) : ICommandHandler<ActivateSessionExerciseCommand, Result<Guid>>
     {
         public async Task<Result<Guid>> Handle(ActivateSessionExerciseCommand request, CancellationToken cancellationToken)
         {
@@ -10,6 +14,10 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
 
             if (workoutSession is null)
                 return WorkoutSessionErrors.NotFound(request.WorkoutSessionId);
+
+            var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, workoutSession.UserId);
+            if (ownershipError is not null)
+                return ownershipError;
 
             if (!workoutSession.IsActive)
                 return WorkoutSessionErrors.NotActive(request.WorkoutSessionId);

@@ -15,7 +15,7 @@ public sealed class CreateWorkoutSessionEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Created($"/api/v1/workout-sessions/{result.Data}", new CreateSessionResponse(result.Data))
-                : Results.Problem(title: "Create session failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status400BadRequest);
+                : result.Error!.ToProblem("Create session failed.");
         })
         .WithName("CreateWorkoutSession")
         .WithTags("WorkoutSessions")

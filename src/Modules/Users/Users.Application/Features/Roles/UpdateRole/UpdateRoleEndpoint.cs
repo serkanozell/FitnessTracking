@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Web;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,9 +14,7 @@ namespace Users.Application.Features.Roles.UpdateRole
 
                 if (!result.IsSuccess)
                 {
-                    return Results.Problem(title: "Update role failed.",
-                                           detail: result.Error?.Message,
-                                           statusCode: StatusCodes.Status400BadRequest);
+                    return result.Error!.ToProblem("Update role failed.");
                 }
 
                 return Results.NoContent();
@@ -27,7 +25,8 @@ namespace Users.Application.Features.Roles.UpdateRole
                 .WithDescription("Updates the name and description of a role")
                 .Accepts<UpdateRoleRequest>("application/json")
                 .Produces(StatusCodes.Status204NoContent)
-                .ProducesProblem(StatusCodes.Status400BadRequest);
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .RequireAuthorization("Admin");
         }
 
         public sealed record UpdateRoleRequest(string Name, string? Description);

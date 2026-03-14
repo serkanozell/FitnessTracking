@@ -100,7 +100,10 @@ namespace FitnessTracking.Api.Extensions
                         };
                     });
 
-                services.AddAuthorization();
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+                });
             }
 
             services.AddSingleton<ITokenService, TokenService>();
@@ -162,7 +165,8 @@ namespace FitnessTracking.Api.Extensions
 
             var v1 = app.MapGroup("/api/v{version:apiVersion}")
                         .WithApiVersionSet(versionSet)
-                        .MapToApiVersion(new ApiVersion(1, 0));
+                        .MapToApiVersion(new ApiVersion(1, 0))
+                        .RequireAuthorization();
 
             foreach (var module in modules)
             {

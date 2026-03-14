@@ -1,8 +1,12 @@
+﻿using BuildingBlocks.Application.Abstractions;
 using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.ActivateWorkoutProgramSplit;
 
-internal sealed class ActivateWorkoutProgramSplitCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<ActivateWorkoutProgramSplitCommand, Result<Guid>>
+internal sealed class ActivateWorkoutProgramSplitCommandHandler(
+    IWorkoutProgramRepository _workoutProgramRepository,
+    IWorkoutProgramsUnitOfWork _unitOfWork,
+    ICurrentUser _currentUser) : ICommandHandler<ActivateWorkoutProgramSplitCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(ActivateWorkoutProgramSplitCommand request, CancellationToken cancellationToken)
     {
@@ -10,6 +14,10 @@ internal sealed class ActivateWorkoutProgramSplitCommandHandler(IWorkoutProgramR
 
         if (workoutProgram is null)
             return WorkoutProgramErrors.NotFound(request.WorkoutProgramId);
+
+        var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, workoutProgram.UserId);
+        if (ownershipError is not null)
+            return ownershipError;
 
         if (!workoutProgram.IsActive)
             return WorkoutProgramErrors.NotActive(request.WorkoutProgramId);

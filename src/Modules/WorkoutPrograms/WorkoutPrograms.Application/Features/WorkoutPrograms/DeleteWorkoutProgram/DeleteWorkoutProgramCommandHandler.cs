@@ -1,8 +1,12 @@
-﻿using WorkoutPrograms.Domain.Repositories;
+﻿using BuildingBlocks.Application.Abstractions;
+using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProgram
 {
-    internal sealed class DeleteWorkoutProgramCommandHandler(IWorkoutProgramRepository _workoutProgramRepository, IWorkoutProgramsUnitOfWork _unitOfWork) : ICommandHandler<DeleteWorkoutProgramCommand, Result<bool>>
+    internal sealed class DeleteWorkoutProgramCommandHandler(
+        IWorkoutProgramRepository _workoutProgramRepository,
+        IWorkoutProgramsUnitOfWork _unitOfWork,
+        ICurrentUser _currentUser) : ICommandHandler<DeleteWorkoutProgramCommand, Result<bool>>
     {
         public async Task<Result<bool>> Handle(DeleteWorkoutProgramCommand request, CancellationToken cancellationToken)
         {
@@ -10,6 +14,10 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProg
 
             if (program is null)
                 return WorkoutProgramErrors.NotFound(request.Id);
+
+            var ownershipError = OwnershipGuard.CheckOwnership(_currentUser, program.UserId);
+            if (ownershipError is not null)
+                return ownershipError;
 
             program.Delete();
 

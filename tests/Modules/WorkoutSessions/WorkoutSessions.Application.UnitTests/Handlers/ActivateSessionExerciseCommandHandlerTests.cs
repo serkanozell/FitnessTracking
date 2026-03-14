@@ -1,4 +1,5 @@
 using FluentAssertions;
+using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.ActivateSessionExercise;
 using WorkoutSessions.Domain.Entity;
@@ -10,18 +11,22 @@ namespace WorkoutSessions.Application.UnitTests.Handlers;
 public class ActivateSessionExerciseCommandHandlerTests
 {
     private readonly IWorkoutSessionRepository _repository = Substitute.For<IWorkoutSessionRepository>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private static readonly Guid TestUserId = Guid.NewGuid();
     private readonly IWorkoutSessionsUnitOfWork _unitOfWork = Substitute.For<IWorkoutSessionsUnitOfWork>();
     private readonly ActivateSessionExerciseCommandHandler _sut;
 
     public ActivateSessionExerciseCommandHandlerTests()
     {
-        _sut = new ActivateSessionExerciseCommandHandler(_repository, _unitOfWork);
+        _currentUser.UserId.Returns(TestUserId.ToString());
+        _currentUser.IsAuthenticated.Returns(true);
+        _sut = new ActivateSessionExerciseCommandHandler(_repository, _unitOfWork, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldActivateEntry_WhenSessionActiveAndEntryExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         session.Activate();
         var entry = session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
         var command = new ActivateSessionExerciseCommand(session.Id, entry.Id);
@@ -49,7 +54,7 @@ public class ActivateSessionExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNotActiveError_WhenSessionNotActive()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         var entry = session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
         var command = new ActivateSessionExerciseCommand(session.Id, entry.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
@@ -63,7 +68,7 @@ public class ActivateSessionExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenEntryNotExists()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
         session.Activate();
         var command = new ActivateSessionExerciseCommand(session.Id, Guid.NewGuid());
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);

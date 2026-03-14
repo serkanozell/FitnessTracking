@@ -15,7 +15,7 @@ public sealed class GetWorkoutSessionByIdEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Data)
-                : Results.Problem(title: "Session not found.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                : result.Error!.ToProblem("Session not found.");
         })
         .WithName("GetWorkoutSessionById")
         .WithTags("WorkoutSessions")

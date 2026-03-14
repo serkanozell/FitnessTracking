@@ -17,7 +17,7 @@ public sealed class ActivateWorkoutProgramSplitEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(new ActivateSplitResponse(result.Data))
-                : Results.Problem(title: "Activate split failed.", detail: result.Error?.Message, statusCode: StatusCodes.Status404NotFound);
+                : result.Error!.ToProblem("Activate split failed.");
         })
         .WithName("ActivateWorkoutProgramSplit")
         .WithTags("WorkoutProgramSplits")
