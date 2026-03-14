@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -52,10 +52,11 @@ namespace BuildingBlocks.Infrastructure.Outbox
             var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            var messages = await dbContext.OutboxMessages.Where(m => !m.IsProcessed && m.ProcessedOnUtc == null)
-                                                         .OrderBy(m => m.OccurredOnUtc)
-                                                         .Take(_options.BatchSize)
-                                                         .ToListAsync(cancellationToken);
+            var messages = await dbContext.OutboxMessages
+                                         .Where(m => !m.IsProcessed && m.RetryCount < _options.MaxRetries)
+                                         .OrderBy(m => m.OccurredOnUtc)
+                                         .Take(_options.BatchSize)
+                                         .ToListAsync(cancellationToken);
 
             if (messages.Count == 0)
                 return;
@@ -69,20 +70,16 @@ namespace BuildingBlocks.Infrastructure.Outbox
                     var eventType = Type.GetType(message.EventType);
                     if (eventType is null)
                     {
-                        _logger.LogWarning("Could not resolve event type: {EventType}", message.EventType);
-                        message.IsProcessed = true;
-                        message.ProcessedOnUtc = DateTime.UtcNow;
-                        message.Error = $"Could not resolve type: {message.EventType}";
+                        _logger.LogWarning("Could not resolve event type: {EventType}. Moving to dead letter.", message.EventType);
+                        MarkAsDeadLetter(message, $"Could not resolve type: {message.EventType}");
                         continue;
                     }
 
                     var domainEvent = System.Text.Json.JsonSerializer.Deserialize(message.Content, eventType);
                     if (domainEvent is null)
                     {
-                        _logger.LogWarning("Could not deserialize outbox message {MessageId}", message.Id);
-                        message.IsProcessed = true;
-                        message.ProcessedOnUtc = DateTime.UtcNow;
-                        message.Error = "Deserialization returned null";
+                        _logger.LogWarning("Could not deserialize outbox message {MessageId}. Moving to dead letter.", message.Id);
+                        MarkAsDeadLetter(message, "Deserialization returned null");
                         continue;
                     }
 
@@ -97,12 +94,31 @@ namespace BuildingBlocks.Infrastructure.Outbox
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to process outbox message {MessageId}", message.Id);
+                    message.RetryCount++;
                     message.Error = ex.ToString();
+
+                    if (message.RetryCount >= _options.MaxRetries)
+                    {
+                        MarkAsDeadLetter(message, ex.ToString());
+                        _logger.LogError(ex, "Outbox message {MessageId} exceeded max retries ({MaxRetries}). Moved to dead letter.",
+                            message.Id, _options.MaxRetries);
+                    }
+                    else
+                    {
+                        _logger.LogWarning(ex, "Failed to process outbox message {MessageId}. Retry {RetryCount}/{MaxRetries}.",
+                            message.Id, message.RetryCount, _options.MaxRetries);
+                    }
                 }
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private static void MarkAsDeadLetter(OutboxMessage message, string error)
+        {
+            message.IsProcessed = true;
+            message.ProcessedOnUtc = DateTime.UtcNow;
+            message.Error = error;
         }
     }
 }

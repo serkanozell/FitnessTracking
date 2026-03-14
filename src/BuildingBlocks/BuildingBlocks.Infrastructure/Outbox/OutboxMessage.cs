@@ -1,4 +1,4 @@
-namespace BuildingBlocks.Infrastructure.Outbox
+﻿namespace BuildingBlocks.Infrastructure.Outbox
 {
     public sealed class OutboxMessage
     {
@@ -8,6 +8,7 @@ namespace BuildingBlocks.Infrastructure.Outbox
         public bool IsProcessed { get; set; }
         public DateTime OccurredOnUtc { get; set; }
         public DateTime? ProcessedOnUtc { get; set; }
-        public string? Error { get; set; }        
+        public string? Error { get; set; }
+        public int RetryCount { get; set; }
     }
 }

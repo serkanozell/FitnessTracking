@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BuildingBlocks.Infrastructure.Outbox
@@ -23,6 +23,10 @@ namespace BuildingBlocks.Infrastructure.Outbox
 
             builder.Property(x => x.OccurredOnUtc)
                    .IsRequired();
+
+            builder.Property(x => x.RetryCount)
+                   .IsRequired()
+                   .HasDefaultValue(0);
 
             builder.HasIndex(x => new { x.IsProcessed, x.OccurredOnUtc })
                    .HasFilter("[IsProcessed] = 0");
