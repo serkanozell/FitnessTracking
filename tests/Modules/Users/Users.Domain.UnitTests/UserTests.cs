@@ -236,4 +236,21 @@ public class UserTests
             .Which.Should().BeOfType<UserDeletedEvent>()
             .Which.UserId.Should().Be(user.Id);
     }
+
+    [Fact]
+    public void Delete_ShouldSoftDeleteUserRoles()
+    {
+        var user = CreateDefaultUser();
+        var roleId = Guid.NewGuid();
+        user.AssignRole(roleId);
+        user.ClearDomainEvents();
+
+        user.Delete();
+
+        user.UserRoles.Should().AllSatisfy(ur =>
+        {
+            ur.IsDeleted.Should().BeTrue();
+            ur.IsActive.Should().BeFalse();
+        });
+    }
 }

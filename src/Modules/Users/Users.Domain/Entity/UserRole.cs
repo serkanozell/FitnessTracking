@@ -19,5 +19,11 @@ namespace Users.Domain.Entity
                 RoleId = roleId,
             };
         }
+
+        internal void Delete()
+        {
+            IsActive = false;
+            IsDeleted = true;
+        }
     }
 }

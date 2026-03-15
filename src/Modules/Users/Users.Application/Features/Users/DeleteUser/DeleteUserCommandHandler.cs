@@ -2,9 +2,9 @@
 
 namespace Users.Application.Features.Users.DeleteUser
 {
-    internal sealed class DeleteUserCommandHandler(
-        IUserRepository _userRepository,
-        IUsersUnitOfWork _unitOfWork) : ICommandHandler<DeleteUserCommand, Result>
+    internal sealed class DeleteUserCommandHandler(IUserRepository _userRepository,
+                                                   IRefreshTokenRepository _refreshTokenRepository,
+                                                   IUsersUnitOfWork _unitOfWork) : ICommandHandler<DeleteUserCommand, Result>
     {
         public async Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
@@ -17,6 +17,14 @@ namespace Users.Application.Features.Users.DeleteUser
                 return Result.Failure(UserErrors.AlreadyDeleted(request.UserId));
 
             user.Delete();
+
+            // Revoke all active refresh tokens
+            var activeTokens = await _refreshTokenRepository.GetActiveByUserIdAsync(user.Id, cancellationToken);
+            foreach (var token in activeTokens)
+            {
+                token.Revoke();
+                _refreshTokenRepository.Update(token);
+            }
 
             _userRepository.Update(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

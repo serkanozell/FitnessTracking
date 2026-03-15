@@ -86,6 +86,12 @@ namespace Users.Domain.Entity
             IsActive = false;
             IsDeleted = true;
 
+            // Clear user roles
+            foreach (var userRole in _userRoles)
+            {
+                userRole.Delete();
+            }
+
             AddDomainEvent(new UserDeletedEvent(Id));
         }
     }
