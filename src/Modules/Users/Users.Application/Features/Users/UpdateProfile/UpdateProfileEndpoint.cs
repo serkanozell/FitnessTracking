@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -12,12 +12,8 @@ namespace Users.Application.Features.Users.UpdateProfile
             {
                 var result = await sender.Send(new UpdateProfileCommand(userId, request.FirstName, request.LastName), ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Update profile failed.");
-                }
-
-                return Results.NoContent();
+                return result.IsSuccess ? Results.NoContent() :
+                     result.Error!.ToProblem("Update profile failed.");
             })
                 .WithName("UpdateProfile")
                 .WithTags("Users")

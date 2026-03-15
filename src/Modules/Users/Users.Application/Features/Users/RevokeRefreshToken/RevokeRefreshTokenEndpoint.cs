@@ -12,12 +12,7 @@ namespace Users.Application.Features.Users.RevokeRefreshToken
             {
                 var result = await sender.Send(new RevokeRefreshTokenCommand(request.RefreshToken), ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Revoke failed.");
-                }
-
-                return Results.NoContent();
+                return result.IsSuccess ? Results.NoContent() : result.Error!.ToProblem("Revoke failed.");
             })
                 .WithName("RevokeRefreshToken")
                 .WithTags("Users")

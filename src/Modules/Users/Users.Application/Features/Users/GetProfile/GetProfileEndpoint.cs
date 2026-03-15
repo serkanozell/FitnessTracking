@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Users.Application.Dtos;
@@ -13,12 +13,8 @@ namespace Users.Application.Features.Users.GetProfile
             {
                 var result = await sender.Send(new GetProfileQuery(id), ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("User not found.");
-                }
-
-                return Results.Ok(result.Data);
+                return result.IsSuccess ? Results.Ok(result.Data) :
+                     result.Error!.ToProblem("User not found.");
             })
                 .WithName("GetProfile")
                 .WithTags("Users")

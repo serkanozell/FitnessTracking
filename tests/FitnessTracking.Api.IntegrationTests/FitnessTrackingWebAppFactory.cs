@@ -17,6 +17,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using WorkoutPrograms.Infrastructure.Persistence;
 using WorkoutSessions.Infrastructure.Persistence;
+using Users.Infrastructure.Persistence;
 
 namespace FitnessTracking.Api.IntegrationTests;
 
@@ -35,7 +36,12 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
             {
                 ["ConnectionStrings:FitnessDbConnection"] = "DataSource=:memory:",
                 ["ConnectionStrings:Redis"] = "localhost:9999",
-                ["Redis:ConnectionString"] = "localhost:9999"
+                ["Redis:ConnectionString"] = "localhost:9999",
+                ["Jwt:Key"] = "ThisIsATestSecretKeyThatIsLongEnoughForHmacSha256!",
+                ["Jwt:Issuer"] = "FitnessTracking.Test",
+                ["Jwt:Audience"] = "FitnessTracking.Test",
+                ["Jwt:ExpirationMinutes"] = "60",
+                ["Jwt:RefreshTokenExpirationDays"] = "7"
             });
         });
 
@@ -56,6 +62,7 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
             ReplaceDbContext<ExercisesDbContext>(services);
             ReplaceDbContext<WorkoutProgramsDbContext>(services);
             ReplaceDbContext<WorkoutSessionsDbContext>(services);
+            ReplaceDbContext<UsersDbContext>(services);
             ReplaceDbContext<OutboxDbContext>(services);
 
             RemoveAllOfType<IConnectionMultiplexer>(services);

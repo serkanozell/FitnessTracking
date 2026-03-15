@@ -15,5 +15,7 @@
         public static Error AlreadyDeleted(Guid id) => new("User.AlreadyDeleted", $"User with ID '{id}' is already deleted.");
 
         public static Error InvalidRefreshToken() => new("User.InvalidRefreshToken", "The refresh token is invalid or has expired.");
+
+        public static Error RoleNotFound(Guid roleId) => new("Role.NotFound", $"Role with ID '{roleId}' was not found.");
     }
 }

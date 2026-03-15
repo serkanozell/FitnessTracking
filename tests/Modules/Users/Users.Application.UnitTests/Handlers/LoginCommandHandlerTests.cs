@@ -69,4 +69,21 @@ public class LoginCommandHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error!.Code.Should().Be("User.InvalidCredentials");
     }
+
+    [Fact]
+    public async Task Handle_ShouldRevokeExistingRefreshTokens_WhenLoginSucceeds()
+    {
+        var user = User.Create("test@example.com", "$2a$12$hashed", "John", "Doe");
+        var existingToken = RefreshToken.Create(user.Id);
+        _userRepository.GetByEmailAsync("test@example.com", Arg.Any<CancellationToken>()).Returns(user);
+        _passwordHasher.Verify("Password123", user.PasswordHash).Returns(true);
+        _tokenService.GenerateToken(user.Id, user.Email, Arg.Any<IEnumerable<string>>()).Returns("jwt-token");
+        _refreshTokenRepository.GetActiveByUserIdAsync(user.Id, Arg.Any<CancellationToken>())
+            .Returns(new List<RefreshToken> { existingToken });
+
+        await _sut.Handle(new LoginCommand("test@example.com", "Password123"), CancellationToken.None);
+
+        existingToken.IsRevoked.Should().BeTrue();
+        _refreshTokenRepository.Received(1).Update(existingToken);
+    }
 }

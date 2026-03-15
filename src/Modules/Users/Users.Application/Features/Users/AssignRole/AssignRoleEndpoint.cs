@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -12,12 +12,8 @@ namespace Users.Application.Features.Users.AssignRole
             {
                 var result = await sender.Send(new AssignRoleCommand(userId, request.RoleId), ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Assign role failed.");
-                }
-
-                return Results.NoContent();
+                return result.IsSuccess ? Results.NoContent() :
+                     result.Error!.ToProblem("Assign role failed.");
             })
                 .WithName("AssignRole")
                 .WithTags("Users")

@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSession;
@@ -48,5 +48,33 @@ public class UpdateWorkoutSessionCommandHandlerTests
 
         result.IsFailure.Should().BeTrue();
         result.Error!.Code.Should().Be("WorkoutSession.NotFound");
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnForbidden_WhenUserDoesNotOwnSession()
+    {
+        var otherUserId = Guid.NewGuid();
+        var session = WorkoutSession.Create(otherUserId, Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var command = new UpdateWorkoutSessionCommand(session.Id, new DateTime(2025, 7, 1));
+        _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("Error.Forbidden");
+    }
+
+    [Fact]
+    public async Task Handle_ShouldAllowAdmin_WhenUserDoesNotOwnSession()
+    {
+        var otherUserId = Guid.NewGuid();
+        var session = WorkoutSession.Create(otherUserId, Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var command = new UpdateWorkoutSessionCommand(session.Id, new DateTime(2025, 7, 1));
+        _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);
+        _currentUser.IsAdmin.Returns(true);
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
     }
 }

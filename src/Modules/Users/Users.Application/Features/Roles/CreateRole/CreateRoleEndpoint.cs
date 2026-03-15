@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,12 +14,8 @@ namespace Users.Application.Features.Roles.CreateRole
                     new CreateRoleCommand(request.Name, request.Description),
                     ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Create role failed.");
-                }
-
-                return Results.Created($"/api/v1/roles/{result.Data}", new CreateRoleResponse(result.Data));
+                return result.IsSuccess ? Results.Created($"/api/v1/roles/{result.Data}", new CreateRoleResponse(result.Data)) :
+                     result.Error!.ToProblem("Create role failed.");
             })
                 .WithName("CreateRole")
                 .WithTags("Roles")

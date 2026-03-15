@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,12 +14,9 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
                     new CreateExerciseCommand(request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description),
                     ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Create exercise failed.");
-                }
-
-                return Results.Created($"/api/v1/exercises/{result.Data}", new CreateExerciseResponse(result.Data));
+                return result.IsSuccess
+                    ? Results.Created($"/api/v1/exercises/{result.Data}", new CreateExerciseResponse(result.Data))
+                    : result.Error!.ToProblem("Create exercise failed.");
             })
                 .WithName("CreateExercise")
                 .WithTags("Exercises")

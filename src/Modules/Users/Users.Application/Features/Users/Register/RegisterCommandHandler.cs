@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Domain.Security;
 using Users.Application.Errors;
+using Users.Domain.Constants;
 using Users.Domain.Entity;
 
 namespace Users.Application.Features.Users.Register
@@ -17,6 +18,8 @@ namespace Users.Application.Features.Users.Register
             var passwordHash = _passwordHasher.Hash(request.Password);
 
             var user = User.Create(request.Email, passwordHash, request.FirstName, request.LastName);
+
+            user.AssignRole(RoleConstants.MemberRoleId);
 
             await _userRepository.AddAsync(user, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

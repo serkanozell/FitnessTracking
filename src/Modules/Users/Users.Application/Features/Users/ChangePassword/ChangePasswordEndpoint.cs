@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -12,12 +12,7 @@ namespace Users.Application.Features.Users.ChangePassword
             {
                 var result = await sender.Send(new ChangePasswordCommand(userId, request.CurrentPassword, request.NewPassword), ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Change password failed.");
-                }
-
-                return Results.NoContent();
+                return result.IsSuccess ? Results.NoContent() : result.Error!.ToProblem("Change password failed.");
             })
                 .WithName("ChangePassword")
                 .WithTags("Users")

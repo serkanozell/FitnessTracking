@@ -12,12 +12,9 @@ namespace Users.Application.Features.Users.RefreshToken
             {
                 var result = await sender.Send(new RefreshTokenCommand(request.RefreshToken), ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Token refresh failed.");
-                }
+                return result.IsSuccess ? Results.Ok(result.Data) :
+                     result.Error!.ToProblem("Token refresh failed.");
 
-                return Results.Ok(result.Data);
             })
                 .WithName("RefreshToken")
                 .WithTags("Users")

@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,12 +14,8 @@ namespace Users.Application.Features.Users.Login
                     new LoginCommand(request.Email, request.Password),
                     ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Login failed.");
-                }
-
-                return Results.Ok(result.Data);
+                return result.IsSuccess ? Results.Ok(result.Data) :
+                     result.Error!.ToProblem("Login failed.");
             })
                 .WithName("Login")
                 .WithTags("Users")

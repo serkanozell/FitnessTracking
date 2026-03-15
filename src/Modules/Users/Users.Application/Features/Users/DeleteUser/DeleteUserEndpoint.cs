@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -12,12 +12,7 @@ namespace Users.Application.Features.Users.DeleteUser
             {
                 var result = await sender.Send(new DeleteUserCommand(userId), ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Delete user failed.");
-                }
-
-                return Results.NoContent();
+                return result.IsSuccess ? Results.NoContent() : result.Error!.ToProblem("Delete user failed.");
             })
                 .WithName("DeleteUser")
                 .WithTags("Users")

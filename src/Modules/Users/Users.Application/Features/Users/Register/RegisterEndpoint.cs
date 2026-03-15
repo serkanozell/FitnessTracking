@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -14,12 +14,8 @@ namespace Users.Application.Features.Users.Register
                     new RegisterCommand(request.Email, request.Password, request.FirstName, request.LastName),
                     ct);
 
-                if (!result.IsSuccess)
-                {
-                    return result.Error!.ToProblem("Registration failed.");
-                }
-
-                return Results.Created($"/api/v1/users/{result.Data}", new RegisterResponse(result.Data));
+                return result.IsSuccess ? Results.Created($"/api/v1/users/{result.Data}", new RegisterResponse(result.Data)) :
+                    result.Error!.ToProblem("Registration failed.");
             })
                 .WithName("Register")
                 .WithTags("Users")

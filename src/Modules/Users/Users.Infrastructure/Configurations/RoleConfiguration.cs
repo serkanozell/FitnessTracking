@@ -1,4 +1,5 @@
 ﻿using Users.Domain.Entity;
+using Users.Domain.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -28,6 +29,12 @@ namespace Users.Infrastructure.Configurations
             builder.Property(x => x.CreatedBy).HasMaxLength(100);
             builder.Property(x => x.UpdatedBy).HasMaxLength(100);
             builder.Property(x => x.RowVersion).IsRowVersion();
+
+            // Seed default roles
+            builder.HasData(
+                new { Id = RoleConstants.AdminRoleId, Name = RoleConstants.Admin, Description = "Administrator role with full access", IsActive = true, IsDeleted = false },
+                new { Id = RoleConstants.MemberRoleId, Name = RoleConstants.Member, Description = "Default member role", IsActive = true, IsDeleted = false }
+            );
         }
     }
 }

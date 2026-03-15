@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application.Abstractions;
 using Users.Application.Errors;
+using Users.Domain.Enums;
 
 namespace Users.Application.Features.Users.RefreshToken
 {
@@ -18,7 +19,7 @@ namespace Users.Application.Features.Users.RefreshToken
 
             var user = await _userRepository.GetByIdAsync(existingToken.UserId, cancellationToken);
 
-            if (user is null || !user.IsActive)
+            if (user is null || user.IsDeleted || user.Status != UserStatus.Active)
                 return UserErrors.InvalidRefreshToken();
 
             // Revoke the used refresh token
