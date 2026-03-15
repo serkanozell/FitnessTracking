@@ -4,10 +4,11 @@ using Users.Application.Errors;
 
 namespace Users.Application.Features.Users.Login
 {
-    internal sealed class LoginCommandHandler(
-        IUserRepository _userRepository,
-        IPasswordHasher _passwordHasher,
-        ITokenService _tokenService) : ICommandHandler<LoginCommand, Result<LoginResponse>>
+    internal sealed class LoginCommandHandler(IUserRepository _userRepository,
+                                              IRefreshTokenRepository _refreshTokenRepository,
+                                              IUsersUnitOfWork _unitOfWork,
+                                              IPasswordHasher _passwordHasher,
+                                              ITokenService _tokenService) : ICommandHandler<LoginCommand, Result<LoginResponse>>
     {
         public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
@@ -24,9 +25,22 @@ namespace Users.Application.Features.Users.Login
                 .Select(ur => ur.Role.Name)
                 .ToList();
 
-            var token = _tokenService.GenerateToken(user.Id, user.Email, roles);
+            var accessToken = _tokenService.GenerateToken(user.Id, user.Email, roles);
 
-            return new LoginResponse(token, user.Id, user.Email, roles);
+            // Revoke existing active refresh tokens
+            var activeTokens = await _refreshTokenRepository.GetActiveByUserIdAsync(user.Id, cancellationToken);
+            foreach (var activeToken in activeTokens)
+            {
+                activeToken.Revoke();
+                _refreshTokenRepository.Update(activeToken);
+            }
+
+            // Create new refresh token
+            var refreshToken = Domain.Entity.RefreshToken.Create(user.Id, _tokenService.RefreshTokenExpirationDays);
+            await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return new LoginResponse(accessToken, refreshToken.Token, user.Id, user.Email, roles);
         }
     }
 }

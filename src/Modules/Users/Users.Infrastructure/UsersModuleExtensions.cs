@@ -24,6 +24,7 @@ namespace Users.Infrastructure
             // Repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IUsersUnitOfWork, UsersUnitOfWork>();
 
             // Security

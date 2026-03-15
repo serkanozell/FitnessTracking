@@ -16,6 +16,8 @@ namespace BuildingBlocks.Infrastructure.Security
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
+        public int RefreshTokenExpirationDays => _options.RefreshTokenExpirationDays;
+
         public string GenerateToken(Guid userId, string? email, IEnumerable<string> roles)
         {
             var key = _options.Key;

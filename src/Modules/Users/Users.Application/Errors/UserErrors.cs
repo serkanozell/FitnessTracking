@@ -13,5 +13,7 @@
         public static Error AlreadyActive(Guid id) => new("User.AlreadyActive", $"User with ID '{id}' is already active.");
 
         public static Error AlreadyDeleted(Guid id) => new("User.AlreadyDeleted", $"User with ID '{id}' is already deleted.");
+
+        public static Error InvalidRefreshToken() => new("User.InvalidRefreshToken", "The refresh token is invalid or has expired.");
     }
 }

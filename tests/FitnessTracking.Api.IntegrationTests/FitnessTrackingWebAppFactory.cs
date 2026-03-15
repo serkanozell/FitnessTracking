@@ -42,8 +42,16 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             // Override authentication with a test scheme that always succeeds
-            services.AddAuthentication("Test")
-                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Test";
+                options.DefaultChallengeScheme = "Test";
+            }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+            });
 
             ReplaceDbContext<ExercisesDbContext>(services);
             ReplaceDbContext<WorkoutProgramsDbContext>(services);
