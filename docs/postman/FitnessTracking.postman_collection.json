@@ -1,0 +1,497 @@
+﻿{
+	"info": {
+		"_postman_id": "fitness-tracking-api",
+		"name": "FitnessTracking API",
+		"description": "FitnessTracking Modular Monolith API — .NET 10",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "token", "value": "" },
+		{ "key": "refreshToken", "value": "" },
+		{ "key": "userId", "value": "" },
+		{ "key": "programId", "value": "" },
+		{ "key": "splitId", "value": "" },
+		{ "key": "exerciseId", "value": "" },
+		{ "key": "sessionId", "value": "" },
+		{ "key": "bodyMetricId", "value": "" },
+		{ "key": "roleId", "value": "" },
+		{ "key": "adminRoleId", "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+		{ "key": "memberRoleId", "value": "b2c3d4e5-f6a7-8901-bcde-f12345678901" }
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Register",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('userId', json.id);"] } }],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}" },
+						"url": { "raw": "{{baseUrl}}/users/register", "host": ["{{baseUrl}}"], "path": ["users", "register"] }
+					}
+				},
+				{
+					"name": "Login",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.token) pm.collectionVariables.set('token', json.token);", "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);", "if (json.userId) pm.collectionVariables.set('userId', json.userId);"] } }],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\"\n}" },
+						"url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.token) pm.collectionVariables.set('token', json.token);", "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"] } }],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/users/refresh-token", "host": ["{{baseUrl}}"], "path": ["users", "refresh-token"] }
+					}
+				},
+				{
+					"name": "Revoke Token (Logout)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/users/revoke-token", "host": ["{{baseUrl}}"], "path": ["users", "revoke-token"] }
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Updated\"\n}" },
+						"url": { "raw": "{{baseUrl}}/users/{{userId}}/profile", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}", "profile"] }
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Password123!\",\n  \"newPassword\": \"NewPassword123!\"\n}" },
+						"url": { "raw": "{{baseUrl}}/users/{{userId}}/password", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}", "password"] }
+					}
+				},
+				{
+					"name": "Create User (Admin)",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('userId', json.id);"] } }],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"New\",\n  \"lastName\": \"User\",\n  \"roleIds\": [\"{{memberRoleId}}\"]\n}" },
+						"url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+					}
+				},
+				{
+					"name": "Activate User (Admin)",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/users/{{userId}}/activate", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Delete User (Admin)",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+					}
+				},
+				{
+					"name": "Assign Role (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"roleId\": \"{{adminRoleId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/users/{{userId}}/roles", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}", "roles"] }
+					}
+				},
+				{
+					"name": "Remove Role (Admin)",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/users/{{userId}}/roles/{{roleId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}", "roles", "{{roleId}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] }
+					}
+				},
+				{
+					"name": "Create Role (Admin)",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('roleId', json.id);"] } }],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Trainer\",\n  \"description\": \"Trainer role\"\n}" },
+						"url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] }
+					}
+				},
+				{
+					"name": "Update Role (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Trainer\",\n  \"description\": \"Updated trainer role\"\n}" },
+						"url": { "raw": "{{baseUrl}}/roles/{{roleId}}", "host": ["{{baseUrl}}"], "path": ["roles", "{{roleId}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Exercises",
+			"item": [
+				{
+					"name": "Get All Exercises",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/exercises?pageNumber=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["exercises"], "query": [{ "key": "pageNumber", "value": "1" }, { "key": "pageSize", "value": "10" }] }
+					}
+				},
+				{
+					"name": "Get Exercise By Id",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/exercises/{{exerciseId}}", "host": ["{{baseUrl}}"], "path": ["exercises", "{{exerciseId}}"] }
+					}
+				},
+				{
+					"name": "Create Exercise (Admin)",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('exerciseId', json.id);"] } }],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Bench Press\",\n  \"description\": \"Flat barbell bench press\",\n  \"muscleGroup\": \"Chest\"\n}" },
+						"url": { "raw": "{{baseUrl}}/exercises", "host": ["{{baseUrl}}"], "path": ["exercises"] }
+					}
+				},
+				{
+					"name": "Update Exercise (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Incline Bench Press\",\n  \"description\": \"Incline barbell bench press\",\n  \"muscleGroup\": \"Chest\"\n}" },
+						"url": { "raw": "{{baseUrl}}/exercises/{{exerciseId}}", "host": ["{{baseUrl}}"], "path": ["exercises", "{{exerciseId}}"] }
+					}
+				},
+				{
+					"name": "Activate Exercise (Admin)",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/exercises/{{exerciseId}}/activate", "host": ["{{baseUrl}}"], "path": ["exercises", "{{exerciseId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Delete Exercise (Admin)",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/exercises/{{exerciseId}}", "host": ["{{baseUrl}}"], "path": ["exercises", "{{exerciseId}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Workout Programs",
+			"item": [
+				{
+					"name": "Get Programs",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/workout-programs?pageNumber=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["workout-programs"], "query": [{ "key": "pageNumber", "value": "1" }, { "key": "pageSize", "value": "10" }] }
+					}
+				},
+				{
+					"name": "Get Program By Id",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}"] }
+					}
+				},
+				{
+					"name": "Create Program",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('programId', json.id);"] } }],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Push Pull Legs\",\n  \"startDate\": \"2025-01-01\",\n  \"endDate\": \"2025-03-31\"\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-programs", "host": ["{{baseUrl}}"], "path": ["workout-programs"] }
+					}
+				},
+				{
+					"name": "Update Program",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated PPL\",\n  \"startDate\": \"2025-04-01\",\n  \"endDate\": \"2025-06-30\"\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}"] }
+					}
+				},
+				{
+					"name": "Activate Program",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/activate", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Delete Program",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}"] }
+					}
+				},
+				{
+					"name": "Get Splits",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits"] }
+					}
+				},
+				{
+					"name": "Add Split",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('splitId', json.id);"] } }],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Push Day\",\n  \"dayOfWeek\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits"] }
+					}
+				},
+				{
+					"name": "Update Split",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Pull Day\",\n  \"dayOfWeek\": 2\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}"] }
+					}
+				},
+				{
+					"name": "Activate Split",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}/activate", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Delete Split",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}"] }
+					}
+				},
+				{
+					"name": "Get Split Exercises",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}/exercises", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}", "exercises"] }
+					}
+				},
+				{
+					"name": "Add Exercise to Split",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"exerciseId\": \"{{exerciseId}}\",\n  \"sets\": 4,\n  \"repMin\": 8,\n  \"repMax\": 12,\n  \"restSeconds\": 90,\n  \"order\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}/exercises", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}", "exercises"] }
+					}
+				},
+				{
+					"name": "Update Split Exercise",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"sets\": 5,\n  \"repMin\": 6,\n  \"repMax\": 10,\n  \"restSeconds\": 120,\n  \"order\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}/exercises/{{exerciseId}}", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}", "exercises", "{{exerciseId}}"] }
+					}
+				},
+				{
+					"name": "Activate Split Exercise",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}/exercises/{{exerciseId}}/activate", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}", "exercises", "{{exerciseId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Remove Split Exercise",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/workout-programs/{{programId}}/splits/{{splitId}}/exercises/{{exerciseId}}", "host": ["{{baseUrl}}"], "path": ["workout-programs", "{{programId}}", "splits", "{{splitId}}", "exercises", "{{exerciseId}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Workout Sessions",
+			"item": [
+				{
+					"name": "Get Sessions",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/workout-sessions?pageNumber=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["workout-sessions"], "query": [{ "key": "pageNumber", "value": "1" }, { "key": "pageSize", "value": "10" }, { "key": "programId", "value": "{{programId}}", "disabled": true }] }
+					}
+				},
+				{
+					"name": "Get Session By Id",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}"] }
+					}
+				},
+				{
+					"name": "Create Session",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('sessionId', json.id);"] } }],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"workoutProgramId\": \"{{programId}}\",\n  \"date\": \"2025-06-15T10:00:00\"\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-sessions", "host": ["{{baseUrl}}"], "path": ["workout-sessions"] }
+					}
+				},
+				{
+					"name": "Update Session",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-06-16T10:00:00\"\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}"] }
+					}
+				},
+				{
+					"name": "Activate Session",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}/activate", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Delete Session",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}"] }
+					}
+				},
+				{
+					"name": "Get Session Exercises",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}/exercises", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}", "exercises"] }
+					}
+				},
+				{
+					"name": "Add Exercise to Session",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"exerciseId\": \"{{exerciseId}}\",\n  \"sets\": 4,\n  \"reps\": 10,\n  \"weight\": 80,\n  \"restSeconds\": 90,\n  \"order\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}/exercises", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}", "exercises"] }
+					}
+				},
+				{
+					"name": "Update Session Exercise",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"sets\": 5,\n  \"reps\": 8,\n  \"weight\": 85,\n  \"restSeconds\": 120,\n  \"order\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}/exercises/{{exerciseId}}", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}", "exercises", "{{exerciseId}}"] }
+					}
+				},
+				{
+					"name": "Activate Session Exercise",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}/exercises/{{exerciseId}}/activate", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}", "exercises", "{{exerciseId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Remove Session Exercise",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/workout-sessions/{{sessionId}}/exercises/{{exerciseId}}", "host": ["{{baseUrl}}"], "path": ["workout-sessions", "{{sessionId}}", "exercises", "{{exerciseId}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Body Metrics",
+			"item": [
+				{
+					"name": "Get Body Metrics",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/body-metrics?pageNumber=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["body-metrics"], "query": [{ "key": "pageNumber", "value": "1" }, { "key": "pageSize", "value": "10" }] }
+					}
+				},
+				{
+					"name": "Get Body Metric By Id",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}"] }
+					}
+				},
+				{
+					"name": "Create Body Metric",
+					"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('bodyMetricId', json.id);"] } }],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-06-15\",\n  \"weight\": 80.5,\n  \"height\": 180,\n  \"bodyFatPercentage\": 15.2,\n  \"muscleMass\": 65.0,\n  \"waistCircumference\": 85,\n  \"chestCircumference\": 100,\n  \"armCircumference\": 35,\n  \"hipCircumference\": 95,\n  \"thighCircumference\": 55,\n  \"neckCircumference\": 38,\n  \"note\": \"Morning measurement\"\n}" },
+						"url": { "raw": "{{baseUrl}}/body-metrics", "host": ["{{baseUrl}}"], "path": ["body-metrics"] }
+					}
+				},
+				{
+					"name": "Update Body Metric",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-06-15\",\n  \"weight\": 79.8,\n  \"height\": 180,\n  \"bodyFatPercentage\": 14.8,\n  \"muscleMass\": 65.5,\n  \"waistCircumference\": 84,\n  \"chestCircumference\": 101,\n  \"armCircumference\": 35.5,\n  \"hipCircumference\": 94,\n  \"thighCircumference\": 56,\n  \"neckCircumference\": 38,\n  \"note\": \"Updated measurement\"\n}" },
+						"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}"] }
+					}
+				},
+				{
+					"name": "Activate Body Metric",
+					"request": {
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}/activate", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}", "activate"] }
+					}
+				},
+				{
+					"name": "Delete Body Metric",
+					"request": {
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}"] }
+					}
+				}
+			]
+		}
+	]
+}

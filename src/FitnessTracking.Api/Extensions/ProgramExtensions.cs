@@ -23,6 +23,8 @@ using WorkoutPrograms.Api;
 using WorkoutPrograms.Infrastructure;
 using WorkoutSessions.Api;
 using WorkoutSessions.Infrastructure;
+using BodyMetrics.Api;
+using BodyMetrics.Infrastructure;
 
 namespace FitnessTracking.Api.Extensions
 {
@@ -118,7 +120,8 @@ namespace FitnessTracking.Api.Extensions
             services.AddUsersInfrastructure(configuration)
                     .AddExercisesInfrastructure(configuration)
                     .WorkoutProgramsInfrastructure(configuration)
-                    .WorkoutSessionsInfrastructure(configuration);
+                    .WorkoutSessionsInfrastructure(configuration)
+                    .AddBodyMetricsInfrastructure(configuration);
 
             return services;
         }
@@ -130,7 +133,8 @@ namespace FitnessTracking.Api.Extensions
                 new UsersModule(),
                 new ExercisesModule(),
                 new WorkoutProgramsModule(),
-                new WorkoutSessionsModule()
+                new WorkoutSessionsModule(),
+                new BodyMetricsModule()
             ];
 
             var moduleAssemblies = modules.Select(m => m.ApplicationAssembly).ToArray();

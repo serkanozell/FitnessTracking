@@ -12,18 +12,21 @@ public class LayerDependencyTests
     private static readonly Assembly ExercisesDomain = typeof(Exercises.Domain.Entity.Exercise).Assembly;
     private static readonly Assembly WorkoutProgramsDomain = typeof(WorkoutPrograms.Domain.Entity.WorkoutProgram).Assembly;
     private static readonly Assembly WorkoutSessionsDomain = typeof(WorkoutSessions.Domain.Entity.WorkoutSession).Assembly;
+    private static readonly Assembly BodyMetricsDomain = typeof(BodyMetrics.Domain.Entity.BodyMetric).Assembly;
 
     // Application assemblies
     private static readonly Assembly UsersApplication = typeof(Users.Application.AssemblyReference).Assembly;
     private static readonly Assembly ExercisesApplication = typeof(Exercises.Application.AssemblyReference).Assembly;
     private static readonly Assembly WorkoutProgramsApplication = typeof(WorkoutPrograms.Application.AssemblyReference).Assembly;
     private static readonly Assembly WorkoutSessionsApplication = typeof(WorkoutSessions.Application.AssemblyReference).Assembly;
+    private static readonly Assembly BodyMetricsApplication = typeof(BodyMetrics.Application.AssemblyReference).Assembly;
 
     // Infrastructure assemblies
     private static readonly Assembly UsersInfrastructure = typeof(Users.Infrastructure.Repositories.UserRepository).Assembly;
     private static readonly Assembly ExercisesInfrastructure = typeof(Exercises.Infrastructure.Repositories.ExerciseRepository).Assembly;
     private static readonly Assembly WorkoutProgramsInfrastructure = typeof(WorkoutPrograms.Infrastructure.Repositories.WorkoutProgramRepository).Assembly;
     private static readonly Assembly WorkoutSessionsInfrastructure = typeof(WorkoutSessions.Infrastructure.Repositories.WorkoutSessionRepository).Assembly;
+    private static readonly Assembly BodyMetricsInfrastructure = typeof(BodyMetrics.Infrastructure.Repositories.BodyMetricRepository).Assembly;
 
     // ── Domain should NOT depend on Application ──
 
@@ -32,6 +35,7 @@ public class LayerDependencyTests
     [InlineData("Exercises")]
     [InlineData("WorkoutPrograms")]
     [InlineData("WorkoutSessions")]
+    [InlineData("BodyMetrics")]
     public void Domain_ShouldNotDependOn_Application(string module)
     {
         var domainAssembly = GetDomainAssembly(module);
@@ -52,6 +56,7 @@ public class LayerDependencyTests
     [InlineData("Exercises")]
     [InlineData("WorkoutPrograms")]
     [InlineData("WorkoutSessions")]
+    [InlineData("BodyMetrics")]
     public void Domain_ShouldNotDependOn_Infrastructure(string module)
     {
         var domainAssembly = GetDomainAssembly(module);
@@ -72,6 +77,7 @@ public class LayerDependencyTests
     [InlineData("Exercises")]
     [InlineData("WorkoutPrograms")]
     [InlineData("WorkoutSessions")]
+    [InlineData("BodyMetrics")]
     public void Application_ShouldNotDependOn_Infrastructure(string module)
     {
         var appAssembly = GetApplicationAssembly(module);
@@ -92,6 +98,7 @@ public class LayerDependencyTests
     [InlineData("Exercises")]
     [InlineData("WorkoutPrograms")]
     [InlineData("WorkoutSessions")]
+    [InlineData("BodyMetrics")]
     public void Domain_ShouldNotDependOn_EntityFramework(string module)
     {
         var domainAssembly = GetDomainAssembly(module);
@@ -115,7 +122,8 @@ public class LayerDependencyTests
             .HaveDependencyOnAny(
                 "Exercises.Domain",
                 "WorkoutPrograms.Domain",
-                "WorkoutSessions.Domain")
+                "WorkoutSessions.Domain",
+                "BodyMetrics.Domain")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue();
@@ -129,7 +137,8 @@ public class LayerDependencyTests
             .HaveDependencyOnAny(
                 "Users.Domain",
                 "WorkoutPrograms.Domain",
-                "WorkoutSessions.Domain")
+                "WorkoutSessions.Domain",
+                "BodyMetrics.Domain")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue();
@@ -143,7 +152,8 @@ public class LayerDependencyTests
             .HaveDependencyOnAny(
                 "Users.Domain",
                 "Exercises.Domain",
-                "WorkoutSessions.Domain")
+                "WorkoutSessions.Domain",
+                "BodyMetrics.Domain")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue();
@@ -157,7 +167,23 @@ public class LayerDependencyTests
             .HaveDependencyOnAny(
                 "Users.Domain",
                 "Exercises.Domain",
-                "WorkoutPrograms.Domain")
+                "WorkoutPrograms.Domain",
+                "BodyMetrics.Domain")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
+    public void BodyMetricsDomain_ShouldNotDependOn_OtherModuleDomains()
+    {
+        var result = Types.InAssembly(BodyMetricsDomain)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "Users.Domain",
+                "Exercises.Domain",
+                "WorkoutPrograms.Domain",
+                "WorkoutSessions.Domain")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue();
@@ -169,6 +195,7 @@ public class LayerDependencyTests
         "Exercises" => ExercisesDomain,
         "WorkoutPrograms" => WorkoutProgramsDomain,
         "WorkoutSessions" => WorkoutSessionsDomain,
+        "BodyMetrics" => BodyMetricsDomain,
         _ => throw new ArgumentException(module)
     };
 
@@ -178,6 +205,7 @@ public class LayerDependencyTests
         "Exercises" => ExercisesApplication,
         "WorkoutPrograms" => WorkoutProgramsApplication,
         "WorkoutSessions" => WorkoutSessionsApplication,
+        "BodyMetrics" => BodyMetricsApplication,
         _ => throw new ArgumentException(module)
     };
 }

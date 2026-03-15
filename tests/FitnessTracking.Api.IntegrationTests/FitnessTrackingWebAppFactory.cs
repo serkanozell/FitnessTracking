@@ -18,6 +18,7 @@ using System.Text.Encodings.Web;
 using WorkoutPrograms.Infrastructure.Persistence;
 using WorkoutSessions.Infrastructure.Persistence;
 using Users.Infrastructure.Persistence;
+using BodyMetrics.Infrastructure.Persistence;
 
 namespace FitnessTracking.Api.IntegrationTests;
 
@@ -63,6 +64,7 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
             ReplaceDbContext<WorkoutProgramsDbContext>(services);
             ReplaceDbContext<WorkoutSessionsDbContext>(services);
             ReplaceDbContext<UsersDbContext>(services);
+            ReplaceDbContext<BodyMetricsDbContext>(services);
             ReplaceDbContext<OutboxDbContext>(services);
 
             RemoveAllOfType<IConnectionMultiplexer>(services);

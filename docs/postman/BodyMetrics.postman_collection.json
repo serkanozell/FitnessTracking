@@ -1,0 +1,65 @@
+﻿{
+	"info": {
+		"_postman_id": "body-metrics-api",
+		"name": "FitnessTracking — Body Metrics",
+		"description": "Body Metrics module endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "token", "value": "" },
+		{ "key": "bodyMetricId", "value": "" }
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+	},
+	"item": [
+		{
+			"name": "Get Body Metrics",
+			"request": {
+				"method": "GET",
+				"url": { "raw": "{{baseUrl}}/body-metrics?pageNumber=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["body-metrics"], "query": [{ "key": "pageNumber", "value": "1" }, { "key": "pageSize", "value": "10" }] }
+			}
+		},
+		{
+			"name": "Get Body Metric By Id",
+			"request": {
+				"method": "GET",
+				"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}"] }
+			}
+		},
+		{
+			"name": "Create Body Metric",
+			"event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.id) pm.collectionVariables.set('bodyMetricId', json.id);"] } }],
+			"request": {
+				"method": "POST",
+				"header": [{ "key": "Content-Type", "value": "application/json" }],
+				"body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-06-15\",\n  \"weight\": 80.5,\n  \"height\": 180,\n  \"bodyFatPercentage\": 15.2,\n  \"muscleMass\": 65.0,\n  \"waistCircumference\": 85,\n  \"chestCircumference\": 100,\n  \"armCircumference\": 35,\n  \"hipCircumference\": 95,\n  \"thighCircumference\": 55,\n  \"neckCircumference\": 38,\n  \"note\": \"Morning measurement\"\n}" },
+				"url": { "raw": "{{baseUrl}}/body-metrics", "host": ["{{baseUrl}}"], "path": ["body-metrics"] }
+			}
+		},
+		{
+			"name": "Update Body Metric",
+			"request": {
+				"method": "PUT",
+				"header": [{ "key": "Content-Type", "value": "application/json" }],
+				"body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-06-15\",\n  \"weight\": 79.8,\n  \"height\": 180,\n  \"bodyFatPercentage\": 14.8,\n  \"muscleMass\": 65.5,\n  \"waistCircumference\": 84,\n  \"chestCircumference\": 101,\n  \"armCircumference\": 35.5,\n  \"hipCircumference\": 94,\n  \"thighCircumference\": 56,\n  \"neckCircumference\": 38,\n  \"note\": \"Updated measurement\"\n}" },
+				"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}"] }
+			}
+		},
+		{
+			"name": "Activate Body Metric",
+			"request": {
+				"method": "PUT",
+				"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}/activate", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}", "activate"] }
+			}
+		},
+		{
+			"name": "Delete Body Metric",
+			"request": {
+				"method": "DELETE",
+				"url": { "raw": "{{baseUrl}}/body-metrics/{{bodyMetricId}}", "host": ["{{baseUrl}}"], "path": ["body-metrics", "{{bodyMetricId}}"] }
+			}
+		}
+	]
+}

@@ -19,6 +19,12 @@
     <Project Path="src/BuildingBlocks/BuildingBlocks.Web/BuildingBlocks.Web.csproj" Id="bc9450dc-6e54-41cc-9eaa-e17c22b205b1" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/BodyMetrics/">
+    <Project Path="src/Modules/BodyMetrics/BodyMetrics.Api/BodyMetrics.Api.csproj" />
+    <Project Path="src/Modules/BodyMetrics/BodyMetrics.Application/BodyMetrics.Application.csproj" />
+    <Project Path="src/Modules/BodyMetrics/BodyMetrics.Domain/BodyMetrics.Domain.csproj" />
+    <Project Path="src/Modules/BodyMetrics/BodyMetrics.Infrastructure/BodyMetrics.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Exercises/">
     <Project Path="src/Modules/Exercises/Exercises.Api/Exercises.Api.csproj" Id="4fcaf71c-8ea9-4066-8e7e-abc3cd3015dc" />
     <Project Path="src/Modules/Exercises/Exercises.Application/Exercises.Application.csproj" Id="0f2a11f8-ea4c-487c-a717-ae5512ddc141" />
@@ -57,6 +63,10 @@
     <Project Path="tests/Modules/Exercises/Exercises.Infrastructure.IntegrationTests/Exercises.Infrastructure.IntegrationTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/" />
+  <Folder Name="/tests/Modules/BodyMetrics/">
+    <Project Path="tests/Modules/BodyMetrics/BodyMetrics.Application.UnitTests/BodyMetrics.Application.UnitTests.csproj" />
+    <Project Path="tests/Modules/BodyMetrics/BodyMetrics.Domain.UnitTests/BodyMetrics.Domain.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/tests/Modules/Exercises/">
     <Project Path="tests/Modules/Exercises/Exercises.Application.UnitTests/Exercises.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/Exercises/Exercises.Domain.UnitTests/Exercises.Domain.UnitTests.csproj" />
