@@ -35,6 +35,7 @@
   <Folder Name="/src/Modules/Users/">
     <Project Path="src/Modules/Users/Users.Api/Users.Api.csproj" />
     <Project Path="src/Modules/Users/Users.Application/Users.Application.csproj" />
+    <Project Path="src/Modules/Users/Users.Contracts/Users.Contracts.csproj" />
     <Project Path="src/Modules/Users/Users.Domain/Users.Domain.csproj" />
     <Project Path="src/Modules/Users/Users.Infrastructure/Users.Infrastructure.csproj" />
   </Folder>

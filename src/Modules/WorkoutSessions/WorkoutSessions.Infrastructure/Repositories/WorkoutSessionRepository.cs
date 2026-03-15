@@ -15,6 +15,13 @@ namespace WorkoutSessions.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<IReadOnlyList<WorkoutSession>> GetActiveByProgramIdAsync(Guid workoutProgramId, CancellationToken cancellationToken = default)
+        {
+            return await _context.WorkoutSessions
+                .Where(x => x.WorkoutProgramId == workoutProgramId && !x.IsDeleted)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<IReadOnlyList<WorkoutSession>> GetListByProgramAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _context.WorkoutSessions.Include(x => x.SessionExercises)

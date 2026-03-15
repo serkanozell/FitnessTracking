@@ -5,6 +5,7 @@ namespace WorkoutPrograms.Domain.Repositories
     public interface IWorkoutProgramRepository
     {
         Task<WorkoutProgram?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<WorkoutProgram>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<WorkoutProgram>> GetListAsync(CancellationToken cancellationToken = default);
         Task<(IReadOnlyList<WorkoutProgram> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task<(IReadOnlyList<WorkoutProgram> Items, int TotalCount)> GetPagedByUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);

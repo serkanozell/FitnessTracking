@@ -10,7 +10,15 @@ namespace BodyMetrics.Infrastructure.Repositories
     {
         public async Task<BodyMetric?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) => await _context.BodyMetrics.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-        public async Task<(IReadOnlyList<BodyMetric> Items, int TotalCount)> GetPagedByUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<BodyMetric>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _context.BodyMetrics
+                .Where(x => x.UserId == userId && !x.IsDeleted)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<(IReadOnlyList<BodyMetric> Items, int TotalCount)> GetPagedByUserAsync(
+            Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
             var query = _context.BodyMetrics.Where(x => x.UserId == userId && !x.IsDeleted)
                                             .OrderByDescending(x => x.Date);

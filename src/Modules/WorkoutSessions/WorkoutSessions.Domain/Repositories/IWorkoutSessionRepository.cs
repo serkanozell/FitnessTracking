@@ -5,6 +5,7 @@ namespace WorkoutSessions.Domain.Repositories
     public interface IWorkoutSessionRepository
     {
         Task<WorkoutSession?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<WorkoutSession>> GetActiveByProgramIdAsync(Guid workoutProgramId, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<WorkoutSession>> GetListByProgramAsync(Guid workoutProgramId, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<WorkoutSession>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);

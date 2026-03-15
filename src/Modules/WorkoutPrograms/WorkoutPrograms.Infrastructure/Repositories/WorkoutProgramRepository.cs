@@ -53,6 +53,14 @@ namespace WorkoutPrograms.Infrastructure.Repositories
                                            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
+        public async Task<IReadOnlyList<WorkoutProgram>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _context.WorkoutPrograms
+                .Include(x => x.Splits)
+                .Where(x => x.UserId == userId && !x.IsDeleted)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task AddAsync(WorkoutProgram program, CancellationToken cancellationToken = default)
         {
             await _context.WorkoutPrograms.AddAsync(program, cancellationToken);
