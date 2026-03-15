@@ -54,7 +54,7 @@ public class WorkoutProgramCacheInvalidationHandlerTests
     {
         var programId = Guid.NewGuid();
 
-        await _sut.Handle(new WorkoutProgramDeletedEvent(programId), CancellationToken.None);
+        await _sut.Handle(new WorkoutProgramDeletedEvent(programId, "test-admin"), CancellationToken.None);
 
         await _cacheService.Received(1).RemoveAsync($"workoutprograms:{programId}", Arg.Any<CancellationToken>());
         await _cacheService.Received(1).RemoveByPrefixAsync("workoutprograms:all", Arg.Any<CancellationToken>());

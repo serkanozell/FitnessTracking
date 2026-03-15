@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Exceptions;
 using FluentAssertions;
 using Users.Domain.Entity;
 using Users.Domain.Enums;
@@ -188,7 +188,7 @@ public class UserTests
     public void Activate_ShouldSetIsActiveTrueAndIsDeletedFalse()
     {
         var user = CreateDefaultUser();
-        user.Delete();
+        user.Delete("test-admin");
         user.ClearDomainEvents();
 
         user.Activate();
@@ -218,7 +218,7 @@ public class UserTests
         var user = CreateDefaultUser();
         user.ClearDomainEvents();
 
-        user.Delete();
+        user.Delete("test-admin");
 
         user.IsActive.Should().BeFalse();
         user.IsDeleted.Should().BeTrue();
@@ -230,7 +230,7 @@ public class UserTests
         var user = CreateDefaultUser();
         user.ClearDomainEvents();
 
-        user.Delete();
+        user.Delete("test-admin");
 
         user.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<UserDeletedEvent>()
@@ -245,7 +245,7 @@ public class UserTests
         user.AssignRole(roleId);
         user.ClearDomainEvents();
 
-        user.Delete();
+        user.Delete("test-admin");
 
         user.UserRoles.Should().AllSatisfy(ur =>
         {

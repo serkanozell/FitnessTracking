@@ -2,7 +2,7 @@
 
 namespace WorkoutPrograms.Contracts.Events;
 
-public sealed record WorkoutProgramDeletedIntegrationEvent(Guid ProgramId) : IDomainEvent
+public sealed record WorkoutProgramDeletedIntegrationEvent(Guid ProgramId, string PerformedBy) : IDomainEvent
 {
-    public DateTime OccurredOn => DateTime.UtcNow;
+    public DateTime OccurredOn => DateTime.Now;
 }

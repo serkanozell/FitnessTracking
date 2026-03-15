@@ -7,7 +7,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.EventHandlers
     {
         public async Task Handle(WorkoutProgramDeletedEvent notification, CancellationToken cancellationToken)
         {
-            await _publisher.Publish(new WorkoutProgramDeletedIntegrationEvent(notification.ProgramId), cancellationToken);
+            await _publisher.Publish(new WorkoutProgramDeletedIntegrationEvent(notification.ProgramId, notification.DeletedBy), cancellationToken);
         }
     }
 }

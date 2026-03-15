@@ -51,12 +51,12 @@ namespace WorkoutPrograms.Domain.Entity
             AddDomainEvent(new WorkoutProgramActivatedEvent(Id));
         }
 
-        public void Delete()
+        public void Delete(string deletedBy)
         {
             IsActive = false;
             IsDeleted = true;
 
-            AddDomainEvent(new WorkoutProgramDeletedEvent(Id));
+            AddDomainEvent(new WorkoutProgramDeletedEvent(Id, deletedBy));
         }
 
         public WorkoutProgramSplit AddSplit(string name, int order)

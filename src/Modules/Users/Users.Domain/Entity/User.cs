@@ -81,7 +81,7 @@ namespace Users.Domain.Entity
             AddDomainEvent(new UserActivatedEvent(Id));
         }
 
-        public void Delete()
+        public void Delete(string deletedBy)
         {
             IsActive = false;
             IsDeleted = true;
@@ -92,7 +92,7 @@ namespace Users.Domain.Entity
                 userRole.Delete();
             }
 
-            AddDomainEvent(new UserDeletedEvent(Id));
+            AddDomainEvent(new UserDeletedEvent(Id, deletedBy));
         }
     }
 }

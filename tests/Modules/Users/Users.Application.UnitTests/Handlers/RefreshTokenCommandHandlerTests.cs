@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Application.Abstractions;
 using FluentAssertions;
 using NSubstitute;
 using Users.Application.Features.Users.RefreshToken;
@@ -98,7 +98,7 @@ public class RefreshTokenCommandHandlerTests
     public async Task Handle_ShouldReturnError_WhenUserIsInactive()
     {
         var user = User.Create("test@example.com", "hash", "John", "Doe");
-        user.Delete();
+        user.Delete("test-admin");
         var existingToken = Domain.Entity.RefreshToken.Create(user.Id);
         _refreshTokenRepository.GetByTokenAsync(existingToken.Token, Arg.Any<CancellationToken>()).Returns(existingToken);
         _userRepository.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);

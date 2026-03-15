@@ -2,8 +2,9 @@
 
 namespace BodyMetrics.Application.Features.BodyMetrics.EventHandlers
 {
-    internal sealed class UserDeletedBodyMetricsHandler(IBodyMetricRepository _repository,
-                                                        IBodyMetricsUnitOfWork _unitOfWork) : IDomainEventHandler<UserDeletedIntegrationEvent>
+    internal sealed class UserDeletedBodyMetricsHandler(
+        IBodyMetricRepository _repository,
+        IBodyMetricsUnitOfWork _unitOfWork) : IDomainEventHandler<UserDeletedIntegrationEvent>
     {
         public async Task Handle(UserDeletedIntegrationEvent notification, CancellationToken cancellationToken)
         {

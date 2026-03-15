@@ -88,7 +88,7 @@ public class WorkoutProgramTests
     public void Activate_ShouldSetIsActiveTrueAndIsDeletedFalse()
     {
         var program = CreateDefaultProgram();
-        program.Delete();
+        program.Delete("test-admin");
         program.ClearDomainEvents();
 
         program.Activate();
@@ -116,7 +116,7 @@ public class WorkoutProgramTests
         program.Activate();
         program.ClearDomainEvents();
 
-        program.Delete();
+        program.Delete("test-admin");
 
         program.IsActive.Should().BeFalse();
         program.IsDeleted.Should().BeTrue();
@@ -128,7 +128,7 @@ public class WorkoutProgramTests
         var program = CreateDefaultProgram();
         program.ClearDomainEvents();
 
-        program.Delete();
+        program.Delete("test-admin");
 
         program.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<WorkoutProgramDeletedEvent>();

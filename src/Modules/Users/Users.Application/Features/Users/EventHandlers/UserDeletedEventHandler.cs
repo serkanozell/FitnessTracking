@@ -7,7 +7,7 @@ namespace Users.Application.Features.Users.EventHandlers
     {
         public async Task Handle(UserDeletedEvent notification, CancellationToken cancellationToken)
         {
-            await _publisher.Publish(new UserDeletedIntegrationEvent(notification.UserId), cancellationToken);
+            await _publisher.Publish(new UserDeletedIntegrationEvent(notification.UserId, notification.DeletedBy), cancellationToken);
         }
     }
 }

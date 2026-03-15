@@ -13,7 +13,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.EventHandlers
 
             foreach (var program in programs)
             {
-                program.Delete();
+                program.Delete(notification.PerformedBy);
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);

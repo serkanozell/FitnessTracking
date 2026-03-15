@@ -19,7 +19,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.DeleteWorkoutProg
             if (ownershipError is not null)
                 return ownershipError;
 
-            program.Delete();
+            program.Delete(_currentUser.UserId ?? "system");
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
