@@ -31,6 +31,7 @@
 		<ProjectReference Include="..\Modules\WorkoutSessions\WorkoutSessions.Infrastructure\WorkoutSessions.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\BodyMetrics\BodyMetrics.Api\BodyMetrics.Api.csproj" />
 		<ProjectReference Include="..\Modules\BodyMetrics\BodyMetrics.Infrastructure\BodyMetrics.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules\Dashboard\Dashboard.Api\Dashboard.Api.csproj" />
 	</ItemGroup>
 
 </Project>

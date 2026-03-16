@@ -20,6 +20,7 @@ public class LayerDependencyTests
     private static readonly Assembly WorkoutProgramsApplication = typeof(WorkoutPrograms.Application.AssemblyReference).Assembly;
     private static readonly Assembly WorkoutSessionsApplication = typeof(WorkoutSessions.Application.AssemblyReference).Assembly;
     private static readonly Assembly BodyMetricsApplication = typeof(BodyMetrics.Application.AssemblyReference).Assembly;
+    private static readonly Assembly DashboardApplication = typeof(Dashboard.Application.AssemblyReference).Assembly;
 
     // Infrastructure assemblies
     private static readonly Assembly UsersInfrastructure = typeof(Users.Infrastructure.Repositories.UserRepository).Assembly;
@@ -187,6 +188,23 @@ public class LayerDependencyTests
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
+    public void DashboardApplication_ShouldNotDependOn_AnyModuleDomainOrInfrastructure()
+    {
+        var result = Types.InAssembly(DashboardApplication)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "Users.Domain", "Users.Infrastructure",
+                "Exercises.Domain", "Exercises.Infrastructure",
+                "WorkoutPrograms.Domain", "WorkoutPrograms.Infrastructure",
+                "WorkoutSessions.Domain", "WorkoutSessions.Infrastructure",
+                "BodyMetrics.Domain", "BodyMetrics.Infrastructure")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            "Dashboard.Application should only depend on Contracts, not on Domain or Infrastructure");
     }
 
     private Assembly GetDomainAssembly(string module) => module switch

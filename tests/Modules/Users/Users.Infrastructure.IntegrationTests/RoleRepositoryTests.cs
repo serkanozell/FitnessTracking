@@ -41,15 +41,15 @@ public class RoleRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task AddAsync_ShouldPersistRole()
     {
-        var role = Role.Create("Admin", "Administrator role");
+        var role = Role.Create("Test", "Test role");
 
         await _sut.AddAsync(role);
         await _context.SaveChangesAsync();
 
         var saved = await _context.Roles.FindAsync(role.Id);
         saved.Should().NotBeNull();
-        saved!.Name.Should().Be("Admin");
-        saved.Description.Should().Be("Administrator role");
+        saved!.Name.Should().Be("Test");
+        saved.Description.Should().Be("Test role");
     }
 
     [Fact]
@@ -82,7 +82,9 @@ public class RoleRepositoryTests : IAsyncLifetime
 
         var roles = await _sut.GetAllAsync();
 
-        roles.Should().HaveCount(2);
+        roles.Should().HaveCount(4); // 2 seeded (Admin, Member) + 2 added
+        roles.Should().Contain(r => r.Name == "Role1");
+        roles.Should().Contain(r => r.Name == "Role2");
     }
 
     [Fact]

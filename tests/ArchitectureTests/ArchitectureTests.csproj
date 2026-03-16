@@ -29,6 +29,7 @@
     <ProjectReference Include="..\..\src\Modules\WorkoutPrograms\WorkoutPrograms.Application\WorkoutPrograms.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\WorkoutSessions\WorkoutSessions.Application\WorkoutSessions.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\BodyMetrics\BodyMetrics.Application\BodyMetrics.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Dashboard\Dashboard.Application\Dashboard.Application.csproj" />
     <!-- Infrastructure -->
     <ProjectReference Include="..\..\src\Modules\Users\Users.Infrastructure\Users.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Modules\Exercises\Exercises.Infrastructure\Exercises.Infrastructure.csproj" />

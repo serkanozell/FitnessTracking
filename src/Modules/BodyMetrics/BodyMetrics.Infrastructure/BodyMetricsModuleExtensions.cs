@@ -1,6 +1,8 @@
-﻿using BodyMetrics.Domain.Repositories;
+﻿using BodyMetrics.Contracts;
+using BodyMetrics.Domain.Repositories;
 using BodyMetrics.Infrastructure.Persistence;
 using BodyMetrics.Infrastructure.Repositories;
+using BodyMetrics.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,7 @@ namespace BodyMetrics.Infrastructure
 
             services.AddScoped<IBodyMetricRepository, BodyMetricRepository>();
             services.AddScoped<IBodyMetricsUnitOfWork, BodyMetricsUnitOfWork>();
+            services.AddScoped<IBodyMetricModule, BodyMetricModuleService>();
 
             return services;
         }

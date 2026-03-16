@@ -22,8 +22,13 @@
   <Folder Name="/src/Modules/BodyMetrics/">
     <Project Path="src/Modules/BodyMetrics/BodyMetrics.Api/BodyMetrics.Api.csproj" />
     <Project Path="src/Modules/BodyMetrics/BodyMetrics.Application/BodyMetrics.Application.csproj" />
+    <Project Path="src/Modules/BodyMetrics/BodyMetrics.Contracts/BodyMetrics.Contracts.csproj" />
     <Project Path="src/Modules/BodyMetrics/BodyMetrics.Domain/BodyMetrics.Domain.csproj" />
     <Project Path="src/Modules/BodyMetrics/BodyMetrics.Infrastructure/BodyMetrics.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Dashboard/">
+    <Project Path="src/Modules/Dashboard/Dashboard.Api/Dashboard.Api.csproj" />
+    <Project Path="src/Modules/Dashboard/Dashboard.Application/Dashboard.Application.csproj" />
   </Folder>
   <Folder Name="/src/Modules/Exercises/">
     <Project Path="src/Modules/Exercises/Exercises.Api/Exercises.Api.csproj" Id="4fcaf71c-8ea9-4066-8e7e-abc3cd3015dc" />
@@ -49,6 +54,7 @@
   <Folder Name="/src/Modules/WorkoutSessions/">
     <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Api/WorkoutSessions.Api.csproj" Id="0bcbc503-c01d-4852-ab3d-bd863c4d0a44" />
     <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Application/WorkoutSessions.Application.csproj" Id="57037d0d-d701-4e6a-9291-dabfa93e6b17" />
+    <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Contracts/WorkoutSessions.Contracts.csproj" />
     <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Domain/WorkoutSessions.Domain.csproj" Id="54a1f2aa-a3ba-4e66-a908-3b9097eda966" />
     <Project Path="src/Modules/WorkoutSessions/WorkoutSessions.Infrastructure/WorkoutSessions.Infrastructure.csproj" Id="862ff880-dc9d-43b2-8491-947b1b3df9e8" />
   </Folder>
@@ -67,6 +73,9 @@
   <Folder Name="/tests/Modules/BodyMetrics/">
     <Project Path="tests/Modules/BodyMetrics/BodyMetrics.Application.UnitTests/BodyMetrics.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/BodyMetrics/BodyMetrics.Domain.UnitTests/BodyMetrics.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Modules/Dashboard/">
+    <Project Path="tests/Modules/Dashboard/Dashboard.Application.UnitTests/Dashboard.Application.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/Exercises/">
     <Project Path="tests/Modules/Exercises/Exercises.Application.UnitTests/Exercises.Application.UnitTests.csproj" />

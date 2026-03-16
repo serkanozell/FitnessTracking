@@ -1,4 +1,4 @@
-using WorkoutPrograms.Contracts;
+﻿using WorkoutPrograms.Contracts;
 using WorkoutPrograms.Domain.Repositories;
 
 namespace WorkoutPrograms.Infrastructure.Services;
@@ -36,5 +36,16 @@ public class WorkoutProgramModuleService(IWorkoutProgramRepository _workoutProgr
             return null;
 
         return new ProgramExerciseInfo(exercise.ExerciseId, exercise.Sets);
+    }
+
+    public async Task<ActiveProgramInfo?> GetActiveProgramByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var program = await _workoutProgramRepository.GetActiveByUserIdAsync(userId, cancellationToken);
+
+        var active = program.FirstOrDefault(p => p.IsActive && p.EndDate >= DateTime.Today);
+
+        if (active is null) return null;
+
+        return new ActiveProgramInfo(active.Id, active.Name, active.StartDate, active.EndDate);
     }
 }

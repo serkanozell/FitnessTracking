@@ -25,6 +25,7 @@ using WorkoutSessions.Api;
 using WorkoutSessions.Infrastructure;
 using BodyMetrics.Api;
 using BodyMetrics.Infrastructure;
+using Dashboard.Api;
 
 namespace FitnessTracking.Api.Extensions
 {
@@ -134,7 +135,8 @@ namespace FitnessTracking.Api.Extensions
                 new ExercisesModule(),
                 new WorkoutProgramsModule(),
                 new WorkoutSessionsModule(),
-                new BodyMetricsModule()
+                new BodyMetricsModule(),
+                new DashboardModule()
             ];
 
             var moduleAssemblies = modules.Select(m => m.ApplicationAssembly).ToArray();
