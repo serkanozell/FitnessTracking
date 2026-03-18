@@ -1,0 +1,40 @@
+﻿@model ExerciseEditModel
+@{
+    ViewData["Title"] = "New Exercise";
+}
+
+<h4 class="mb-4">New Exercise</h4>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PrimaryMuscleGroup" class="form-label"></label>
+                <select asp-for="PrimaryMuscleGroup" class="form-select"
+                        asp-items="@(new SelectList(ExerciseEditModel.MuscleGroups))">
+                    <option value="">-- select --</option>
+                </select>
+                <span asp-validation-for="PrimaryMuscleGroup" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SecondaryMuscleGroup" class="form-label"></label>
+                <select asp-for="SecondaryMuscleGroup" class="form-select"
+                        asp-items="@(new SelectList(ExerciseEditModel.MuscleGroups))">
+                    <option value="">-- none --</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <a asp-action="Index" class="btn btn-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+</div>

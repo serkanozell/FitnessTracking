@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	  <UserSecretsId>2f4a8134-b17b-4719-8fc4-91fba9a135d7</UserSecretsId>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Asp.Versioning.Http" />
+		<PackageReference Include="AspNetCore.HealthChecks.Redis" />
+		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Scalar.AspNetCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Modules\Users\Users.Api\Users.Api.csproj" />
+		<ProjectReference Include="..\..\Modules\Users\Users.Infrastructure\Users.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Modules\Exercises\Exercises.Api\Exercises.Api.csproj" />
+		<ProjectReference Include="..\..\Modules\Exercises\Exercises.Infrastructure\Exercises.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Modules\WorkoutPrograms\WorkoutPrograms.Api\WorkoutPrograms.Api.csproj" />
+		<ProjectReference Include="..\..\Modules\WorkoutPrograms\WorkoutPrograms.Infrastructure\WorkoutPrograms.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Modules\WorkoutSessions\WorkoutSessions.Api\WorkoutSessions.Api.csproj" />
+		<ProjectReference Include="..\..\Modules\WorkoutSessions\WorkoutSessions.Infrastructure\WorkoutSessions.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Modules\BodyMetrics\BodyMetrics.Api\BodyMetrics.Api.csproj" />
+		<ProjectReference Include="..\..\Modules\BodyMetrics\BodyMetrics.Infrastructure\BodyMetrics.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Modules\Dashboard\Dashboard.Api\Dashboard.Api.csproj" />
+	</ItemGroup>
+
+</Project>

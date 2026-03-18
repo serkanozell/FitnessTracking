@@ -1,0 +1,32 @@
+﻿@model WorkoutSessionEditModel
+@{
+    ViewData["Title"] = "New Session";
+    var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
+}
+
+<h4 class="mb-4">New Workout Session</h4>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="WorkoutProgramId" class="form-label">Program</label>
+                <select asp-for="WorkoutProgramId" class="form-select">
+                    <option value="">-- select program --</option>
+                    @foreach (var p in programs)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="WorkoutProgramId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Date" class="form-label"></label>
+                <input asp-for="Date" class="form-control" type="date" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <a asp-action="Index" class="btn btn-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+</div>

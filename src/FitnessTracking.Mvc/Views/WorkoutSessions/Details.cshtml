@@ -1,0 +1,89 @@
+﻿@model WorkoutSessionDto
+@{
+    ViewData["Title"] = "Session Details";
+    var exercises = (IReadOnlyList<WorkoutExerciseDto>)ViewData["SessionExercises"]!;
+    var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
+    var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
+    var programName = programs.FirstOrDefault(p => p.Id == Model.WorkoutProgramId)?.Name ?? "Unknown";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Session — @Model.Date.ToShortDateString()</h4>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+</div>
+
+<p><strong>Program:</strong> @programName</p>
+
+<!-- Exercises Table -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header"><strong>Exercises</strong></div>
+    <div class="card-body">
+        @if (exercises.Count == 0)
+        {
+            <p class="text-muted mb-0">No exercises recorded.</p>
+        }
+        else
+        {
+            <table class="table table-sm table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Exercise</th>
+                        <th>Set</th>
+                        <th>Weight</th>
+                        <th>Reps</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in exercises.OrderBy(x => x.SetNumber))
+                    {
+                        var exName = allExercises.FirstOrDefault(x => x.Id == e.ExerciseId)?.Name ?? e.ExerciseId.ToString()[..8];
+                        <tr>
+                            <td>@exName</td>
+                            <td>@e.SetNumber</td>
+                            <td>@e.Weight</td>
+                            <td>@e.Reps</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<!-- Add Exercise -->
+<div class="card shadow-sm">
+    <div class="card-header"><strong>Add Set</strong></div>
+    <div class="card-body">
+        <form asp-action="AddExercise" asp-route-id="@Model.Id" method="post">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Exercise</label>
+                    <select name="exerciseId" class="form-select" required>
+                        <option value="">-- select --</option>
+                        @foreach (var ex in allExercises)
+                        {
+                            <option value="@ex.Id">@ex.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Set #</label>
+                    <input name="setNumber" type="number" class="form-control" value="@(exercises.Count + 1)" min="1" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Weight</label>
+                    <input name="weight" type="number" step="0.5" class="form-control" value="0" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Reps</label>
+                    <input name="reps" type="number" class="form-control" value="10" min="1" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-success w-100">Add Set</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
