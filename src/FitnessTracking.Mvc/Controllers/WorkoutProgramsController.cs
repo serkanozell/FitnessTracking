@@ -13,6 +13,10 @@ public class WorkoutProgramsController(
     public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
     {
         var result = await programsService.GetPagedAsync(page, pageSize, HttpContext.RequestAborted);
+        var allExercises = await exercisesService.GetPagedAsync(1, 100, HttpContext.RequestAborted);
+
+        ViewData["AllExercises"] = allExercises.Items;
+
         return View(result);
     }
 
@@ -104,61 +108,68 @@ public class WorkoutProgramsController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddSplit(Guid id, string name, int order)
+    public async Task<IActionResult> AddSplit(Guid id, string name, int order, string? returnTo, int? page, int? pageSize)
     {
         await programsService.AddSplitAsync(id, new AddSplitRequest { Name = name, Order = order }, HttpContext.RequestAborted);
         TempData["Success"] = "Split added.";
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectBack(id, returnTo, page, pageSize);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateSplit(Guid id, Guid splitId, string name, int order)
+    public async Task<IActionResult> UpdateSplit(Guid id, Guid splitId, string name, int order, string? returnTo, int? page, int? pageSize)
     {
         await programsService.UpdateSplitAsync(id, splitId, new UpdateSplitRequest { Name = name, Order = order }, HttpContext.RequestAborted);
         TempData["Success"] = "Split updated.";
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectBack(id, returnTo, page, pageSize);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteSplit(Guid id, Guid splitId)
+    public async Task<IActionResult> DeleteSplit(Guid id, Guid splitId, string? returnTo, int? page, int? pageSize)
     {
         await programsService.DeleteSplitAsync(id, splitId, HttpContext.RequestAborted);
         TempData["Success"] = "Split deleted.";
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectBack(id, returnTo, page, pageSize);
     }
 
     // --- Split Exercise CRUD ---
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddExerciseToSplit(Guid id, Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps)
+    public async Task<IActionResult> AddExerciseToSplit(Guid id, Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps, string? returnTo, int? page, int? pageSize)
     {
         await programsService.AddExerciseToSplitAsync(id, splitId,
             new AddProgramExerciseRequest { ExerciseId = exerciseId, Sets = sets, MinimumReps = minimumReps, MaximumReps = maximumReps },
             HttpContext.RequestAborted);
         TempData["Success"] = "Exercise added to split.";
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectBack(id, returnTo, page, pageSize);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateSplitExercise(Guid id, Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps)
+    public async Task<IActionResult> UpdateSplitExercise(Guid id, Guid splitId, Guid exerciseId, int sets, int minimumReps, int maximumReps, string? returnTo, int? page, int? pageSize)
     {
         await programsService.UpdateExerciseInSplitAsync(id, splitId, exerciseId,
             new UpdateProgramExerciseRequest { Sets = sets, MinimumReps = minimumReps, MaximumReps = maximumReps },
             HttpContext.RequestAborted);
         TempData["Success"] = "Exercise updated.";
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectBack(id, returnTo, page, pageSize);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> RemoveExerciseFromSplit(Guid id, Guid splitId, Guid exerciseId)
+    public async Task<IActionResult> RemoveExerciseFromSplit(Guid id, Guid splitId, Guid exerciseId, string? returnTo, int? page, int? pageSize)
     {
         await programsService.RemoveExerciseFromSplitAsync(id, splitId, exerciseId, HttpContext.RequestAborted);
         TempData["Success"] = "Exercise removed.";
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectBack(id, returnTo, page, pageSize);
+    }
+
+    private IActionResult RedirectBack(Guid programId, string? returnTo, int? page, int? pageSize)
+    {
+        if (returnTo == "Index")
+            return RedirectToAction(nameof(Index), new { page, pageSize, expand = programId });
+        return RedirectToAction(nameof(Details), new { id = programId });
     }
 }

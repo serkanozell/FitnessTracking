@@ -1,68 +1,257 @@
 ﻿@model PagedResult<WorkoutProgramDto>
 @{
     ViewData["Title"] = "Workout Programs";
+    var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
+    var expandProgramId = Context.Request.Query["expand"].FirstOrDefault();
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
-    <h4 class="mb-0">Workout Programs</h4>
+    <h4 class="page-title">Workout Programs</h4>
     <a asp-action="Create" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>Add Program
     </a>
 </div>
 
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th style="width: 200px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Items.Count == 0)
-                {
-                    <tr><td colspan="4" class="text-center text-muted py-4">No programs found.</td></tr>
-                }
-                @foreach (var p in Model.Items)
-                {
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                        <td>@p.Name</td>
-                        <td>@p.StartDate.ToShortDateString()</td>
-                        <td>@p.EndDate.ToShortDateString()</td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary" title="Details">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline"
-                                  onsubmit="return confirm('Delete this program?')">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
-                        </td>
+                        <th>Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 200px;">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (Model.Items.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-body-secondary py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>No programs found.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var p in Model.Items)
+                    {
+                        var splits = p.Splits;
+                        var expandId = $"expand-{p.Id}";
+                        var shouldExpand = p.Id.ToString() == expandProgramId;
+
+                        <tr>
+                            <td class="fw-semibold">
+                                <button class="btn btn-sm p-0 me-2 expand-toggle @(shouldExpand ? "" : "collapsed")"
+                                        type="button"
+                                        data-coreui-toggle="collapse" data-coreui-target="#@expandId">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                                @p.Name
+                                @if (splits.Count > 0)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary ms-2">@splits.Count splits</span>
+                                }
+                            </td>
+                            <td>@p.StartDate.ToShortDateString()</td>
+                            <td>@p.EndDate.ToShortDateString()</td>
+                            <td>
+                                @if (p.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete this program?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <!-- Expandable split detail row -->
+                        <tr>
+                            <td colspan="5" class="p-0 border-0">
+                                <div class="collapse @(shouldExpand ? "show" : "")" id="@expandId">
+                                    <div class="px-4 py-3 bg-body-tertiary border-top">
+
+                                        <!-- Add Split -->
+                                        <form asp-action="AddSplit" asp-route-id="@p.Id" method="post" class="mb-3">
+                                            <input type="hidden" name="returnTo" value="Index" />
+                                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-md-5">
+                                                    <label class="form-label small fw-semibold">New Split</label>
+                                                    <input name="name" class="form-control form-control-sm" placeholder="Split name" required />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label small fw-semibold">Order</label>
+                                                    <input name="order" type="number" class="form-control form-control-sm" value="@(splits.Count + 1)" />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                                                        <i class="bi bi-plus-lg me-1"></i>Add Split
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        @if (splits.Count == 0)
+                                        {
+                                            <p class="text-body-secondary mb-0 text-center py-2">
+                                                <i class="bi bi-collection me-1"></i>No splits yet. Add one above.
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            var accordionId = $"splitsAccordion-{p.Id}";
+                                            <div class="accordion" id="@accordionId">
+                                                @foreach (var split in splits.OrderBy(s => s.Order))
+                                                {
+                                                    var exercises = split.Exercises;
+                                                    var collapseId = $"split-{p.Id}-{split.Id}";
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button class="accordion-button collapsed py-2" type="button"
+                                                                    data-coreui-toggle="collapse" data-coreui-target="#@collapseId">
+                                                                <span class="badge bg-primary me-2">@split.Order</span>
+                                                                <span class="fw-semibold">@split.Name</span>
+                                                                <span class="badge bg-secondary-subtle text-secondary ms-2">@exercises.Count exercises</span>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="@collapseId" class="accordion-collapse collapse" data-coreui-parent="#@accordionId">
+                                                            <div class="accordion-body">
+                                                                <!-- Delete Split -->
+                                                                <div class="d-flex gap-2 mb-3">
+                                                                    <form asp-action="DeleteSplit" asp-route-id="@p.Id" asp-route-splitId="@split.Id"
+                                                                          method="post" onsubmit="return confirm('Delete this split?')">
+                                                                        <input type="hidden" name="returnTo" value="Index" />
+                                                                        <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                            <i class="bi bi-trash me-1"></i>Delete Split
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+
+                                                                <!-- Add exercise to split -->
+                                                                <form asp-action="AddExerciseToSplit" asp-route-id="@p.Id" asp-route-splitId="@split.Id"
+                                                                      method="post" class="mb-3">
+                                                                    <input type="hidden" name="returnTo" value="Index" />
+                                                                    <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                    <div class="row g-2 align-items-end">
+                                                                        <div class="col-md-4">
+                                                                            <label class="form-label small">Exercise</label>
+                                                                            <select name="exerciseId" class="form-select form-select-sm" required>
+                                                                                <option value="">-- select --</option>
+                                                                                @foreach (var ex in allExercises)
+                                                                                {
+                                                                                    <option value="@ex.Id">@ex.Name</option>
+                                                                                }
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <label class="form-label small">Sets</label>
+                                                                            <input name="sets" type="number" class="form-control form-control-sm" value="3" min="1" />
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <label class="form-label small">Min Reps</label>
+                                                                            <input name="minimumReps" type="number" class="form-control form-control-sm" value="8" min="1" />
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <label class="form-label small">Max Reps</label>
+                                                                            <input name="maximumReps" type="number" class="form-control form-control-sm" value="12" min="1" />
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                                                                <i class="bi bi-plus-lg me-1"></i>Add
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+
+                                                                <!-- Exercises table -->
+                                                                @if (exercises.Count == 0)
+                                                                {
+                                                                    <p class="text-body-secondary mb-0">No exercises in this split.</p>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-sm align-middle mb-0">
+                                                                            <thead class="table-light">
+                                                                                <tr>
+                                                                                    <th>Exercise</th>
+                                                                                    <th>Sets</th>
+                                                                                    <th>Rep Range</th>
+                                                                                    <th class="text-end" style="width: 80px;"></th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @foreach (var e in exercises)
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td class="fw-semibold">@e.ExerciseName</td>
+                                                                                        <td>@e.Sets</td>
+                                                                                        <td>@e.MinimumReps — @e.MaximumReps</td>
+                                                                                        <td class="text-end">
+                                                                                            <form asp-action="RemoveExerciseFromSplit"
+                                                                                                  asp-route-id="@p.Id"
+                                                                                                  asp-route-splitId="@split.Id"
+                                                                                                  asp-route-exerciseId="@e.WorkoutProgramExerciseId"
+                                                                                                  method="post" class="d-inline"
+                                                                                                  onsubmit="return confirm('Remove this exercise?')">
+                                                                                                <input type="hidden" name="returnTo" value="Index" />
+                                                                                                <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                                                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                                                    <i class="bi bi-x-lg"></i>
+                                                                                                </button>
+                                                                                            </form>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-@if (Model.TotalPages > 1)
+@await Html.PartialAsync("_PaginationPartial", new PaginationViewModel
 {
-    <nav class="mt-3">
-        <ul class="pagination justify-content-center">
-            @for (var i = 1; i <= Model.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
-                </li>
-            }
-        </ul>
-    </nav>
-}
+    PageNumber = Model.PageNumber,
+    PageSize = Model.PageSize,
+    TotalCount = Model.TotalCount,
+    TotalPages = Model.TotalPages,
+    HasNextPage = Model.HasNextPage,
+    HasPreviousPage = Model.HasPreviousPage
+})

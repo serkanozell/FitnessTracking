@@ -6,21 +6,33 @@
     var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
 }
 
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">@Model.Name</h4>
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="page-title">@Model.Name</h4>
     <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-arrow-left me-1"></i>Back
+        <i class="bi bi-arrow-left me-1"></i>Back to list
     </a>
 </div>
 
-<p class="mb-4">
-    <strong>Start:</strong> @Model.StartDate.ToShortDateString() &nbsp;
-    <strong>End:</strong> @Model.EndDate.ToShortDateString()
-</p>
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-auto">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Start Date</span>
+                <div class="fw-semibold">@Model.StartDate.ToShortDateString()</div>
+            </div>
+            <div class="col-auto">
+                <span class="text-body-secondary small text-uppercase fw-semibold">End Date</span>
+                <div class="fw-semibold">@Model.EndDate.ToShortDateString()</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Add Split -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header"><strong>Add Split</strong></div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-plus-circle me-2"></i>Add Split
+    </div>
     <div class="card-body">
         <form asp-action="AddSplit" asp-route-id="@Model.Id" method="post">
             <div class="row g-2 align-items-end">
@@ -33,7 +45,9 @@
                     <input name="order" type="number" class="form-control" value="@(splits.Count + 1)" />
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100">Add Split</button>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg me-1"></i>Add Split
+                    </button>
                 </div>
             </div>
         </form>
@@ -43,7 +57,12 @@
 <!-- Splits -->
 @if (splits.Count == 0)
 {
-    <p class="text-muted">No splits created yet.</p>
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-collection text-body-secondary" style="font-size: 2.5rem;"></i>
+            <p class="text-body-secondary mt-2 mb-0">No splits created yet.</p>
+        </div>
+    </div>
 }
 else
 {
@@ -54,12 +73,13 @@ else
             var collapseId = $"collapse-{split.Id}";
             <div class="accordion-item">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#@collapseId">
-                        <span class="badge bg-secondary me-2">@split.Order</span> @split.Name
+                    <button class="accordion-button collapsed" type="button" data-coreui-toggle="collapse"
+                            data-coreui-target="#@collapseId">
+                        <span class="badge bg-primary me-2">@split.Order</span> @split.Name
+                        <span class="badge bg-secondary-subtle text-secondary ms-2">@exercises.Count exercises</span>
                     </button>
                 </h2>
-                <div id="@collapseId" class="accordion-collapse collapse" data-bs-parent="#splitsAccordion">
+                <div id="@collapseId" class="accordion-collapse collapse" data-coreui-parent="#splitsAccordion">
                     <div class="accordion-body">
                         <!-- Split actions -->
                         <div class="d-flex gap-2 mb-3">
@@ -98,7 +118,9 @@ else
                                     <input name="maximumReps" type="number" class="form-control" value="12" min="1" />
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="submit" class="btn btn-success w-100">Add</button>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-plus-lg me-1"></i>Add
+                                    </button>
                                 </div>
                             </div>
                         </form>
@@ -106,42 +128,44 @@ else
                         <!-- Exercises table -->
                         @if (exercises.Count == 0)
                         {
-                            <p class="text-muted mb-0">No exercises in this split.</p>
+                            <p class="text-body-secondary mb-0">No exercises in this split.</p>
                         }
                         else
                         {
-                            <table class="table table-sm table-striped mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Exercise</th>
-                                        <th>Sets</th>
-                                        <th>Rep Range</th>
-                                        <th style="width: 100px;"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var e in exercises)
-                                    {
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead class="table-light">
                                         <tr>
-                                            <td>@e.ExerciseName</td>
-                                            <td>@e.Sets</td>
-                                            <td>@e.MinimumReps — @e.MaximumReps</td>
-                                            <td>
-                                                <form asp-action="RemoveExerciseFromSplit"
-                                                      asp-route-id="@Model.Id"
-                                                      asp-route-splitId="@split.Id"
-                                                      asp-route-exerciseId="@e.WorkoutProgramExerciseId"
-                                                      method="post" class="d-inline"
-                                                      onsubmit="return confirm('Remove this exercise?')">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <i class="bi bi-x-lg"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
+                                            <th>Exercise</th>
+                                            <th>Sets</th>
+                                            <th>Rep Range</th>
+                                            <th class="text-end" style="width: 100px;">Actions</th>
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var e in exercises)
+                                        {
+                                            <tr>
+                                                <td class="fw-semibold">@e.ExerciseName</td>
+                                                <td>@e.Sets</td>
+                                                <td>@e.MinimumReps — @e.MaximumReps</td>
+                                                <td class="text-end">
+                                                    <form asp-action="RemoveExerciseFromSplit"
+                                                          asp-route-id="@Model.Id"
+                                                          asp-route-splitId="@split.Id"
+                                                          asp-route-exerciseId="@e.WorkoutProgramExerciseId"
+                                                          method="post" class="d-inline"
+                                                          onsubmit="return confirm('Remove this exercise?')">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-x-lg"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         }
                     </div>
                 </div>

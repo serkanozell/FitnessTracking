@@ -13,4 +13,5 @@ public sealed class WorkoutProgramDto
     public string? CreatedBy { get; init; }
     public DateTime? UpdatedDate { get; init; }
     public string? UpdatedBy { get; init; }
+    public IReadOnlyList<WorkoutProgramSplitDto> Splits { get; init; } = [];
 }

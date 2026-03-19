@@ -1,3 +1,95 @@
-﻿body {
-    background-color: #f8f9fa;
+﻿/* CoreUI Overrides */
+
+/* Sidebar-fixed: push wrapper content to the right */
+.sidebar.sidebar-fixed:not(.hide) ~ .wrapper {
+    margin-inline-start: var(--cui-sidebar-width, 16rem);
+    transition: margin-inline-start 0.3s;
+}
+
+.sidebar.sidebar-fixed.sidebar-narrow-unfoldable:not(.hide) ~ .wrapper {
+    margin-inline-start: var(--cui-sidebar-narrow-width, 4rem);
+}
+
+@media (max-width: 991.98px) {
+    .sidebar.sidebar-fixed ~ .wrapper {
+        margin-inline-start: 0 !important;
+    }
+}
+
+.sidebar-brand-full {
+    font-size: 1.1rem;
+}
+
+.sidebar-brand-narrow {
+    font-size: 1.2rem;
+}
+
+.sidebar .nav-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 1.1rem;
+}
+
+.card {
+    border: 0;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--cui-border-color);
+    font-weight: 600;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.stat-card .stat-icon {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    font-size: 1.25rem;
+}
+
+/* Expand toggle chevron */
+.expand-toggle .bi-chevron-right {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.expand-toggle:not(.collapsed) .bi-chevron-right {
+    transform: rotate(90deg);
+}
+
+/* Expandable detail row */
+tr > td.border-0 {
+    background: transparent !important;
+}
+
+.footer {
+    font-size: 0.85rem;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: var(--cui-body-color-rgb);
+}
+
+/* Auth pages */
+.auth-card {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.auth-card .card {
+    border-radius: 0.75rem;
 }

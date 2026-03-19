@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
+using Exercises.Contracts;
 using NSubstitute;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.GetWorkoutProgramList;
 using WorkoutPrograms.Domain.Entity;
@@ -11,6 +12,7 @@ namespace WorkoutPrograms.Application.UnitTests.Handlers;
 public class GetWorkoutProgramListQueryHandlerTests
 {
     private readonly IWorkoutProgramRepository _repository = Substitute.For<IWorkoutProgramRepository>();
+    private readonly IExerciseModule _exerciseModule = Substitute.For<IExerciseModule>();
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
     private readonly Guid _userId = Guid.NewGuid();
     private readonly GetWorkoutProgramListQueryHandler _sut;
@@ -18,7 +20,9 @@ public class GetWorkoutProgramListQueryHandlerTests
     public GetWorkoutProgramListQueryHandlerTests()
     {
         _currentUser.UserId.Returns(_userId.ToString());
-        _sut = new GetWorkoutProgramListQueryHandler(_repository, _currentUser);
+        _exerciseModule.GetExercisesAsync(Arg.Any<CancellationToken>())
+            .Returns(Array.Empty<ExerciseInfo>());
+        _sut = new GetWorkoutProgramListQueryHandler(_repository, _exerciseModule, _currentUser);
     }
 
     [Fact]

@@ -1,4 +1,5 @@
-﻿using WorkoutPrograms.Domain.Entity;
+﻿using Exercises.Contracts;
+using WorkoutPrograms.Domain.Entity;
 
 namespace WorkoutPrograms.Application.Dtos
 {
@@ -15,6 +16,7 @@ namespace WorkoutPrograms.Application.Dtos
         public string? CreatedBy { get; init; }
         public DateTime? UpdatedDate { get; init; }
         public string? UpdatedBy { get; init; }
+        public IReadOnlyList<WorkoutProgramSplitDto> Splits { get; init; } = [];
 
         public static WorkoutProgramDto FromEntity(WorkoutProgram entity) =>
             new()
@@ -30,6 +32,26 @@ namespace WorkoutPrograms.Application.Dtos
                 CreatedBy = entity.CreatedBy,
                 UpdatedDate = entity.UpdatedDate,
                 UpdatedBy = entity.UpdatedBy
+            };
+
+        public static WorkoutProgramDto FromEntity(WorkoutProgram entity, IReadOnlyCollection<ExerciseInfo> allExercises) =>
+            new()
+            {
+                Id = entity.Id,
+                UserId = entity.UserId,
+                Name = entity.Name,
+                StartDate = entity.StartDate,
+                EndDate = entity.EndDate,
+                IsActive = entity.IsActive,
+                IsDeleted = entity.IsDeleted,
+                CreatedDate = entity.CreatedDate,
+                CreatedBy = entity.CreatedBy,
+                UpdatedDate = entity.UpdatedDate,
+                UpdatedBy = entity.UpdatedBy,
+                Splits = entity.Splits
+                    .Select(s => WorkoutProgramSplitDto.FromEntity(s, allExercises))
+                    .OrderBy(s => s.Order)
+                    .ToList()
             };
     }
 }

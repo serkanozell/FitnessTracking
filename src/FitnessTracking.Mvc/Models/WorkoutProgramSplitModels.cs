@@ -8,6 +8,7 @@ public sealed class WorkoutProgramSplitDto
     public int Order { get; init; }
     public bool IsActive { get; init; }
     public bool IsDeleted { get; init; }
+    public IReadOnlyList<WorkoutProgramExerciseDto> Exercises { get; init; } = [];
 }
 
 public sealed class WorkoutProgramExerciseDto
