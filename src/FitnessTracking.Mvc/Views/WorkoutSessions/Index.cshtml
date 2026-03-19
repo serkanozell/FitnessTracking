@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Workout Sessions";
     var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
+    var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
+    var expandSessionId = Context.Request.Query["expand"].FirstOrDefault();
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
@@ -19,35 +21,190 @@
                     <tr>
                         <th>Program</th>
                         <th>Date</th>
-                        <th class="text-end" style="width: 180px;">Actions</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 200px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model.Items.Count == 0)
                     {
                         <tr>
-                            <td colspan="3" class="text-center text-body-secondary py-5">
+                            <td colspan="4" class="text-center text-body-secondary py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>No sessions found.
                             </td>
                         </tr>
                     }
-                    @foreach (var s in Model.Items)
+                    @foreach (var session in Model.Items)
                     {
-                        var programName = programs.FirstOrDefault(p => p.Id == s.WorkoutProgramId)?.Name
-                                         ?? s.WorkoutProgramId.ToString()[..8];
+                        var programName = programs.FirstOrDefault(p => p.Id == session.WorkoutProgramId)?.Name
+                                         ?? session.WorkoutProgramId.ToString()[..8];
+                        var exercises = session.Exercises;
+                        var expandId = $"expand-{session.Id}";
+                        var shouldExpand = session.Id.ToString() == expandSessionId;
+
                         <tr>
-                            <td class="fw-semibold">@programName</td>
-                            <td>@s.Date.ToShortDateString()</td>
+                            <td class="fw-semibold">
+                                <button class="btn btn-sm p-0 me-2 expand-toggle @(shouldExpand ? "" : "collapsed")"
+                                        type="button"
+                                        data-coreui-toggle="collapse" data-coreui-target="#@expandId">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                                @programName
+                                @if (exercises.Count > 0)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary ms-2">@exercises.Count sets</span>
+                                }
+                            </td>
+                            <td>@session.Date.ToShortDateString()</td>
+                            <td>
+                                @if (session.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                }
+                            </td>
                             <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-info">
-                                    <i class="bi bi-eye me-1"></i>Details
+                                <a asp-action="Details" asp-route-id="@session.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                    <i class="bi bi-eye"></i>
                                 </a>
-                                <form asp-action="Delete" asp-route-id="@s.Id" method="post" class="d-inline"
+                                @if (!session.IsActive)
+                                {
+                                    <form asp-action="Activate" asp-route-id="@session.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                }
+                                <form asp-action="Delete" asp-route-id="@session.Id" method="post" class="d-inline"
                                       onsubmit="return confirm('Delete this session?')">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
+                            </td>
+                        </tr>
+                        <!-- Expandable exercise detail row -->
+                        <tr>
+                            <td colspan="4" class="p-0 border-0">
+                                <div class="collapse @(shouldExpand ? "show" : "")" id="@expandId">
+                                    <div class="px-4 py-3 bg-body-tertiary border-top">
+
+                                        <!-- Add Exercise -->
+                                        <form asp-action="AddExercise" asp-route-id="@session.Id" method="post" class="mb-3">
+                                            <input type="hidden" name="returnTo" value="Index" />
+                                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-md-3">
+                                                    <label class="form-label small fw-semibold">Exercise</label>
+                                                    <select name="exerciseId" class="form-select form-select-sm" required>
+                                                        <option value="">-- select --</option>
+                                                        @foreach (var ex in allExercises)
+                                                        {
+                                                            <option value="@ex.Id">@ex.Name</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label small fw-semibold">Set #</label>
+                                                    <input name="setNumber" type="number" class="form-control form-control-sm" value="@(exercises.Count + 1)" min="1" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label small fw-semibold">Weight</label>
+                                                    <input name="weight" type="number" step="0.5" class="form-control form-control-sm" value="0" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label small fw-semibold">Reps</label>
+                                                    <input name="reps" type="number" class="form-control form-control-sm" value="10" min="1" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                                        <i class="bi bi-plus-lg me-1"></i>Add Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        @if (exercises.Count == 0)
+                                        {
+                                            <p class="text-body-secondary mb-0 text-center py-2">
+                                                <i class="bi bi-inbox me-1"></i>No exercises recorded. Add one above.
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Exercise</th>
+                                                            <th>Set</th>
+                                                            <th>Weight</th>
+                                                            <th>Reps</th>
+                                                            <th>Status</th>
+                                                            <th class="text-end" style="width: 120px;"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var e in exercises.OrderBy(x => x.SetNumber))
+                                                        {
+                                                            var exName = allExercises.FirstOrDefault(x => x.Id == e.ExerciseId)?.Name
+                                                                         ?? e.ExerciseId.ToString()[..8];
+                                                            <tr>
+                                                                <td class="fw-semibold">@exName</td>
+                                                                <td>@e.SetNumber</td>
+                                                                <td>@e.Weight</td>
+                                                                <td>@e.Reps</td>
+                                                                <td>
+                                                                    @if (e.IsActive)
+                                                                    {
+                                                                        <span class="badge bg-success-subtle text-success">Active</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                                                    }
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    @if (!e.IsActive)
+                                                                    {
+                                                                        <form asp-action="ActivateExercise"
+                                                                              asp-route-id="@session.Id"
+                                                                              asp-route-exerciseId="@e.Id"
+                                                                              method="post" class="d-inline">
+                                                                            <input type="hidden" name="returnTo" value="Index" />
+                                                                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                                                                <i class="bi bi-check-circle"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    }
+                                                                    <form asp-action="RemoveExercise"
+                                                                          asp-route-id="@session.Id"
+                                                                          asp-route-exerciseId="@e.Id"
+                                                                          method="post" class="d-inline"
+                                                                          onsubmit="return confirm('Remove this exercise?')">
+                                                                        <input type="hidden" name="returnTo" value="Index" />
+                                                                        <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                            <i class="bi bi-x-lg"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }

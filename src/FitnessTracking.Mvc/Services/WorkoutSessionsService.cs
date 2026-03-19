@@ -11,14 +11,18 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
     public async Task<PagedResult<WorkoutSessionDto>> GetPagedAsync(
         int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await httpClient.GetFromJsonAsync<PagedResult<WorkoutSessionDto>>(
-            $"{BaseUrl}?pageNumber={pageNumber}&pageSize={pageSize}", cancellationToken);
-        return result ?? new PagedResult<WorkoutSessionDto>();
+        using var result = await httpClient.GetAsync(
+             $"{BaseUrl}?pageNumber={pageNumber}&pageSize={pageSize}", cancellationToken);
+
+        result.EnsureSuccessStatusCode();
+
+        return await result.Content.ReadFromJsonAsync<PagedResult<WorkoutSessionDto>>(cancellationToken: cancellationToken)
+               ?? new PagedResult<WorkoutSessionDto>();
     }
 
     public async Task<WorkoutSessionDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
+        using var response = await httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<WorkoutSessionDto>(cancellationToken: cancellationToken);
@@ -27,15 +31,16 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
     public async Task<Guid> CreateAsync(WorkoutSessionEditModel model, CancellationToken cancellationToken = default)
     {
         var payload = new { model.WorkoutProgramId, model.Date };
-        var response = await httpClient.PostAsJsonAsync(BaseUrl, payload, cancellationToken);
+        using var response = await httpClient.PostAsJsonAsync(BaseUrl, payload, cancellationToken);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Guid>(cancellationToken: cancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<WorkoutSessionDto>(cancellationToken: cancellationToken);
+        return result!.Id;
     }
 
     public async Task<bool> UpdateAsync(Guid id, WorkoutSessionEditModel model, CancellationToken cancellationToken = default)
     {
         var payload = new { model.Date };
-        var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", payload, cancellationToken);
+        using var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", payload, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -43,7 +48,7 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
+        using var response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -51,10 +56,26 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
 
     public async Task<WorkoutSessionDetailsDto?> GetDetailsAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
+        using var response = await httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<WorkoutSessionDetailsDto>(cancellationToken: cancellationToken);
+    }
+
+    public async Task<bool> ActivateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsync($"{BaseUrl}/{id}/activate", null, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
+
+    public async Task<bool> ActivateWorkoutExerciseAsync(Guid sessionId, Guid workoutExerciseId, CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsync($"{BaseUrl}/{sessionId}/exercises/{workoutExerciseId}/activate", null, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        return true;
     }
 
     public async Task<IReadOnlyList<WorkoutExerciseDto>> GetWorkoutExercisesAsync(
@@ -70,16 +91,17 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
         Guid sessionId, WorkoutExerciseEditModel model, CancellationToken cancellationToken = default)
     {
         var payload = new { ExerciseId = model.ExerciseId, model.SetNumber, model.Weight, model.Reps };
-        var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/{sessionId}/exercises", payload, cancellationToken);
+        using var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/{sessionId}/exercises", payload, cancellationToken);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Guid>(cancellationToken: cancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<WorkoutExerciseAddResult>(cancellationToken: cancellationToken);
+        return result!.SessionExerciseId;
     }
 
     public async Task<bool> UpdateWorkoutExerciseAsync(
         Guid sessionId, Guid workoutExerciseId, WorkoutExerciseEditModel model, CancellationToken cancellationToken = default)
     {
         var payload = new { model.SetNumber, model.Weight, model.Reps };
-        var response = await httpClient.PutAsJsonAsync(
+        using var response = await httpClient.PutAsJsonAsync(
             $"{BaseUrl}/{sessionId}/exercises/{workoutExerciseId}", payload, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
@@ -89,7 +111,7 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
     public async Task<bool> DeleteWorkoutExerciseAsync(
         Guid sessionId, Guid workoutExerciseId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.DeleteAsync(
+        using var response = await httpClient.DeleteAsync(
             $"{BaseUrl}/{sessionId}/exercises/{workoutExerciseId}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();

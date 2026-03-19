@@ -15,7 +15,11 @@ public class WorkoutSessionsController(
     {
         var result = await sessionsService.GetPagedAsync(page, pageSize, HttpContext.RequestAborted);
         var programs = await programsService.GetPagedAsync(1, 100, HttpContext.RequestAborted);
+        var allExercises = await exercisesService.GetPagedAsync(1, 100, HttpContext.RequestAborted);
+
         ViewData["Programs"] = programs.Items;
+        ViewData["AllExercises"] = allExercises.Items;
+
         return View(result);
     }
 
@@ -48,11 +52,9 @@ public class WorkoutSessionsController(
         var session = await sessionsService.GetByIdAsync(id, HttpContext.RequestAborted);
         if (session is null) return NotFound();
 
-        var exercises = await sessionsService.GetWorkoutExercisesAsync(id, HttpContext.RequestAborted);
         var allExercises = await exercisesService.GetPagedAsync(1, 100, HttpContext.RequestAborted);
         var programs = await programsService.GetPagedAsync(1, 100, HttpContext.RequestAborted);
 
-        ViewData["SessionExercises"] = exercises;
         ViewData["AllExercises"] = allExercises.Items;
         ViewData["Programs"] = programs.Items;
         return View(session);
@@ -60,7 +62,7 @@ public class WorkoutSessionsController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddExercise(Guid id, Guid exerciseId, int setNumber, decimal weight, int reps)
+    public async Task<IActionResult> AddExercise(Guid id, Guid exerciseId, int setNumber, decimal weight, int reps, string? returnTo, int? page, int? pageSize)
     {
         var model = new WorkoutExerciseEditModel
         {
@@ -71,7 +73,34 @@ public class WorkoutSessionsController(
         };
         await sessionsService.AddWorkoutExerciseAsync(id, model, HttpContext.RequestAborted);
         TempData["Success"] = "Set added.";
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectBack(id, returnTo, page, pageSize);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveExercise(Guid id, Guid exerciseId, string? returnTo, int? page, int? pageSize)
+    {
+        await sessionsService.DeleteWorkoutExerciseAsync(id, exerciseId, HttpContext.RequestAborted);
+        TempData["Success"] = "Exercise removed.";
+        return RedirectBack(id, returnTo, page, pageSize);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Activate(Guid id)
+    {
+        await sessionsService.ActivateAsync(id, HttpContext.RequestAborted);
+        TempData["Success"] = "Session activated.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ActivateExercise(Guid id, Guid exerciseId, string? returnTo, int? page, int? pageSize)
+    {
+        await sessionsService.ActivateWorkoutExerciseAsync(id, exerciseId, HttpContext.RequestAborted);
+        TempData["Success"] = "Exercise activated.";
+        return RedirectBack(id, returnTo, page, pageSize);
     }
 
     [HttpPost]
@@ -81,5 +110,12 @@ public class WorkoutSessionsController(
         await sessionsService.DeleteAsync(id, HttpContext.RequestAborted);
         TempData["Success"] = "Session deleted.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private IActionResult RedirectBack(Guid sessionId, string? returnTo, int? page, int? pageSize)
+    {
+        if (returnTo == "Index")
+            return RedirectToAction(nameof(Index), new { page, pageSize, expand = sessionId });
+        return RedirectToAction(nameof(Details), new { id = sessionId });
     }
 }

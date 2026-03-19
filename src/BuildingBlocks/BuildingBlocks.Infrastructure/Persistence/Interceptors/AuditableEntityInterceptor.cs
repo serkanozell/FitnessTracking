@@ -57,6 +57,18 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors
                     entry.Property(nameof(IEntity.IsDeleted)).CurrentValue = true;
                     entry.Property(nameof(IEntity.UpdatedBy)).CurrentValue = actor;
                     entry.Property(nameof(IEntity.UpdatedDate)).CurrentValue = now;
+
+                    // Owned entity'leri (ValueObject) Unchanged yap,
+                    // yoksa EF Core UPDATE'te bu kolonları NULL yapar.
+                    foreach (var reference in entry.References)
+                    {
+                        if (reference.TargetEntry is { } ownedEntry
+                            && ownedEntry.Metadata.IsOwned()
+                            && ownedEntry.State == EntityState.Deleted)
+                        {
+                            ownedEntry.State = EntityState.Unchanged;
+                        }
+                    }
                 }
             }
         }

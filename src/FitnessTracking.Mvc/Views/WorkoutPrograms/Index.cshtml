@@ -72,12 +72,23 @@
                                 <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline"
-                                      onsubmit="return confirm('Delete this program?')">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                @if (!p.IsActive && p.IsDeleted)
+                                {
+                                    <form asp-action="Activate" asp-route-id="@p.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                }
+                                @if (p.IsActive && !p.IsDeleted)
+                                {
+                                    <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this program?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                         <!-- Expandable split detail row -->
@@ -129,21 +140,44 @@
                                                                 <span class="badge bg-primary me-2">@split.Order</span>
                                                                 <span class="fw-semibold">@split.Name</span>
                                                                 <span class="badge bg-secondary-subtle text-secondary ms-2">@exercises.Count exercises</span>
+                                                                @if (split.IsActive)
+                                                                {
+                                                                    <span class="badge bg-success-subtle text-success ms-2">Active</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge bg-secondary-subtle text-secondary ms-2">Inactive</span>
+                                                                }
                                                             </button>
                                                         </h2>
                                                         <div id="@collapseId" class="accordion-collapse collapse" data-coreui-parent="#@accordionId">
                                                             <div class="accordion-body">
-                                                                <!-- Delete Split -->
+                                                                <!-- Split actions -->
                                                                 <div class="d-flex gap-2 mb-3">
-                                                                    <form asp-action="DeleteSplit" asp-route-id="@p.Id" asp-route-splitId="@split.Id"
-                                                                          method="post" onsubmit="return confirm('Delete this split?')">
-                                                                        <input type="hidden" name="returnTo" value="Index" />
-                                                                        <input type="hidden" name="page" value="@Model.PageNumber" />
-                                                                        <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                                            <i class="bi bi-trash me-1"></i>Delete Split
-                                                                        </button>
-                                                                    </form>
+                                                                    @if (!split.IsActive && split.IsDeleted)
+                                                                    {
+                                                                        <form asp-action="ActivateSplit" asp-route-id="@p.Id" asp-route-splitId="@split.Id"
+                                                                              method="post">
+                                                                            <input type="hidden" name="returnTo" value="Index" />
+                                                                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                                                                <i class="bi bi-check-circle me-1"></i>Activate Split
+                                                                            </button>
+                                                                        </form>
+                                                                    }
+                                                                    @if (split.IsActive && !split.IsDeleted)
+                                                                    {
+                                                                        <form asp-action="DeleteSplit" asp-route-id="@p.Id" asp-route-splitId="@split.Id"
+                                                                              method="post" onsubmit="return confirm('Delete this split?')">
+                                                                            <input type="hidden" name="returnTo" value="Index" />
+                                                                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                                <i class="bi bi-trash me-1"></i>Delete Split
+                                                                            </button>
+                                                                        </form>
+                                                                    }
                                                                 </div>
 
                                                                 <!-- Add exercise to split -->
@@ -197,7 +231,8 @@
                                                                                     <th>Exercise</th>
                                                                                     <th>Sets</th>
                                                                                     <th>Rep Range</th>
-                                                                                    <th class="text-end" style="width: 80px;"></th>
+                                                                                    <th>Status</th>
+                                                                                    <th class="text-end" style="width: 120px;"></th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
@@ -207,20 +242,48 @@
                                                                                         <td class="fw-semibold">@e.ExerciseName</td>
                                                                                         <td>@e.Sets</td>
                                                                                         <td>@e.MinimumReps — @e.MaximumReps</td>
+                                                                                        <td>
+                                                                                            @if (e.IsActive)
+                                                                                            {
+                                                                                                <span class="badge bg-success-subtle text-success">Active</span>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                                                                            }
+                                                                                        </td>
                                                                                         <td class="text-end">
-                                                                                            <form asp-action="RemoveExerciseFromSplit"
-                                                                                                  asp-route-id="@p.Id"
-                                                                                                  asp-route-splitId="@split.Id"
-                                                                                                  asp-route-exerciseId="@e.WorkoutProgramExerciseId"
-                                                                                                  method="post" class="d-inline"
-                                                                                                  onsubmit="return confirm('Remove this exercise?')">
-                                                                                                <input type="hidden" name="returnTo" value="Index" />
-                                                                                                <input type="hidden" name="page" value="@Model.PageNumber" />
-                                                                                                <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                                                                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                                                                    <i class="bi bi-x-lg"></i>
-                                                                                                </button>
-                                                                                            </form>
+                                                                                            @if (!e.IsActive && e.IsDeleted)
+                                                                                            {
+                                                                                                <form asp-action="ActivateSplitExercise"
+                                                                                                      asp-route-id="@p.Id"
+                                                                                                      asp-route-splitId="@split.Id"
+                                                                                                      asp-route-exerciseId="@e.WorkoutProgramExerciseId"
+                                                                                                      method="post" class="d-inline">
+                                                                                                    <input type="hidden" name="returnTo" value="Index" />
+                                                                                                    <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                                                    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                                                                                        <i class="bi bi-check-circle"></i>
+                                                                                                    </button>
+                                                                                                </form>
+                                                                                            }
+                                                                                            @if (e.IsActive && !e.IsDeleted)
+                                                                                            {
+                                                                                                <form asp-action="RemoveExerciseFromSplit"
+                                                                                                      asp-route-id="@p.Id"
+                                                                                                      asp-route-splitId="@split.Id"
+                                                                                                      asp-route-exerciseId="@e.WorkoutProgramExerciseId"
+                                                                                                      method="post" class="d-inline"
+                                                                                                      onsubmit="return confirm('Remove this exercise?')">
+                                                                                                    <input type="hidden" name="returnTo" value="Index" />
+                                                                                                    <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                                                    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                                                        <i class="bi bi-x-lg"></i>
+                                                                                                    </button>
+                                                                                                </form>
+                                                                                            }
                                                                                         </td>
                                                                                     </tr>
                                                                                 }

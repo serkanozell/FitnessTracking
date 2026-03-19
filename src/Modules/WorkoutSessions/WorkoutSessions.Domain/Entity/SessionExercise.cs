@@ -32,5 +32,11 @@ namespace WorkoutSessions.Domain.Entity
             IsActive = true;
             IsDeleted = false;
         }
+
+        public void Delete()
+        {
+            IsActive = false;
+            IsDeleted = true;
+        }
     }
 }

@@ -17,7 +17,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<WorkoutProgramDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
+        using var response = await httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<WorkoutProgramDto>(cancellationToken: cancellationToken);
@@ -25,7 +25,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<Guid> CreateAsync(CreateWorkoutProgramRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
+        using var response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<IdResponse>(cancellationToken: cancellationToken);
         return result?.Id ?? Guid.Empty;
@@ -33,13 +33,13 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task UpdateAsync(Guid id, UpdateWorkoutProgramRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request, cancellationToken);
+        using var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
     public async Task<bool> ActivateAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PutAsync($"{BaseUrl}/{id}/activate", null, cancellationToken);
+        using var response = await httpClient.PutAsync($"{BaseUrl}/{id}/activate", null, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -47,7 +47,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
+        using var response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
@@ -62,7 +62,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<Guid> AddSplitAsync(Guid programId, AddSplitRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/{programId}/splits", request, cancellationToken);
+        using var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/{programId}/splits", request, cancellationToken);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<SplitIdResponse>(cancellationToken: cancellationToken);
         return result?.SplitId ?? Guid.Empty;
@@ -70,7 +70,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<bool> UpdateSplitAsync(Guid programId, Guid splitId, UpdateSplitRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{programId}/splits/{splitId}", request, cancellationToken);
+        using var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{programId}/splits/{splitId}", request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -78,7 +78,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<bool> ActivateSplitAsync(Guid programId, Guid splitId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PutAsync($"{BaseUrl}/{programId}/splits/{splitId}/activate", null, cancellationToken);
+        using var response = await httpClient.PutAsync($"{BaseUrl}/{programId}/splits/{splitId}/activate", null, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -86,7 +86,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<bool> DeleteSplitAsync(Guid programId, Guid splitId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.DeleteAsync($"{BaseUrl}/{programId}/splits/{splitId}", cancellationToken);
+        using var response = await httpClient.DeleteAsync($"{BaseUrl}/{programId}/splits/{splitId}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -103,7 +103,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<Guid> AddExerciseToSplitAsync(Guid programId, Guid splitId, AddProgramExerciseRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises", request, cancellationToken);
+        using var response = await httpClient.PostAsJsonAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises", request, cancellationToken);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ExerciseIdResponse>(cancellationToken: cancellationToken);
         return result?.ExerciseId ?? Guid.Empty;
@@ -111,7 +111,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<bool> UpdateExerciseInSplitAsync(Guid programId, Guid splitId, Guid exerciseId, UpdateProgramExerciseRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises/{exerciseId}", request, cancellationToken);
+        using var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises/{exerciseId}", request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -119,7 +119,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<bool> ActivateSplitExerciseAsync(Guid programId, Guid splitId, Guid exerciseId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PutAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises/{exerciseId}/activate", null, cancellationToken);
+        using var response = await httpClient.PutAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises/{exerciseId}/activate", null, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;
@@ -127,7 +127,7 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
 
     public async Task<bool> RemoveExerciseFromSplitAsync(Guid programId, Guid splitId, Guid exerciseId, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.DeleteAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises/{exerciseId}", cancellationToken);
+        using var response = await httpClient.DeleteAsync($"{BaseUrl}/{programId}/splits/{splitId}/exercises/{exerciseId}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;

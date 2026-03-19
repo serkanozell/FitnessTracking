@@ -1,7 +1,7 @@
 ﻿@model WorkoutSessionDto
 @{
     ViewData["Title"] = "Session Details";
-    var exercises = (IReadOnlyList<WorkoutExerciseDto>)ViewData["SessionExercises"]!;
+    var exercises = Model.Exercises;
     var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
     var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
     var programName = programs.FirstOrDefault(p => p.Id == Model.WorkoutProgramId)?.Name ?? "Unknown";
@@ -43,6 +43,8 @@
                             <th>Set</th>
                             <th>Weight</th>
                             <th>Reps</th>
+                            <th>Status</th>
+                            <th class="text-end" style="width: 120px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,6 +56,38 @@
                                 <td>@e.SetNumber</td>
                                 <td>@e.Weight</td>
                                 <td>@e.Reps</td>
+                                <td>
+                                    @if (e.IsActive)
+                                    {
+                                        <span class="badge bg-success-subtle text-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (!e.IsActive)
+                                    {
+                                        <form asp-action="ActivateExercise"
+                                              asp-route-id="@Model.Id"
+                                              asp-route-exerciseId="@e.Id"
+                                              method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    <form asp-action="RemoveExercise"
+                                          asp-route-id="@Model.Id"
+                                          asp-route-exerciseId="@e.Id"
+                                          method="post" class="d-inline"
+                                          onsubmit="return confirm('Remove this exercise?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         }
                     </tbody>

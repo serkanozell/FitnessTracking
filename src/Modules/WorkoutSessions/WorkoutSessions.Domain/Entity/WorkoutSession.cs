@@ -45,6 +45,11 @@ namespace WorkoutSessions.Domain.Entity
             IsActive = false;
             IsDeleted = true;
 
+            foreach (var exercise in _sessionExercises)
+            {
+                exercise.Delete();
+            }
+
             AddDomainEvent(new WorkoutSessionDeletedEvent(Id, WorkoutProgramId));
         }
 

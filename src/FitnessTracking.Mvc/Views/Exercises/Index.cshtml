@@ -52,7 +52,7 @@
                                 <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                @if (!e.IsActive)
+                                @if (!e.IsActive && e.IsDeleted)
                                 {
                                     <form asp-action="Activate" asp-route-id="@e.Id" method="post" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
@@ -60,12 +60,15 @@
                                         </button>
                                     </form>
                                 }
-                                <form asp-action="Delete" asp-route-id="@e.Id" method="post" class="d-inline"
-                                      onsubmit="return confirm('Delete this exercise?')">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                @if (e.IsActive && !e.IsDeleted)
+                                {
+                                    <form asp-action="Delete" asp-route-id="@e.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this exercise?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

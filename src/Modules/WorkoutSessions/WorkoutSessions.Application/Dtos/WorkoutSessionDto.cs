@@ -14,6 +14,7 @@ namespace WorkoutSessions.Application.Dtos
         public string? CreatedBy { get; init; }
         public DateTime? UpdatedDate { get; init; }
         public string? UpdatedBy { get; init; }
+        public IReadOnlyList<SessionExerciseDto> Exercises { get; init; } = [];
 
         public static WorkoutSessionDto FromEntity(WorkoutSession entity) =>
             new()
@@ -27,7 +28,11 @@ namespace WorkoutSessions.Application.Dtos
                 CreatedDate = entity.CreatedDate,
                 CreatedBy = entity.CreatedBy,
                 UpdatedDate = entity.UpdatedDate,
-                UpdatedBy = entity.UpdatedBy
+                UpdatedBy = entity.UpdatedBy,
+                Exercises = entity.SessionExercises
+                    .Select(SessionExerciseDto.FromEntity)
+                    .OrderBy(e => e.SetNumber)
+                    .ToList()
             };
     }
 }

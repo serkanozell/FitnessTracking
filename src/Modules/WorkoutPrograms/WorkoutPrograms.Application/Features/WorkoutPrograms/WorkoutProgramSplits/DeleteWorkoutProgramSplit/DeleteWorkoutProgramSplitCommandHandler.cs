@@ -27,6 +27,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             workoutProgram.RemoveSplit(request.SplitId);
 
             _workoutProgramRepository.Update(workoutProgram);
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;

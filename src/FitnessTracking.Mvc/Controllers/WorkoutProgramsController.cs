@@ -73,6 +73,15 @@ public class WorkoutProgramsController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Activate(Guid id)
+    {
+        await programsService.ActivateAsync(id, HttpContext.RequestAborted);
+        TempData["Success"] = "Program activated.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id)
     {
         await programsService.DeleteAsync(id, HttpContext.RequestAborted);
@@ -133,6 +142,15 @@ public class WorkoutProgramsController(
         return RedirectBack(id, returnTo, page, pageSize);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ActivateSplit(Guid id, Guid splitId, string? returnTo, int? page, int? pageSize)
+    {
+        await programsService.ActivateSplitAsync(id, splitId, HttpContext.RequestAborted);
+        TempData["Success"] = "Split activated.";
+        return RedirectBack(id, returnTo, page, pageSize);
+    }
+
     // --- Split Exercise CRUD ---
 
     [HttpPost]
@@ -163,6 +181,15 @@ public class WorkoutProgramsController(
     {
         await programsService.RemoveExerciseFromSplitAsync(id, splitId, exerciseId, HttpContext.RequestAborted);
         TempData["Success"] = "Exercise removed.";
+        return RedirectBack(id, returnTo, page, pageSize);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ActivateSplitExercise(Guid id, Guid splitId, Guid exerciseId, string? returnTo, int? page, int? pageSize)
+    {
+        await programsService.ActivateSplitExerciseAsync(id, splitId, exerciseId, HttpContext.RequestAborted);
+        TempData["Success"] = "Exercise activated.";
         return RedirectBack(id, returnTo, page, pageSize);
     }
 
