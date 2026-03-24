@@ -70,4 +70,26 @@ public class AccountController(IAuthService authService) : Controller
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Login");
     }
+
+    [HttpGet]
+    public IActionResult Register() => View(new RegisterRequest());
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(RegisterRequest model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var success = await authService.RegisterAsync(model);
+
+        if (!success)
+        {
+            ModelState.AddModelError(string.Empty, "Registration failed. Email may already be in use.");
+            return View(model);
+        }
+
+        TempData["Success"] = "Account created successfully. Please sign in.";
+        return RedirectToAction(nameof(Login));
+    }
 }

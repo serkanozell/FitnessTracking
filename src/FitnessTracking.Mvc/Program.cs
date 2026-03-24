@@ -40,6 +40,11 @@ builder.Services.AddHttpClient<IWorkoutSessionsService, WorkoutSessionsService>(
     .AddHttpMessageHandler<AuthTokenHandler>()
     .AddStandardResilienceHandler();
 
+builder.Services.AddHttpClient<IBodyMetricsService, BodyMetricsService>(client =>
+    client.BaseAddress = apiBaseAddress)
+    .AddHttpMessageHandler<AuthTokenHandler>()
+    .AddStandardResilienceHandler();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

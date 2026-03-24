@@ -18,6 +18,8 @@ namespace BodyMetrics.Application.Dtos
         public decimal? ThighCircumference { get; init; }
         public decimal? NeckCircumference { get; init; }
         public string? Note { get; init; }
+        public bool IsActive { get; init; }
+        public bool IsDeleted { get; init; }
         public DateTime? CreatedDate { get; init; }
 
         public static BodyMetricDto FromEntity(BodyMetric entity) =>
@@ -37,6 +39,8 @@ namespace BodyMetrics.Application.Dtos
                 ThighCircumference = entity.ThighCircumference,
                 NeckCircumference = entity.NeckCircumference,
                 Note = entity.Note,
+                IsActive = entity.IsActive,
+                IsDeleted = entity.IsDeleted,
                 CreatedDate = entity.CreatedDate
             };
     }

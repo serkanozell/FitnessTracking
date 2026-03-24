@@ -1,6 +1,6 @@
-﻿@model LoginRequest
+﻿@model RegisterRequest
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Register";
     Layout = "_AuthLayout";
 }
 
@@ -10,11 +10,30 @@
             <div class="text-center mb-4">
                 <i class="bi bi-heart-pulse-fill text-primary" style="font-size: 2.5rem;"></i>
                 <h4 class="mt-2 fw-semibold">FitnessTracking</h4>
-                <p class="text-body-secondary">Sign in to your account</p>
+                <p class="text-body-secondary">Create your account</p>
             </div>
 
-            <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+            <form asp-action="Register" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstName" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                        </div>
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastName" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                        </div>
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
 
                 <div class="mb-3">
                     <label asp-for="Email" class="form-label"></label>
@@ -35,13 +54,13 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                    <i class="bi bi-person-plus me-1"></i>Create Account
                 </button>
             </form>
 
             <div class="text-center mt-3">
-                <span class="text-body-secondary">Don't have an account?</span>
-                <a asp-action="Register" class="fw-semibold text-decoration-none">Create one</a>
+                <span class="text-body-secondary">Already have an account?</span>
+                <a asp-action="Login" class="fw-semibold text-decoration-none">Sign in</a>
             </div>
         </div>
     </div>
