@@ -45,6 +45,11 @@ builder.Services.AddHttpClient<IBodyMetricsService, BodyMetricsService>(client =
     .AddHttpMessageHandler<AuthTokenHandler>()
     .AddStandardResilienceHandler();
 
+builder.Services.AddHttpClient<IDashboardService, DashboardService>(client =>
+    client.BaseAddress = apiBaseAddress)
+    .AddHttpMessageHandler<AuthTokenHandler>()
+    .AddStandardResilienceHandler();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

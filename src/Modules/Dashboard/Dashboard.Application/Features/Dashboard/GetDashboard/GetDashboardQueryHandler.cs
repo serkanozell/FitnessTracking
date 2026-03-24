@@ -20,16 +20,17 @@ namespace Dashboard.Application.Features.Dashboard.GetDashboard
 
             // Parallel fetch
             var activeProgramTask = _programModule.GetActiveProgramByUserAsync(userId, cancellationToken);
-            var weeklyStatsTask = _sessionModule.GetStatsByUserAsync(userId, weekStart, now.AddDays(1), cancellationToken);
-            var allTimeStatsTask = _sessionModule.GetStatsByUserAsync(userId, DateTime.MinValue, now.AddDays(1), cancellationToken);
             var latestMetricTask = _bodyMetricModule.GetLatestByUserAsync(userId, cancellationToken);
 
-            await Task.WhenAll(activeProgramTask, weeklyStatsTask, allTimeStatsTask, latestMetricTask);
+            var weeklyStatsTask = await _sessionModule.GetStatsByUserAsync(userId, weekStart, now.AddDays(1), cancellationToken);
+            var allTimeStatsTask = await _sessionModule.GetStatsByUserAsync(userId, DateTime.MinValue, now.AddDays(1), cancellationToken);
+
+            await Task.WhenAll(activeProgramTask, latestMetricTask);
 
             var activeProgram = await activeProgramTask;
-            var weeklyStats = await weeklyStatsTask;
-            var allTimeStats = await allTimeStatsTask;
             var latestMetric = await latestMetricTask;
+            var weeklyStats = weeklyStatsTask;
+            var allTimeStats = allTimeStatsTask;            
 
             var dashboard = new DashboardDto
             {

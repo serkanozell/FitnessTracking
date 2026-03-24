@@ -1,11 +1,18 @@
-﻿@{
+﻿@model DashboardDto
+@{
     ViewData["Title"] = "Dashboard";
+    var weightTrend = (IReadOnlyList<WeightTrendDto>)ViewData["WeightTrend"]!;
+    var stats = Model?.Stats ?? new WorkoutStatsDto();
+    var weekly = Model?.WeeklyWorkouts ?? new WeeklyWorkoutsDto();
+    var program = Model?.ActiveProgram;
+    var body = Model?.LatestBodyMetric;
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
     <h4 class="page-title">Dashboard</h4>
 </div>
 
+<!-- Stat Cards -->
 <div class="row g-4 mb-4">
     <div class="col-sm-6 col-xl-3">
         <div class="card stat-card">
@@ -13,14 +20,15 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-body-secondary text-uppercase small fw-semibold mb-2">Total Workouts</div>
-                        <div class="fs-4 fw-semibold">—</div>
+                        <div class="fs-4 fw-semibold">@stats.TotalWorkouts</div>
                     </div>
                     <div class="stat-icon bg-primary bg-opacity-10 text-primary">
                         <i class="bi bi-activity"></i>
                     </div>
                 </div>
                 <div class="small text-body-secondary mt-2">
-                    <i class="bi bi-arrow-up text-success"></i> Since last month
+                    <span class="text-primary fw-semibold">@stats.TotalSets</span> sets ·
+                    <span class="text-primary fw-semibold">@stats.TotalReps</span> reps
                 </div>
             </div>
         </div>
@@ -30,15 +38,16 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="text-body-secondary text-uppercase small fw-semibold mb-2">Streak</div>
-                        <div class="fs-4 fw-semibold">—</div>
+                        <div class="text-body-secondary text-uppercase small fw-semibold mb-2">This Week</div>
+                        <div class="fs-4 fw-semibold">@weekly.Completed workouts</div>
                     </div>
                     <div class="stat-icon bg-warning bg-opacity-10 text-warning">
                         <i class="bi bi-fire"></i>
                     </div>
                 </div>
                 <div class="small text-body-secondary mt-2">
-                    <i class="bi bi-calendar-check text-warning"></i> Consecutive days
+                    <i class="bi bi-lightning-charge text-warning"></i>
+                    <span class="fw-semibold">@weekly.StreakDays</span> day streak
                 </div>
             </div>
         </div>
@@ -49,14 +58,24 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-body-secondary text-uppercase small fw-semibold mb-2">Weight</div>
-                        <div class="fs-4 fw-semibold">—</div>
+                        <div class="fs-4 fw-semibold">
+                            @(body?.Weight.HasValue == true ? $"{body.Weight:F1} kg" : "—")
+                        </div>
                     </div>
                     <div class="stat-icon bg-info bg-opacity-10 text-info">
                         <i class="bi bi-speedometer"></i>
                     </div>
                 </div>
                 <div class="small text-body-secondary mt-2">
-                    <i class="bi bi-dash text-body-secondary"></i> No change
+                    @if (body is not null)
+                    {
+                        <i class="bi bi-calendar3 text-info"></i>
+                        @body.Date.ToShortDateString()
+                    }
+                    else
+                    {
+                        <span>No measurements yet</span>
+                    }
                 </div>
             </div>
         </div>
@@ -67,25 +86,180 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-body-secondary text-uppercase small fw-semibold mb-2">Active Program</div>
-                        <div class="fs-4 fw-semibold">—</div>
+                        <div class="fs-4 fw-semibold">@(program?.Name ?? "—")</div>
                     </div>
                     <div class="stat-icon bg-success bg-opacity-10 text-success">
                         <i class="bi bi-list-check"></i>
                     </div>
                 </div>
                 <div class="small text-body-secondary mt-2">
-                    <i class="bi bi-clock text-success"></i> Currently running
+                    @if (program is not null)
+                    {
+                        <i class="bi bi-calendar-week text-success"></i>
+                        <text>@program.DayCount @(program.DayCount == 1 ? "day" : "days")</text>
+                    }
+                    else
+                    {
+                        <span>No active program</span>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body text-center py-5">
-        <i class="bi bi-bar-chart-line text-body-secondary" style="font-size: 3rem;"></i>
-        <p class="text-body-secondary mt-3 mb-0">
-            Dashboard data will be available after the dashboard API is connected.
-        </p>
+<!-- Body composition + Weight trend row -->
+<div class="row g-4 mb-4">
+    <!-- Body composition card -->
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-clipboard2-pulse me-2"></i>Latest Body Metrics
+            </div>
+            <div class="card-body">
+                @if (body is null)
+                {
+                    <div class="text-center text-body-secondary py-4">
+                        <i class="bi bi-rulers fs-1 d-block mb-2"></i>
+                        <p class="mb-2">No measurements recorded yet.</p>
+                        <a asp-controller="BodyMetrics" asp-action="Create" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i>Add First Entry
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-body-secondary">Weight</td>
+                                <td class="fw-semibold text-end">@(body.Weight.HasValue ? $"{body.Weight:F1} kg" : "—")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-body-secondary">Body Fat</td>
+                                <td class="fw-semibold text-end">@(body.BodyFatPercentage.HasValue ? $"{body.BodyFatPercentage:F1}%" : "—")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-body-secondary">Muscle Mass</td>
+                                <td class="fw-semibold text-end">@(body.MuscleMass.HasValue ? $"{body.MuscleMass:F1} kg" : "—")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-body-secondary">Recorded</td>
+                                <td class="fw-semibold text-end">@body.Date.ToShortDateString()</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-end mt-3">
+                        <a asp-controller="BodyMetrics" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            View All <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Weight trend chart -->
+    <div class="col-xl-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-graph-up me-2"></i>Weight Trend (90 days)</span>
+            </div>
+            <div class="card-body">
+                @if (weightTrend.Count == 0)
+                {
+                    <div class="text-center text-body-secondary py-5">
+                        <i class="bi bi-bar-chart-line fs-1 d-block mb-2"></i>
+                        <p class="mb-0">No weight data available yet.</p>
+                    </div>
+                }
+                else
+                {
+                    <canvas id="weightChart" height="250"></canvas>
+                }
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Quick links -->
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <i class="bi bi-play-circle text-primary fs-1 mb-2 d-block"></i>
+                <h6 class="fw-semibold">Log a Workout</h6>
+                <p class="text-body-secondary small mb-3">Record your today's session</p>
+                <a asp-controller="WorkoutSessions" asp-action="Create" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i>New Session
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <i class="bi bi-clipboard2-pulse text-info fs-1 mb-2 d-block"></i>
+                <h6 class="fw-semibold">Track Measurements</h6>
+                <p class="text-body-secondary small mb-3">Record your body metrics</p>
+                <a asp-controller="BodyMetrics" asp-action="Create" class="btn btn-info btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i>New Entry
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <i class="bi bi-list-check text-success fs-1 mb-2 d-block"></i>
+                <h6 class="fw-semibold">Manage Programs</h6>
+                <p class="text-body-secondary small mb-3">Create or edit workout programs</p>
+                <a asp-controller="WorkoutPrograms" asp-action="Index" class="btn btn-success btn-sm">
+                    <i class="bi bi-arrow-right me-1"></i>View Programs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (weightTrend.Count > 0)
+    {
+        var chartLabels = string.Join(",", weightTrend.Select(w => "'" + w.Date.ToString("MMM dd") + "'"));
+        var chartData = string.Join(",", weightTrend.Select(w => w.Weight.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@@4.4.7/dist/chart.umd.min.js"></script>
+        <script>
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [@Html.Raw(chartLabels)],
+                    datasets: [{
+                        label: 'Weight (kg)',
+                        data: [@Html.Raw(chartData)],
+                        borderColor: 'rgba(50, 31, 219, 1)',
+                        backgroundColor: 'rgba(50, 31, 219, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: { callback: function(v) { return v + ' kg'; } }
+                        }
+                    }
+                }
+            });
+        </script>
+    }
+}
