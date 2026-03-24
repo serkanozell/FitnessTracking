@@ -1,0 +1,62 @@
+﻿@model IReadOnlyList<RoleDto>
+@{
+    ViewData["Title"] = "Roles";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="page-title">Roles</h4>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Create Role
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th class="text-end" style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-body-secondary py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>No roles found.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var role in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@role.Name</td>
+                            <td class="text-body-secondary">@(role.Description ?? "—")</td>
+                            <td>
+                                @if (role.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td>@role.CreatedDate?.ToShortDateString()</td>
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

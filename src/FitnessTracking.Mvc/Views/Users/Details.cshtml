@@ -1,0 +1,117 @@
+﻿@model UserDto
+@{
+    ViewData["Title"] = "User Details";
+    var allRoles = (IReadOnlyList<RoleDto>)ViewData["AllRoles"]!;
+    var assignableRoles = allRoles.Where(r => !Model.Roles.Contains(r.Name)).ToList();
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="page-title">User Details</h4>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- User Info -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-person me-2"></i>Profile</div>
+            <div class="card-body">
+                <table class="table table-sm mb-3">
+                    <tr><td class="text-body-secondary">Email</td><td class="fw-semibold">@Model.Email</td></tr>
+                    <tr><td class="text-body-secondary">Name</td><td class="fw-semibold">@Model.FirstName @Model.LastName</td></tr>
+                    <tr><td class="text-body-secondary">Status</td>
+                        <td>
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success-subtle text-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr><td class="text-body-secondary">Created</td><td>@Model.CreatedDate?.ToShortDateString()</td></tr>
+                </table>
+
+                <div class="d-flex gap-2">
+                    @if (!Model.IsActive)
+                    {
+                        <form asp-action="Activate" asp-route-id="@Model.Id" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-check-circle me-1"></i>Activate
+                            </button>
+                        </form>
+                    }
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+                          onsubmit="return confirm('Delete this user?')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Roles Management -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-shield-lock me-2"></i>Roles</div>
+            <div class="card-body">
+                @if (Model.Roles.Count == 0)
+                {
+                    <p class="text-body-secondary mb-3">No roles assigned.</p>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        @foreach (var roleName in Model.Roles)
+                        {
+                            var roleEntity = allRoles.FirstOrDefault(r => r.Name == roleName);
+                            <div class="d-inline-flex align-items-center gap-1 border rounded-pill px-3 py-1">
+                                <span class="fw-semibold">@roleName</span>
+                                @if (roleEntity is not null)
+                                {
+                                    <form asp-action="RemoveRole" asp-route-id="@Model.Id" asp-route-roleId="@roleEntity.Id"
+                                          method="post" class="d-inline"
+                                          onsubmit="return confirm('Remove this role?')">
+                                        <button type="submit" class="btn btn-sm p-0 text-danger" title="Remove">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (assignableRoles.Count > 0)
+                {
+                    <hr />
+                    <form asp-action="AssignRole" asp-route-id="@Model.Id" method="post">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-semibold">Assign Role</label>
+                                <select name="roleId" class="form-select form-select-sm" required>
+                                    <option value="">-- select role --</option>
+                                    @foreach (var role in assignableRoles)
+                                    {
+                                        <option value="@role.Id">@role.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    <i class="bi bi-plus-lg me-1"></i>Assign
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

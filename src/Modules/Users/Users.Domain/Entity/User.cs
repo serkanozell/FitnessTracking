@@ -52,14 +52,23 @@ namespace Users.Domain.Entity
 
         public UserRole AssignRole(Guid roleId)
         {
-            if (_userRoles.Any(ur => ur.RoleId == roleId && !ur.IsDeleted))
-                throw new BusinessRuleViolationException($"User already has role '{roleId}'.");
+            var existing = _userRoles.SingleOrDefault(ur => ur.RoleId == roleId);
+
+            if (existing is not null)
+            {
+                if (!existing.IsDeleted)
+                    throw new BusinessRuleViolationException($"User already has role '{roleId}'.");
+
+                // Reactivate the soft-deleted role assignment
+                existing.Restore();
+                AddDomainEvent(new UserRoleAssignedEvent(Id, roleId));
+                return existing;
+            }
 
             var userRole = UserRole.Create(Id, roleId);
             _userRoles.Add(userRole);
 
             AddDomainEvent(new UserRoleAssignedEvent(Id, roleId));
-
             return userRole;
         }
 

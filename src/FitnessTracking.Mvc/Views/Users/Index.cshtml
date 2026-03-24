@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "User Management";
+    var allRoles = (IReadOnlyList<RoleDto>)ViewData["AllRoles"]!;
+    var selectedUser = ViewData["SelectedUser"] as UserDto;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="page-title">User Management</h4>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Create User
+    </a>
+</div>
+
+<!-- Lookup user by ID -->
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-search me-2"></i>Look Up User</div>
+    <div class="card-body">
+        <form method="get" asp-action="Index">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-9">
+                    <label class="form-label">User ID</label>
+                    <input name="id" class="form-control" placeholder="Enter user GUID" value="@Context.Request.Query["id"]" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i>Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (selectedUser is not null)
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-person me-2"></i>@selectedUser.Email</span>
+            <div class="d-flex gap-2">
+                <a asp-action="Details" asp-route-id="@selectedUser.Id" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-eye me-1"></i>Details
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-sm mb-0">
+                        <tr>
+                            <td class="text-body-secondary">Name</td>
+                            <td class="fw-semibold">@selectedUser.FirstName @selectedUser.LastName</td>
+                        </tr>
+                        <tr>
+                            <td class="text-body-secondary">Status</td>
+                            <td>
+                                @if (selectedUser.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-body-secondary">Roles</td>
+                            <td>
+                                @foreach (var role in selectedUser.Roles)
+                                {
+                                    <span class="badge bg-primary me-1">@role</span>
+                                }
+                                @if (selectedUser.Roles.Count == 0)
+                                {
+                                    <span class="text-body-secondary">No roles</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-body-secondary">Created</td>
+                            <td>@selectedUser.CreatedDate?.ToShortDateString()</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (Context.Request.Query.ContainsKey("id"))
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>User not found.
+    </div>
+}

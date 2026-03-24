@@ -25,5 +25,11 @@ namespace Users.Domain.Entity
             IsActive = false;
             IsDeleted = true;
         }
+
+        internal void Restore()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
     }
 }

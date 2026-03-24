@@ -12,9 +12,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/Login";
         options.ExpireTimeSpan = TimeSpan.FromHours(2);
         options.SlidingExpiration = true;
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+});
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<AuthTokenHandler>();
@@ -46,6 +52,11 @@ builder.Services.AddHttpClient<IBodyMetricsService, BodyMetricsService>(client =
     .AddStandardResilienceHandler();
 
 builder.Services.AddHttpClient<IDashboardService, DashboardService>(client =>
+    client.BaseAddress = apiBaseAddress)
+    .AddHttpMessageHandler<AuthTokenHandler>()
+    .AddStandardResilienceHandler();
+
+builder.Services.AddHttpClient<IUserManagementService, UserManagementService>(client =>
     client.BaseAddress = apiBaseAddress)
     .AddHttpMessageHandler<AuthTokenHandler>()
     .AddStandardResilienceHandler();
