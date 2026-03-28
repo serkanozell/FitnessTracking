@@ -6,7 +6,9 @@ namespace Exercises.Application.Features.Exercises.UpdateExercise
                                                string Name,
                                                string PrimaryMuscleGroup,
                                                string? SecondaryMuscleGroup,
-                                               string Description) : ICommand<Result<bool>>, ICacheInvalidatingCommand
+                                               string Description,
+                                               string? ImageUrl,
+                                               string? VideoUrl) : ICommand<Result<bool>>, ICacheInvalidatingCommand
     {
         public string[] CacheKeysToInvalidate => [$"exercises:{Id}"];
         public string[] CachePrefixesToInvalidate => ["exercises:all"];

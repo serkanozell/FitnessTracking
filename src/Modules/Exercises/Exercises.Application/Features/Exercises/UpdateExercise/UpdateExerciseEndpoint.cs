@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Exercises.Application.Features.Exercises.UpdateExercise;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -9,7 +9,7 @@ public sealed class UpdateExerciseEndpoint : IEndpoint
     {
         endpoints.MapPut("/exercises/{id:guid}", async (Guid id, UpdateExerciseRequest request, ISender sender, CancellationToken ct) =>
         {
-            var command = new UpdateExerciseCommand(id, request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description);
+            var command = new UpdateExerciseCommand(id, request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description, request.ImageUrl, request.VideoUrl);
             var result = await sender.Send(command, ct);
 
             return result.IsSuccess
@@ -27,5 +27,5 @@ public sealed class UpdateExerciseEndpoint : IEndpoint
         .RequireAuthorization("Admin");
     }
 
-    public sealed record UpdateExerciseRequest(string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description);
+    public sealed record UpdateExerciseRequest(string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description, string? ImageUrl, string? VideoUrl);
 }

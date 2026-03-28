@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace FitnessTracking.Mvc.Models;
 
@@ -15,6 +16,16 @@ public sealed class ExerciseEditModel
 
     [StringLength(2000)]
     public string Description { get; set; } = string.Empty;
+
+    public string? ImageUrl { get; set; }
+
+    public IFormFile? ImageFile { get; set; }
+
+    public bool RemoveImage { get; set; }
+
+    [StringLength(500)]
+    [Url]
+    public string? VideoUrl { get; set; }
 
     public static string[] MuscleGroups =>
     [

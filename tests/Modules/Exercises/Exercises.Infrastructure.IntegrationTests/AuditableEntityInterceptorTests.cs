@@ -60,7 +60,7 @@ public class AuditableEntityInterceptorTests : IAsyncLifetime
         await _context.Exercises.AddAsync(exercise);
         await _context.SaveChangesAsync();
 
-        exercise.Update("New", MuscleGroup.Back, null, "Updated");
+        exercise.Update("New", MuscleGroup.Back, null, "Updated", null, null);
         _context.Exercises.Update(exercise);
         await _context.SaveChangesAsync();
 

@@ -16,7 +16,7 @@ internal sealed class UpdateExerciseCommandHandler(IExerciseRepository _exercise
             ? Enum.Parse<MuscleGroup>(request.SecondaryMuscleGroup, ignoreCase: true)
             : (MuscleGroup?)null;
 
-        exercise.Update(request.Name, primaryMuscleGroup, secondaryMuscleGroup, request.Description);
+        exercise.Update(request.Name, primaryMuscleGroup, secondaryMuscleGroup, request.Description, request.ImageUrl, request.VideoUrl);
 
         _exerciseRepository.Update(exercise);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

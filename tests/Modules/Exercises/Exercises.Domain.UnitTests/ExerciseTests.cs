@@ -1,4 +1,4 @@
-using Exercises.Domain.Entity;
+﻿using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;
 using Exercises.Domain.Events;
 using FluentAssertions;
@@ -51,7 +51,7 @@ public class ExerciseTests
     {
         var exercise = CreateDefaultExercise();
 
-        exercise.Update("Incline Press", MuscleGroup.Shoulders, MuscleGroup.Chest, "Incline barbell press");
+        exercise.Update("Incline Press", MuscleGroup.Shoulders, MuscleGroup.Chest, "Incline barbell press", null, null);
 
         exercise.Name.Should().Be("Incline Press");
         exercise.PrimaryMuscleGroup.Should().Be(MuscleGroup.Shoulders);
@@ -65,7 +65,7 @@ public class ExerciseTests
         var exercise = CreateDefaultExercise();
         exercise.ClearDomainEvents();
 
-        exercise.Update("Incline Press", MuscleGroup.Shoulders, null, "Incline barbell press");
+        exercise.Update("Incline Press", MuscleGroup.Shoulders, null, "Incline barbell press", null, null);
 
         exercise.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<ExerciseUpdatedEvent>()

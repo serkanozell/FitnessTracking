@@ -7,6 +7,8 @@ public sealed class ExerciseDto
     public string PrimaryMuscleGroup { get; init; } = string.Empty;
     public string? SecondaryMuscleGroup { get; init; }
     public string Description { get; init; } = string.Empty;
+    public string? ImageUrl { get; init; }
+    public string? VideoUrl { get; init; }
     public bool IsActive { get; init; }
     public bool IsDeleted { get; init; }
     public DateTime? CreatedDate { get; init; }

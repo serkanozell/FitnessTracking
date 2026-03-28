@@ -10,33 +10,39 @@ namespace Exercises.Domain.Entity
         public MuscleGroup PrimaryMuscleGroup { get; private set; }
         public MuscleGroup? SecondaryMuscleGroup { get; private set; }
         public string Description { get; private set; }
+        public string? ImageUrl { get; private set; }
+        public string? VideoUrl { get; private set; }
 
         private Exercise() { }
 
-        public Exercise(Guid id, string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description)
+        public Exercise(Guid id, string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description, string? imageUrl = null, string? videoUrl = null)
         {
             Id = id;
             Name = name;
             PrimaryMuscleGroup = primaryMuscleGroup;
             SecondaryMuscleGroup = secondaryMuscleGroup;
             Description = description;
+            ImageUrl = imageUrl;
+            VideoUrl = videoUrl;
         }
 
-        public static Exercise Create(string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description)
+        public static Exercise Create(string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description, string? imageUrl = null, string? videoUrl = null)
         {
-            var exercise = new Exercise(Guid.NewGuid(), name, primaryMuscleGroup, secondaryMuscleGroup, description);
+            var exercise = new Exercise(Guid.NewGuid(), name, primaryMuscleGroup, secondaryMuscleGroup, description, imageUrl, videoUrl);
 
             exercise.AddDomainEvent(new ExerciseCreatedEvent(exercise.Id));
 
             return exercise;
         }
 
-        public void Update(string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description)
+        public void Update(string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description, string? imageUrl, string? videoUrl)
         {
             Name = name;
             PrimaryMuscleGroup = primaryMuscleGroup;
             SecondaryMuscleGroup = secondaryMuscleGroup;
             Description = description;
+            ImageUrl = imageUrl;
+            VideoUrl = videoUrl;
 
             AddDomainEvent(new ExerciseUpdatedEvent(Id));
         }

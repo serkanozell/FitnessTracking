@@ -9,6 +9,8 @@ namespace Exercises.Application.Dtos
         public string PrimaryMuscleGroup { get; init; } = default!;
         public string? SecondaryMuscleGroup { get; init; }
         public string Description { get; init; } = default!;
+        public string? ImageUrl { get; init; }
+        public string? VideoUrl { get; init; }
         public bool IsActive { get; init; }
         public bool IsDeleted { get; init; }
         public DateTime? CreatedDate { get; init; }
@@ -24,6 +26,8 @@ namespace Exercises.Application.Dtos
                 PrimaryMuscleGroup = entity.PrimaryMuscleGroup.ToString(),
                 SecondaryMuscleGroup = entity.SecondaryMuscleGroup?.ToString(),
                 Description = entity.Description,
+                ImageUrl = entity.ImageUrl,
+                VideoUrl = entity.VideoUrl,
                 IsActive = entity.IsActive,
                 IsDeleted = entity.IsDeleted,
                 CreatedDate = entity.CreatedDate,

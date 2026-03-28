@@ -1,4 +1,4 @@
-using Exercises.Application.Features.Exercises.CreateExercise;
+﻿using Exercises.Application.Features.Exercises.CreateExercise;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;
 using Exercises.Domain.Repositories;
@@ -22,7 +22,7 @@ public class CreateExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldCreateExercise_WhenNameIsUnique()
     {
-        var command = new CreateExerciseCommand("Bench Press", "Chest", "Triceps", "Flat bench press");
+        var command = new CreateExerciseCommand("Bench Press", "Chest", "Triceps", "Flat bench press", null, null);
         _exerciseRepository.GetByNameAsync(command.Name, Arg.Any<CancellationToken>())
             .Returns((Exercise?)null);
 
@@ -38,7 +38,7 @@ public class CreateExerciseCommandHandlerTests
     public async Task Handle_ShouldReturnDuplicateNameError_WhenNameExists()
     {
         var existingExercise = Exercise.Create("Bench Press", MuscleGroup.Chest, null, "Desc");
-        var command = new CreateExerciseCommand("Bench Press", "Chest", null, "Desc");
+        var command = new CreateExerciseCommand("Bench Press", "Chest", null, "Desc", null, null);
         _exerciseRepository.GetByNameAsync(command.Name, Arg.Any<CancellationToken>())
             .Returns(existingExercise);
 
@@ -52,7 +52,7 @@ public class CreateExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldParseSecondaryMuscleGroupAsNull_WhenNotProvided()
     {
-        var command = new CreateExerciseCommand("Squat", "Quadriceps", null, "Barbell squat");
+        var command = new CreateExerciseCommand("Squat", "Quadriceps", null, "Barbell squat", null, null);
         _exerciseRepository.GetByNameAsync(command.Name, Arg.Any<CancellationToken>())
             .Returns((Exercise?)null);
 

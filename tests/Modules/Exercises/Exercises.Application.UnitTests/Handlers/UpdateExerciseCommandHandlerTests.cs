@@ -1,4 +1,4 @@
-using Exercises.Application.Features.Exercises.UpdateExercise;
+﻿using Exercises.Application.Features.Exercises.UpdateExercise;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;
 using Exercises.Domain.Repositories;
@@ -23,7 +23,7 @@ public class UpdateExerciseCommandHandlerTests
     public async Task Handle_ShouldUpdateExercise_WhenExists()
     {
         var exercise = Exercise.Create("Bench Press", MuscleGroup.Chest, null, "Desc");
-        var command = new UpdateExerciseCommand(exercise.Id, "Incline Press", "Shoulders", "Chest", "Incline");
+        var command = new UpdateExerciseCommand(exercise.Id, "Incline Press", "Shoulders", "Chest", "Incline", null, null);
         _exerciseRepository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>())
             .Returns(exercise);
 
@@ -37,7 +37,7 @@ public class UpdateExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNotFoundError_WhenNotExists()
     {
-        var command = new UpdateExerciseCommand(Guid.NewGuid(), "Name", "Chest", null, "Desc");
+        var command = new UpdateExerciseCommand(Guid.NewGuid(), "Name", "Chest", null, "Desc", null, null);
         _exerciseRepository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>())
             .Returns((Exercise?)null);
 

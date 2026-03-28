@@ -21,7 +21,9 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
             var exercise = Exercise.Create(request.Name,
                                            primaryMuscleGroup,
                                            secondaryMuscleGroup,
-                                           request.Description);
+                                           request.Description,
+                                           request.ImageUrl,
+                                           request.VideoUrl);
 
             await _exerciseRepository.AddAsync(exercise, cancellationToken);
 

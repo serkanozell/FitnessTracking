@@ -135,7 +135,7 @@ public class ExerciseRepositoryTests : IAsyncLifetime
         await _context.Exercises.AddAsync(exercise);
         await _context.SaveChangesAsync();
 
-        exercise.Update("New Name", MuscleGroup.Back, MuscleGroup.Biceps, "Updated desc");
+        exercise.Update("New Name", MuscleGroup.Back, MuscleGroup.Biceps, "Updated desc", null, null);
         _sut.Update(exercise);
         await _context.SaveChangesAsync();
 

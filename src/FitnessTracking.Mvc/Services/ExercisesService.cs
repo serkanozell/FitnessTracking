@@ -26,7 +26,7 @@ public sealed class ExercisesService(HttpClient httpClient) : IExercisesService
 
     public async Task<Guid> CreateAsync(ExerciseEditModel model, CancellationToken cancellationToken = default)
     {
-        var payload = new { model.Name, model.PrimaryMuscleGroup, model.SecondaryMuscleGroup, model.Description };
+        var payload = new { model.Name, model.PrimaryMuscleGroup, model.SecondaryMuscleGroup, model.Description, model.ImageUrl, model.VideoUrl };
         using var response = await httpClient.PostAsJsonAsync(BaseUrl, payload, cancellationToken);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<CreateExerciseResponse>(cancellationToken: cancellationToken);
@@ -35,7 +35,7 @@ public sealed class ExercisesService(HttpClient httpClient) : IExercisesService
 
     public async Task<bool> UpdateAsync(Guid id, ExerciseEditModel model, CancellationToken cancellationToken = default)
     {
-        var payload = new { model.Name, model.PrimaryMuscleGroup, model.SecondaryMuscleGroup, model.Description };
+        var payload = new { model.Name, model.PrimaryMuscleGroup, model.SecondaryMuscleGroup, model.Description, model.ImageUrl, model.VideoUrl };
         using var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", payload, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();

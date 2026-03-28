@@ -28,6 +28,12 @@ namespace Exercises.Infrastructure.Configurations
             builder.Property(x => x.Description)
                    .HasMaxLength(500);
 
+            builder.Property(x => x.ImageUrl)
+                   .HasMaxLength(500);
+
+            builder.Property(x => x.VideoUrl)
+                   .HasMaxLength(500);
+
             // Audit
             builder.Property(x => x.CreatedDate);
 

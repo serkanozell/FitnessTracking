@@ -11,7 +11,7 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
             endpoints.MapPost("/exercises", async (CreateExerciseRequest request, ISender sender, CancellationToken ct) =>
             {
                 var result = await sender.Send(
-                    new CreateExerciseCommand(request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description),
+                    new CreateExerciseCommand(request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description, request.ImageUrl, request.VideoUrl),
                     ct);
 
                 return result.IsSuccess
@@ -29,7 +29,7 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
 
         }
 
-        public sealed record CreateExerciseRequest(string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description);
+        public sealed record CreateExerciseRequest(string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description, string? ImageUrl, string? VideoUrl);
 
         public sealed record CreateExerciseResponse(Guid Id);
     }
