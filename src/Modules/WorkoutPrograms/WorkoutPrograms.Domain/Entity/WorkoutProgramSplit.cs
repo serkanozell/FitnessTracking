@@ -19,7 +19,7 @@ namespace WorkoutPrograms.Domain.Entity
 
         private WorkoutProgramSplit() { }
 
-        public WorkoutProgramSplit(Guid id, Guid workoutProgramId, string name, int order)
+        internal WorkoutProgramSplit(Guid id, Guid workoutProgramId, string name, int order)
         {
             Id = id;
             WorkoutProgramId = workoutProgramId;

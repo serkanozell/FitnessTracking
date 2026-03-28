@@ -16,7 +16,7 @@ namespace WorkoutPrograms.Domain.Entity
 
         private WorkoutProgram() { }
 
-        public WorkoutProgram(Guid id, Guid userId, string name, DateTime startDate, DateTime endDate)
+        private WorkoutProgram(Guid id, Guid userId, string name, DateTime startDate, DateTime endDate)
         {
             Id = id;
             UserId = userId;

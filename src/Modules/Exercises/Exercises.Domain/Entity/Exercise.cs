@@ -15,7 +15,7 @@ namespace Exercises.Domain.Entity
 
         private Exercise() { }
 
-        public Exercise(Guid id, string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description, string? imageUrl = null, string? videoUrl = null)
+        private Exercise(Guid id, string name, MuscleGroup primaryMuscleGroup, MuscleGroup? secondaryMuscleGroup, string description, string? imageUrl = null, string? videoUrl = null)
         {
             Id = id;
             Name = name;

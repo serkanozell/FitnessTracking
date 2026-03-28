@@ -11,8 +11,8 @@
 | Katman | Rol |
 |---|---|
 | **API** (`FitnessTracking.Api`) | Host uygulama — modülleri yükler, middleware, CORS, health check, rate limiting |
-| **Web** (`FitnessTracking.Web`) | Blazor WebAssembly istemci uygulaması |
-| **Modules** | Her bounded context için bağımsız modüller (Exercises, WorkoutPrograms, WorkoutSessions) |
+| **Mvc** (`FitnessTracking.Mvc`) | ASP.NET Core MVC istemci uygulaması (Razor Views) |
+| **Modules** | Her bounded context için bağımsız modüller (Exercises, WorkoutPrograms, WorkoutSessions, Users, BodyMetrics, Dashboard) |
 | **BuildingBlocks** | Tüm modüller tarafından paylaşılan altyapı, domain ve application yapı taşları |
 | **Tests** | Unit, integration ve architecture testleri |
 
@@ -20,7 +20,7 @@
 
 ## 2. Modüler Yapı
 
-Her modül aşağıdaki 4+1 katmanlı yapıya sahiptir:
+Her tam modül aşağıdaki 4+1 katmanlı yapıya sahiptir:
 
 ```
 src/Modules/{ModuleName}/
@@ -31,10 +31,18 @@ src/Modules/{ModuleName}/
 └── {ModuleName}.Contracts       → Modüller arası paylaşılan kontratlar (varsa)
 ```
 
+> **Not:** Kendi domain entity'si ve veritabanı olmayan **read-only aggregation modülleri** (örn: Dashboard) yalnızca Application + Api katmanlarına sahiptir. Bu modüller diğer modüllerin Contracts interface'leri üzerinden veri okur, Domain veya Infrastructure katmanına ihtiyaç duymaz.
+
 ### Mevcut Modüller
-- **Exercises** — Egzersiz tanımları (kas grubu, açıklama vb.)
-- **WorkoutPrograms** — Antrenman programları, split'ler ve split egzersizleri
-- **WorkoutSessions** — Antrenman seansları ve seans egzersizleri
+
+| Modül | Tip | Katmanlar | Açıklama |
+|---|---|---|---|
+| **Exercises** | Tam | Domain · Application · Infrastructure · Api · Contracts | Egzersiz tanımları (kas grubu, açıklama, görsel/video URL) |
+| **WorkoutPrograms** | Tam | Domain · Application · Infrastructure · Api · Contracts | Antrenman programları, split'ler ve split egzersizleri |
+| **WorkoutSessions** | Tam | Domain · Application · Infrastructure · Api · Contracts | Antrenman seansları ve seans egzersizleri (set, tekrar, ağırlık) |
+| **Users** | Tam | Domain · Application · Infrastructure · Api · Contracts | Kullanıcı yönetimi, JWT authentication, rol/yetki, refresh token |
+| **BodyMetrics** | Tam | Domain · Application · Infrastructure · Api · Contracts | Vücut ölçümleri (kilo, boy, yağ oranı, çevre ölçüleri) |
+| **Dashboard** | Lightweight | Application · Api | Read-only aggregation modülü — diğer modüllerden Contracts üzerinden veri toplayarak özet dashboard ve kilo trendi sunar |
 
 ---
 
@@ -236,9 +244,11 @@ public sealed class ExerciseDto
 
 - Cache'lenecek query'ler `ICacheableQuery` interface'ini implement eder.
 - `CacheKey` ve opsiyonel `Expiration` tanımlanır.
-- Cache invalidation, domain event handler'ları (`IDomainEventHandler<TEvent>`) ile yapılır.
+- Cache invalidation, `ICacheInvalidatingCommand` interface'i ile pipeline üzerinden otomatik yapılır.
 - Cache servisi: Redis (`ICacheService`, `ICacheAsideService`).
 - Cache key formatı: `{entity}:{id}` veya `{entity}:all` (liste için).
+
+> **GÜVENLİK KURALI:** `CachingBehavior` pipeline'da handler'dan **önce** çalışır — cache hit olduğunda handler çalışmaz. Bu nedenle **user-scoped query'lerde** (OwnershipGuard içeren veya UserId ile filtreleyen) `ICacheableQuery` **kullanılmamalıdır**. Aksi halde cross-user data leak veya authorization bypass oluşur. Yalnızca **global, user-scope'suz** query'ler (örn: Exercises) cache'lenebilir.
 
 ### 5.8 Feature Klasör Yapısı
 
@@ -344,19 +354,21 @@ Pipeline sırası:
 
 - **API Versioning**: `Asp.Versioning.Http` ile URL segment tabanlı (`/api/v1/...`). Varsayılan versiyon `v1.0`.
 - **OpenAPI & Scalar**: `Scalar.AspNetCore` ile interaktif API dokümanı (`/scalar/v1`).
-- **CORS**: Blazor client için `BlazorClient` policy
+- **CORS**: MVC client için CORS policy (`BlazorClient` — eski isimlendirme, yeniden adlandırma planlanıyor)
 - **Rate Limiting**: IP tabanlı fixed window (20 request/dakika, 5 queue)
 - **Health Checks**: SQL Server, Redis, SMTP (`/health`, `/health/ready`, `/health/live`)
 - **Logging**: Serilog (configuration-based, Console + File sink)
 
 ---
 
-## 8. Blazor WebAssembly (FitnessTracking.Web)
+## 8. ASP.NET Core MVC (FitnessTracking.Mvc)
 
-- Standalone Blazor WebAssembly uygulaması
+- ASP.NET Core MVC uygulaması (Razor Views)
 - API'ye `HttpClient` tabanlı servisler üzerinden erişir
-- Servisler: `IExercisesService`, `IWorkoutProgramsService`, `IWorkoutSessionsService`
-- Model'ler ve DTO'lar Web projesinde ayrı tanımlanır (API DTO'larından bağımsız)
+- JWT tabanlı authentication — token yönetimi `AuthService` + `AuthTokenHandler` (DelegatingHandler) ile yapılır
+- Servisler: `IExercisesService`, `IWorkoutProgramsService`, `IWorkoutSessionsService`, `IBodyMetricsService`, `IDashboardService`, `IUserManagementService`
+- Controller'lar: `AccountController`, `HomeController`, `ExercisesController`, `WorkoutProgramsController`, `WorkoutSessionsController`, `BodyMetricsController`, `UsersController`, `RolesController`
+- Model'ler ve DTO'lar MVC projesinde ayrı tanımlanır (API DTO'larından bağımsız)
 
 ---
 
@@ -377,10 +389,20 @@ tests/
 │   │   ├── WorkoutPrograms.Domain.UnitTests/
 │   │   ├── WorkoutPrograms.Application.UnitTests/
 │   │   └── WorkoutPrograms.Infrastructure.IntegrationTests/
-│   └── WorkoutSessions/
-│       ├── WorkoutSessions.Domain.UnitTests/
-│       ├── WorkoutSessions.Application.UnitTests/
-│       └── WorkoutSessions.Infrastructure.IntegrationTests/
+│   ├── WorkoutSessions/
+│   │   ├── WorkoutSessions.Domain.UnitTests/
+│   │   ├── WorkoutSessions.Application.UnitTests/
+│   │   └── WorkoutSessions.Infrastructure.IntegrationTests/
+│   ├── Users/
+│   │   ├── Users.Domain.UnitTests/
+│   │   ├── Users.Application.UnitTests/
+│   │   └── Users.Infrastructure.IntegrationTests/
+│   ├── BodyMetrics/
+│   │   ├── BodyMetrics.Domain.UnitTests/
+│   │   ├── BodyMetrics.Application.UnitTests/
+│   │   └── BodyMetrics.Infrastructure.IntegrationTests/
+│   └── Dashboard/
+│       └── Dashboard.Application.UnitTests/
 └── FitnessTracking.Api.IntegrationTests/
 ```
 

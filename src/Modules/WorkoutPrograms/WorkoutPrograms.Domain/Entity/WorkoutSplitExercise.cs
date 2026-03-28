@@ -12,7 +12,7 @@ namespace WorkoutPrograms.Domain.Entity
 
         private WorkoutSplitExercise() { }
 
-        public WorkoutSplitExercise(Guid id,
+        internal WorkoutSplitExercise(Guid id,
                                       Guid exerciseId,
                                       int sets,
                                       RepRange repRange,

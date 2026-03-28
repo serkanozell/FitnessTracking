@@ -74,6 +74,7 @@
   <Folder Name="/tests/Modules/BodyMetrics/">
     <Project Path="tests/Modules/BodyMetrics/BodyMetrics.Application.UnitTests/BodyMetrics.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/BodyMetrics/BodyMetrics.Domain.UnitTests/BodyMetrics.Domain.UnitTests.csproj" />
+    <Project Path="tests/Modules/BodyMetrics/BodyMetrics.Infrastructure.IntegrationTests/BodyMetrics.Infrastructure.IntegrationTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/Dashboard/">
     <Project Path="tests/Modules/Dashboard/Dashboard.Application.UnitTests/Dashboard.Application.UnitTests.csproj" />

@@ -11,7 +11,7 @@ namespace WorkoutSessions.Domain.Entity
 
         private SessionExercise() { }
 
-        public SessionExercise(Guid id, Guid exerciseId, int setNumber, decimal weight, int reps)
+        internal SessionExercise(Guid id, Guid exerciseId, int setNumber, decimal weight, int reps)
         {
             Id = id;
             ExerciseId = exerciseId;

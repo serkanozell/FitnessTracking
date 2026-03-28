@@ -15,7 +15,7 @@ namespace WorkoutSessions.Domain.Entity
 
         private WorkoutSession() { }
 
-        public WorkoutSession(Guid id, Guid userId, Guid workoutProgramId, DateTime date)
+        private WorkoutSession(Guid id, Guid userId, Guid workoutProgramId, DateTime date)
         {
             Id = id;
             UserId = userId;

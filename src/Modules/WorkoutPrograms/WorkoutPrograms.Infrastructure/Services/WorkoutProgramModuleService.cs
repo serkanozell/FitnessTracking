@@ -11,6 +11,12 @@ public class WorkoutProgramModuleService(IWorkoutProgramRepository _workoutProgr
         return result is not null;
     }
 
+    public async Task<bool> IsOwnedByUserAsync(Guid workoutProgramId, Guid userId, CancellationToken cancellationToken = default)
+    {
+        var result = await _workoutProgramRepository.GetByIdAsync(workoutProgramId, cancellationToken);
+        return result is not null && result.UserId == userId;
+    }
+
     public async Task<bool> ContainsExerciseAsync(Guid workoutProgramId, Guid exerciseId, CancellationToken cancellationToken = default)
     {
         var result = await _workoutProgramRepository.GetByIdWithExercisesAsync(workoutProgramId, cancellationToken);

@@ -110,4 +110,96 @@ public class DashboardQueryHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Data.Should().BeEmpty();
     }
+
+    // --- GetDashboard edge cases ---
+
+    [Fact]
+    public async Task GetDashboard_ShouldCalculateCompletionPercentage_WhenProgramHalfway()
+    {
+        var startDate = DateTime.Today.AddDays(-50);
+        var endDate = DateTime.Today.AddDays(50);
+
+        _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns(new ActiveProgramInfo(Guid.NewGuid(), "Test", startDate, endDate));
+
+        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutSessionStatsInfo(0, 0, 0, 0));
+
+        _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns((LatestBodyMetricInfo?)null);
+
+        var sut = new GetDashboardQueryHandler(_programModule, _sessionModule, _bodyMetricModule, _currentUser);
+
+        var result = await sut.Handle(new GetDashboardQuery(), CancellationToken.None);
+
+        result.Data!.ActiveProgram!.CompletionPercentage.Should().BeApproximately(50, 1);
+    }
+
+    [Fact]
+    public async Task GetDashboard_ShouldReturnFullCompletion_WhenProgramEnded()
+    {
+        var startDate = DateTime.Today.AddDays(-100);
+        var endDate = DateTime.Today.AddDays(-10);
+
+        _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns(new ActiveProgramInfo(Guid.NewGuid(), "Ended", startDate, endDate));
+
+        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutSessionStatsInfo(0, 0, 0, 0));
+
+        _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns((LatestBodyMetricInfo?)null);
+
+        var sut = new GetDashboardQueryHandler(_programModule, _sessionModule, _bodyMetricModule, _currentUser);
+
+        var result = await sut.Handle(new GetDashboardQuery(), CancellationToken.None);
+
+        result.Data!.ActiveProgram!.CompletionPercentage.Should().Be(100);
+    }
+
+    [Fact]
+    public async Task GetDashboard_ShouldReturnDayCount_FromStartDate()
+    {
+        var daysAgo = 15;
+        var startDate = DateTime.Today.AddDays(-daysAgo);
+        var endDate = DateTime.Today.AddDays(45);
+
+        _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns(new ActiveProgramInfo(Guid.NewGuid(), "PPL", startDate, endDate));
+
+        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutSessionStatsInfo(0, 0, 0, 0));
+
+        _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns((LatestBodyMetricInfo?)null);
+
+        var sut = new GetDashboardQueryHandler(_programModule, _sessionModule, _bodyMetricModule, _currentUser);
+
+        var result = await sut.Handle(new GetDashboardQuery(), CancellationToken.None);
+
+        result.Data!.ActiveProgram!.DayCount.Should().Be(daysAgo + 1);
+    }
+
+    [Fact]
+    public async Task GetDashboard_ShouldReturnNullLatestBodyMetric_WhenNoMetrics()
+    {
+        _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns((ActiveProgramInfo?)null);
+
+        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutSessionStatsInfo(5, 60, 600, 4));
+
+        _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
+            .Returns((LatestBodyMetricInfo?)null);
+
+        var sut = new GetDashboardQueryHandler(_programModule, _sessionModule, _bodyMetricModule, _currentUser);
+
+        var result = await sut.Handle(new GetDashboardQuery(), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.LatestBodyMetric.Should().BeNull();
+        result.Data.Stats.TotalWorkouts.Should().Be(5);
+        result.Data.Stats.TotalSets.Should().Be(60);
+        result.Data.Stats.TotalReps.Should().Be(600);
+    }
 }
