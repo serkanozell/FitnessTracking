@@ -22,9 +22,9 @@ public class BodyMetricTests
         metric.Id.Should().NotBeEmpty();
         metric.UserId.Should().Be(TestUserId);
         metric.Date.Should().Be(new DateTime(2025, 6, 1));
-        metric.Weight.Should().Be(80m);
-        metric.Height.Should().Be(180m);
-        metric.BodyFatPercentage.Should().Be(15m);
+        metric.Weight!.Value.Should().Be(80m);
+        metric.Height!.Value.Should().Be(180m);
+        metric.BodyFatPercentage!.Value.Should().Be(15m);
         metric.MuscleMass.Should().Be(65m);
         metric.WaistCircumference.Should().Be(85m);
         metric.ChestCircumference.Should().Be(100m);
@@ -40,7 +40,7 @@ public class BodyMetricTests
     {
         var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, null, null, null, null, null, null, null, null, null, null);
 
-        metric.Weight.Should().Be(80m);
+        metric.Weight!.Value.Should().Be(80m);
         metric.Height.Should().BeNull();
         metric.BodyFatPercentage.Should().BeNull();
         metric.Note.Should().BeNull();
@@ -68,8 +68,8 @@ public class BodyMetricTests
         metric.Update(new DateTime(2025, 7, 1), 78m, 180m, 14m, 66m, 83m, 101m, 36m, 94m, 56m, 38m, "Updated");
 
         metric.Date.Should().Be(new DateTime(2025, 7, 1));
-        metric.Weight.Should().Be(78m);
-        metric.BodyFatPercentage.Should().Be(14m);
+        metric.Weight!.Value.Should().Be(78m);
+        metric.BodyFatPercentage!.Value.Should().Be(14m);
         metric.Note.Should().Be("Updated");
     }
 
@@ -137,5 +137,63 @@ public class BodyMetricTests
 
         metric.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<BodyMetricActivatedEvent>();
+    }
+
+    // --- Value Object Validation ---
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Create_ShouldThrow_WhenWeightIsZeroOrNegative(decimal weight)
+    {
+        var act = () => BodyMetric.Create(TestUserId, DateTime.Today, weight, null, null, null, null, null, null, null, null, null, null);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenWeightExceedsMax()
+    {
+        var act = () => BodyMetric.Create(TestUserId, DateTime.Today, 501m, null, null, null, null, null, null, null, null, null, null);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Create_ShouldThrow_WhenHeightIsZeroOrNegative(decimal height)
+    {
+        var act = () => BodyMetric.Create(TestUserId, DateTime.Today, null, height, null, null, null, null, null, null, null, null, null);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenHeightExceedsMax()
+    {
+        var act = () => BodyMetric.Create(TestUserId, DateTime.Today, null, 301m, null, null, null, null, null, null, null, null, null);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenBodyFatPercentageIsNegative()
+    {
+        var act = () => BodyMetric.Create(TestUserId, DateTime.Today, null, null, -1m, null, null, null, null, null, null, null, null);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenBodyFatPercentageExceeds100()
+    {
+        var act = () => BodyMetric.Create(TestUserId, DateTime.Today, null, null, 101m, null, null, null, null, null, null, null, null);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Create_ShouldAcceptBoundaryValues()
+    {
+        var metric = BodyMetric.Create(TestUserId, DateTime.Today, 0.1m, 30m, 0m, null, null, null, null, null, null, null, null);
+
+        metric.Weight!.Value.Should().Be(0.1m);
+        metric.Height!.Value.Should().Be(30m);
+        metric.BodyFatPercentage!.Value.Should().Be(0m);
     }
 }

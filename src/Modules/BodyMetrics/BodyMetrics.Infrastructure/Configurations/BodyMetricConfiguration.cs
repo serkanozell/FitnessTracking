@@ -21,9 +21,27 @@ namespace BodyMetrics.Infrastructure.Configurations
 
             builder.Property(x => x.Date).IsRequired();
 
-            builder.Property(x => x.Weight).HasPrecision(5, 2);
-            builder.Property(x => x.Height).HasPrecision(5, 2);
-            builder.Property(x => x.BodyFatPercentage).HasPrecision(5, 2);
+            builder.OwnsOne(x => x.Weight, w =>
+            {
+                w.Property(x => x.Value)
+                 .HasColumnName("Weight")
+                 .HasPrecision(5, 2);
+            });
+
+            builder.OwnsOne(x => x.Height, h =>
+            {
+                h.Property(x => x.Value)
+                 .HasColumnName("Height")
+                 .HasPrecision(5, 2);
+            });
+
+            builder.OwnsOne(x => x.BodyFatPercentage, p =>
+            {
+                p.Property(x => x.Value)
+                 .HasColumnName("BodyFatPercentage")
+                 .HasPrecision(5, 2);
+            });
+
             builder.Property(x => x.MuscleMass).HasPrecision(5, 2);
             builder.Property(x => x.WaistCircumference).HasPrecision(5, 2);
             builder.Property(x => x.ChestCircumference).HasPrecision(5, 2);

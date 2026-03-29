@@ -354,7 +354,7 @@ Pipeline sırası:
 
 - **API Versioning**: `Asp.Versioning.Http` ile URL segment tabanlı (`/api/v1/...`). Varsayılan versiyon `v1.0`.
 - **OpenAPI & Scalar**: `Scalar.AspNetCore` ile interaktif API dokümanı (`/scalar/v1`).
-- **CORS**: MVC client için CORS policy (`BlazorClient` — eski isimlendirme, yeniden adlandırma planlanıyor)
+- **CORS**: MVC client için `WebClient` policy
 - **Rate Limiting**: IP tabanlı fixed window (20 request/dakika, 5 queue)
 - **Health Checks**: SQL Server, Redis, SMTP (`/health`, `/health/ready`, `/health/live`)
 - **Logging**: Serilog (configuration-based, Console + File sink)

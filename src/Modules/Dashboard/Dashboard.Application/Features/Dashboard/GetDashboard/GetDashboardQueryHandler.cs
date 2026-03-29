@@ -18,19 +18,17 @@ namespace Dashboard.Application.Features.Dashboard.GetDashboard
             var weekStart = now.AddDays(-(int)now.DayOfWeek + (int)DayOfWeek.Monday);
             if (weekStart > now) weekStart = weekStart.AddDays(-7);
 
-            // Parallel fetch
+            // Fire parallel tasks for independent modules (different DbContexts)
             var activeProgramTask = _programModule.GetActiveProgramByUserAsync(userId, cancellationToken);
             var latestMetricTask = _bodyMetricModule.GetLatestByUserAsync(userId, cancellationToken);
 
-            var weeklyStatsTask = await _sessionModule.GetStatsByUserAsync(userId, weekStart, now.AddDays(1), cancellationToken);
-            var allTimeStatsTask = await _sessionModule.GetStatsByUserAsync(userId, DateTime.MinValue, now.AddDays(1), cancellationToken);
+            // Session calls must be sequential (same DbContext — EF Core is not thread-safe)
+            var weeklyStats = await _sessionModule.GetStatsByUserAsync(userId, weekStart, now.AddDays(1), cancellationToken);
+            var allTimeStats = await _sessionModule.GetStatsByUserAsync(userId, DateTime.MinValue, now.AddDays(1), cancellationToken);
 
-            await Task.WhenAll(activeProgramTask, latestMetricTask);
-
+            // By now, program and metric tasks are likely already complete
             var activeProgram = await activeProgramTask;
             var latestMetric = await latestMetricTask;
-            var weeklyStats = weeklyStatsTask;
-            var allTimeStats = allTimeStatsTask;            
 
             var dashboard = new DashboardDto
             {

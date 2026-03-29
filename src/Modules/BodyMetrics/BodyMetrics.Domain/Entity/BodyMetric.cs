@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Domain.Abstractions;
 using BodyMetrics.Domain.Events;
+using BodyMetrics.Domain.ValueObjects;
 
 namespace BodyMetrics.Domain.Entity
 {
@@ -7,9 +8,9 @@ namespace BodyMetrics.Domain.Entity
     {
         public Guid UserId { get; private set; }
         public DateTime Date { get; private set; }
-        public decimal? Weight { get; private set; }
-        public decimal? Height { get; private set; }
-        public decimal? BodyFatPercentage { get; private set; }
+        public BodyWeight? Weight { get; private set; }
+        public BodyHeight? Height { get; private set; }
+        public Percentage? BodyFatPercentage { get; private set; }
         public decimal? MuscleMass { get; private set; }
         public decimal? WaistCircumference { get; private set; }
         public decimal? ChestCircumference { get; private set; }
@@ -41,9 +42,9 @@ namespace BodyMetrics.Domain.Entity
                 Id = Guid.NewGuid(),
                 UserId = userId,
                 Date = date,
-                Weight = weight,
-                Height = height,
-                BodyFatPercentage = bodyFatPercentage,
+                Weight = weight.HasValue ? new BodyWeight(weight.Value) : null,
+                Height = height.HasValue ? new BodyHeight(height.Value) : null,
+                BodyFatPercentage = bodyFatPercentage.HasValue ? new Percentage(bodyFatPercentage.Value) : null,
                 MuscleMass = muscleMass,
                 WaistCircumference = waistCircumference,
                 ChestCircumference = chestCircumference,
@@ -74,9 +75,9 @@ namespace BodyMetrics.Domain.Entity
             string? note)
         {
             Date = date;
-            Weight = weight;
-            Height = height;
-            BodyFatPercentage = bodyFatPercentage;
+            Weight = weight.HasValue ? new BodyWeight(weight.Value) : null;
+            Height = height.HasValue ? new BodyHeight(height.Value) : null;
+            BodyFatPercentage = bodyFatPercentage.HasValue ? new Percentage(bodyFatPercentage.Value) : null;
             MuscleMass = muscleMass;
             WaistCircumference = waistCircumference;
             ChestCircumference = chestCircumference;

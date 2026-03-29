@@ -40,25 +40,25 @@
 
 ## 2. Bekleyen Refactoring'ler
 
-### R8 — Dashboard GetDashboardQueryHandler Paralellik 🟡
+### R8 — Dashboard GetDashboardQueryHandler Paralellik ✅
 - **Konum:** `Dashboard.Application/Features/Dashboard/GetDashboard/GetDashboardQueryHandler.cs`
-- **Sorun:** `weeklyStats` ve `allTimeStats` sıralı `await` ile çağrılıyor, ardından `Task.WhenAll` sadece `activeProgramTask` ve `latestMetricTask` için kullanılıyor.
-- **Öneri:** 4 çağrının tamamını `Task.WhenAll` ile paralel hale getirmek ~%30-50 latency iyileştirir.
-- **Risk:** Düşük
-- **Öncelik:** Düşük
+- **Sorun:** 4 çağrının tamamı `Task.WhenAll` ile paralel yapıldığında aynı `IWorkoutSessionModule` (aynı scoped DbContext) üzerinden iki concurrent sorgu çalışıyordu → EF Core thread-safety ihlali.
+- **Düzeltme:** Farklı modüller (`_programModule`, `_bodyMetricModule`) fire-and-forget olarak başlatılır, aynı modül (`_sessionModule`) çağrıları sıralı kalır. Session çağrıları biterken diğer modül task'ları zaten tamamlanmış olur → güvenli paralellik.
 
-### R9 — CORS Policy Adı Yeniden Adlandırma 🟡
+### R9 — CORS Policy Adı Yeniden Adlandırma ✅
 - **Konum:** `FitnessTracking.Api/Extensions/ProgramExtensions.cs`
-- **Sorun:** CORS policy hâlâ `"BlazorClient"` olarak adlandırılmış, proje artık MVC kullanıyor.
-- **Öneri:** `"MvcClient"` veya `"WebClient"` olarak yeniden adlandırılmalı.
-- **Risk:** Düşük (yalnızca policy adı, işlevsel değişiklik yok)
-- **Öncelik:** Düşük
+- **Sorun:** CORS policy `"BlazorClient"` olarak adlandırılmıştı, proje artık MVC kullanıyor.
+- **Düzeltme:** Policy adı `"WebClient"` olarak değiştirildi (tanım + kullanım). ARCHITECTURE.md güncellendi.
 
-### R10 — Value Object Kullanımını Genişletme 🟡
-- **Sorun:** `RepRange` tek Value Object. BodyMetrics'te `Weight`, `Height` gibi ölçümler primitive decimal olarak tutuluyor.
-- **Öneri:** `Weight`, `Height`, `Percentage` gibi Value Object'ler domain zenginliğini artırır (negatif değer kontrolü, birim bilgisi vb.).
-- **Risk:** Orta (EF migration, DTO mapping değişiklikleri)
-- **Öncelik:** Orta
+### R10 — Value Object Kullanımını Genişletme ✅
+- **Sorun:** BodyMetrics'te `Weight`, `Height`, `BodyFatPercentage` primitive `decimal?` olarak tutuluyordu — domain seviyesinde değer doğrulaması yoktu.
+- **Düzeltme:** 3 Value Object oluşturuldu:
+  - `BodyWeight` — kg, > 0, ≤ 500
+  - `BodyHeight` — cm, > 0, ≤ 300
+  - `Percentage` — 0–100
+- Entity property tipleri `decimal?` → `BodyWeight?`, `BodyHeight?`, `Percentage?` olarak değiştirildi. `Create`/`Update` metot imzaları `decimal?` kaldı (blast radius minimizasyonu — dönüşüm entity içinde yapılır).
+- EF Core `OwnsOne` mapping ile mevcut kolon adları korundu (migration uyumlu).
+- 9 yeni domain validation testi (sınır değerler, negatif, max aşımı).
 
 ### R11 — Specification Pattern 🟡
 - **Sorun:** Repository'lerde sorgular inline predicate'ler veya sabit metotlarla yapılıyor.

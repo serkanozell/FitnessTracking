@@ -69,7 +69,7 @@ namespace FitnessTracking.Api.Extensions
 
             services.AddCors(options =>
             {
-                options.AddPolicy("BlazorClient", policy =>
+                options.AddPolicy("WebClient", policy =>
                 {
                     policy.WithOrigins(allowedOrigins)
                           .AllowAnyHeader()
@@ -182,7 +182,7 @@ namespace FitnessTracking.Api.Extensions
 
             app.UseHttpsRedirection();
 
-            app.UseCors("BlazorClient");
+            app.UseCors("WebClient");
 
             app.UseAuthentication();
             app.UseAuthorization();

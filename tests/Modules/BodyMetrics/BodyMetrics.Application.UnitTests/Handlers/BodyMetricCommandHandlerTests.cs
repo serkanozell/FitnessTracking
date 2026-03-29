@@ -53,7 +53,7 @@ public class BodyMetricCommandHandlerTests
         var result = await sut.Handle(new UpdateBodyMetricCommand(metric.Id, new DateTime(2025, 7, 1), 78m, 180m, null, null, null, null, null, null, null, null, "Updated"), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        metric.Weight.Should().Be(78m);
+        metric.Weight!.Value.Should().Be(78m);
     }
 
     [Fact]

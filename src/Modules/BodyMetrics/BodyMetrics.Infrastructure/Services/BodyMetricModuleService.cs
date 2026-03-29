@@ -14,7 +14,7 @@ namespace BodyMetrics.Infrastructure.Services
 
             if (metric is null) return null;
 
-            return new LatestBodyMetricInfo(metric.Date, metric.Weight, metric.BodyFatPercentage, metric.MuscleMass);
+            return new LatestBodyMetricInfo(metric.Date, metric.Weight?.Value, metric.BodyFatPercentage?.Value, metric.MuscleMass);
         }
 
         public async Task<IReadOnlyList<WeightTrendPoint>> GetWeightTrendAsync(Guid userId, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken = default)
