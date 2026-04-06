@@ -15,7 +15,7 @@ public sealed class ExerciseEditModel
     public string? SecondaryMuscleGroup { get; set; }
 
     [StringLength(2000)]
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
 
     public string? ImageUrl { get; set; }
 
