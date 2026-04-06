@@ -12,8 +12,8 @@ using WorkoutPrograms.Infrastructure.Persistence;
 namespace WorkoutPrograms.Infrastructure.Migrations
 {
     [DbContext(typeof(WorkoutProgramsDbContext))]
-    [Migration("20260301195439_Concurrency-Add")]
-    partial class ConcurrencyAdd
+    [Migration("20260406203401_workoutprograms-full-table")]
+    partial class workoutprogramsfulltable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,46 @@ namespace WorkoutPrograms.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BuildingBlocks.Infrastructure.Outbox.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsProcessed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("OccurredOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ProcessedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsProcessed", "OccurredOnUtc")
+                        .HasFilter("[IsProcessed] = 0");
+
+                    b.ToTable("OutboxMessages", "outbox");
+                });
+
             modelBuilder.Entity("WorkoutPrograms.Domain.Entity.WorkoutProgram", b =>
                 {
                     b.Property<Guid>("Id")
@@ -35,7 +75,7 @@ namespace WorkoutPrograms.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EndDate")
@@ -67,7 +107,12 @@ namespace WorkoutPrograms.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("WorkoutPrograms", "workoutprograms");
                 });
@@ -143,12 +188,6 @@ namespace WorkoutPrograms.Infrastructure.Migrations
                                     b2.Property<bool>("IsDeleted")
                                         .HasColumnType("bit");
 
-                                    b2.Property<int>("MaximumReps")
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("MinimumReps")
-                                        .HasColumnType("int");
-
                                     b2.Property<byte[]>("RowVersion")
                                         .HasColumnType("varbinary(max)");
 
@@ -173,6 +212,30 @@ namespace WorkoutPrograms.Infrastructure.Migrations
 
                                     b2.WithOwner()
                                         .HasForeignKey("WorkoutProgramSplitId");
+
+                                    b2.OwnsOne("WorkoutPrograms.Domain.ValueObjects.RepRange", "RepRange", b3 =>
+                                        {
+                                            b3.Property<Guid>("WorkoutSplitExerciseId")
+                                                .HasColumnType("uniqueidentifier");
+
+                                            b3.Property<int>("Maximum")
+                                                .HasColumnType("int")
+                                                .HasColumnName("MaximumReps");
+
+                                            b3.Property<int>("Minimum")
+                                                .HasColumnType("int")
+                                                .HasColumnName("MinimumReps");
+
+                                            b3.HasKey("WorkoutSplitExerciseId");
+
+                                            b3.ToTable("WorkoutSplitExercises", "workoutprograms");
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("WorkoutSplitExerciseId");
+                                        });
+
+                                    b2.Navigation("RepRange")
+                                        .IsRequired();
                                 });
 
                             b1.Navigation("Exercises");

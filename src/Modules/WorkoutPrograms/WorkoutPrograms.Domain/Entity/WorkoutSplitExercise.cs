@@ -5,8 +5,8 @@ namespace WorkoutPrograms.Domain.Entity
 {
     public class WorkoutSplitExercise : Entity<Guid>
     {
-        public Guid ExerciseId { get; private set; }
         public Guid WorkoutProgramSplitId { get; private set; }
+        public Guid ExerciseId { get; private set; }
         public int Sets { get; private set; }
         public RepRange RepRange { get; private set; }
 
