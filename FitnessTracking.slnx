@@ -38,6 +38,13 @@
     <Project Path="src/Modules/Exercises/Exercises.Domain/Exercises.Domain.csproj" Id="e41c4981-50e3-4141-952f-2570d03ce65f" />
     <Project Path="src/Modules/Exercises/Exercises.Infrastructure/Exercises.Infrastructure.csproj" Id="afa571e3-8775-4699-a05e-d9fc4c6cb1de" />
   </Folder>
+  <Folder Name="/src/Modules/Nutrition/">
+    <Project Path="src/Modules/Nutrition/Nutrition.Api/Nutrition.Api.csproj" />
+    <Project Path="src/Modules/Nutrition/Nutrition.Application/Nutrition.Application.csproj" />
+    <Project Path="src/Modules/Nutrition/Nutrition.Contracts/Nutrition.Contracts.csproj" />
+    <Project Path="src/Modules/Nutrition/Nutrition.Domain/Nutrition.Domain.csproj" />
+    <Project Path="src/Modules/Nutrition/Nutrition.Infrastructure/Nutrition.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Users/">
     <Project Path="src/Modules/Users/Users.Api/Users.Api.csproj" />
     <Project Path="src/Modules/Users/Users.Application/Users.Application.csproj" />
@@ -82,6 +89,11 @@
   <Folder Name="/tests/Modules/Exercises/">
     <Project Path="tests/Modules/Exercises/Exercises.Application.UnitTests/Exercises.Application.UnitTests.csproj" />
     <Project Path="tests/Modules/Exercises/Exercises.Domain.UnitTests/Exercises.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Modules/Nutrition/">
+    <Project Path="tests/Modules/Nutrition/Nutrition.Application.UnitTests/Nutrition.Application.UnitTests.csproj" />
+    <Project Path="tests/Modules/Nutrition/Nutrition.Domain.UnitTests/Nutrition.Domain.UnitTests.csproj" />
+    <Project Path="tests/Modules/Nutrition/Nutrition.Infrastructure.IntegrationTests/Nutrition.Infrastructure.IntegrationTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/Users/">
     <Project Path="tests/Modules/Users/Users.Application.UnitTests/Users.Application.UnitTests.csproj" />

@@ -26,6 +26,8 @@ using WorkoutSessions.Infrastructure;
 using BodyMetrics.Api;
 using BodyMetrics.Infrastructure;
 using Dashboard.Api;
+using Nutrition.Api;
+using Nutrition.Infrastructure;
 
 namespace FitnessTracking.Api.Extensions
 {
@@ -122,7 +124,8 @@ namespace FitnessTracking.Api.Extensions
                     .AddExercisesInfrastructure(configuration)
                     .WorkoutProgramsInfrastructure(configuration)
                     .WorkoutSessionsInfrastructure(configuration)
-                    .AddBodyMetricsInfrastructure(configuration);
+                    .AddBodyMetricsInfrastructure(configuration)
+                    .AddNutritionInfrastructure(configuration);
 
             return services;
         }
@@ -136,6 +139,7 @@ namespace FitnessTracking.Api.Extensions
                 new WorkoutProgramsModule(),
                 new WorkoutSessionsModule(),
                 new BodyMetricsModule(),
+                new NutritionModule(),
                 new DashboardModule()
             ];
 

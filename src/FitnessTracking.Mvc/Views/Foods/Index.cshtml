@@ -1,0 +1,94 @@
+﻿@model PagedResult<FoodDto>
+@{
+    ViewData["Title"] = "Foods";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="page-title">Foods</h4>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Add Food
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Serving</th>
+                        <th class="text-end">Calories</th>
+                        <th class="text-end">Protein</th>
+                        <th class="text-end">Carbs</th>
+                        <th class="text-end">Fat</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 180px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Items.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-body-secondary py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>No foods found.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var f in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@f.Name</td>
+                            <td><span class="badge bg-info-subtle text-info">@f.Category</span></td>
+                            <td>@f.DefaultServingSize @f.ServingUnit</td>
+                            <td class="text-end">@f.Calories.ToString("F0")</td>
+                            <td class="text-end">@f.Protein.ToString("F1")g</td>
+                            <td class="text-end">@f.Carbohydrates.ToString("F1")g</td>
+                            <td class="text-end">@f.Fat.ToString("F1")g</td>
+                            <td>
+                                @if (f.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Edit" asp-route-id="@f.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                @if (!f.IsActive)
+                                {
+                                    <form asp-action="Activate" asp-route-id="@f.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                }
+                                <form asp-action="Delete" asp-route-id="@f.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete this food?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_PaginationPartial", new PaginationViewModel
+{
+    PageNumber = Model.PageNumber,
+    PageSize = Model.PageSize,
+    TotalCount = Model.TotalCount,
+    TotalPages = Model.TotalPages,
+    HasNextPage = Model.HasNextPage,
+    HasPreviousPage = Model.HasPreviousPage
+})

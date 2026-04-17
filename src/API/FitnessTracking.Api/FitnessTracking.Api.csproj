@@ -32,6 +32,8 @@
 		<ProjectReference Include="..\..\Modules\BodyMetrics\BodyMetrics.Api\BodyMetrics.Api.csproj" />
 		<ProjectReference Include="..\..\Modules\BodyMetrics\BodyMetrics.Infrastructure\BodyMetrics.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Modules\Dashboard\Dashboard.Api\Dashboard.Api.csproj" />
+		<ProjectReference Include="..\..\Modules\Nutrition\Nutrition.Api\Nutrition.Api.csproj" />
+		<ProjectReference Include="..\..\Modules\Nutrition\Nutrition.Infrastructure\Nutrition.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>
