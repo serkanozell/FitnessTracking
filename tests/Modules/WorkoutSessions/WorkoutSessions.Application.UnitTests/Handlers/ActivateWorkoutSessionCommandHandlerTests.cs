@@ -26,7 +26,7 @@ public class ActivateWorkoutSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldActivateSession_WhenExistsAndNotActive()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var command = new ActivateWorkoutSessionCommand(session.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
 
@@ -53,7 +53,7 @@ public class ActivateWorkoutSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnAlreadyActiveError_WhenAlreadyActive()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         session.Activate();
         var command = new ActivateWorkoutSessionCommand(session.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);

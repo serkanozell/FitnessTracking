@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -10,7 +10,7 @@ public sealed class CreateWorkoutSessionEndpoint : IEndpoint
     {
         endpoints.MapPost("/workout-sessions", async (CreateSessionRequest request, ISender sender, CancellationToken ct) =>
         {
-            var command = new CreateWorkoutSessionCommand(request.WorkoutProgramId, request.Date);
+            var command = new CreateWorkoutSessionCommand(request.WorkoutProgramId, request.WorkoutProgramSplitId, request.Date);
             var result = await sender.Send(command, ct);
 
             return result.IsSuccess
@@ -25,6 +25,6 @@ public sealed class CreateWorkoutSessionEndpoint : IEndpoint
         .ProducesProblem(StatusCodes.Status400BadRequest);
     }
 
-    public sealed record CreateSessionRequest(Guid WorkoutProgramId, DateTime Date);
+    public sealed record CreateSessionRequest(Guid WorkoutProgramId, Guid WorkoutProgramSplitId, DateTime Date);
     public sealed record CreateSessionResponse(Guid Id);
 }

@@ -26,7 +26,7 @@ public class GetWorkoutSessionByIdQueryHandlerTests
     public async Task Handle_ShouldReturnDetailDto_WhenExists()
     {
         var programId = Guid.NewGuid();
-        var session = WorkoutSession.Create(TestUserId, programId, new DateTime(2025, 6, 15));
+        var session = WorkoutSession.Create(TestUserId, programId, Guid.NewGuid(), new DateTime(2025, 6, 15));
         var query = new GetWorkoutSessionByIdQuery(session.Id);
         _repository.GetByIdAsync(query.Id, Arg.Any<CancellationToken>()).Returns(session);
 

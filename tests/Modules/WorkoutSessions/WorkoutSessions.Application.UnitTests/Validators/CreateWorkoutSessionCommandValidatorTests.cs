@@ -11,7 +11,7 @@ public class CreateWorkoutSessionCommandValidatorTests
     [Fact]
     public void ShouldPass_WhenCommandIsValid()
     {
-        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), new DateTime(2025, 6, 15));
+        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 15));
         var result = _sut.TestValidate(command);
         result.ShouldNotHaveAnyValidationErrors();
     }
@@ -19,7 +19,7 @@ public class CreateWorkoutSessionCommandValidatorTests
     [Fact]
     public void ShouldFail_WhenWorkoutProgramIdIsEmpty()
     {
-        var command = new CreateWorkoutSessionCommand(Guid.Empty, new DateTime(2025, 6, 15));
+        var command = new CreateWorkoutSessionCommand(Guid.Empty, Guid.NewGuid(), new DateTime(2025, 6, 15));
         var result = _sut.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.WorkoutProgramId);
     }
@@ -27,7 +27,7 @@ public class CreateWorkoutSessionCommandValidatorTests
     [Fact]
     public void ShouldFail_WhenDateIsDefault()
     {
-        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), default);
+        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), Guid.NewGuid(), default);
         var result = _sut.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Date);
     }

@@ -1,4 +1,4 @@
-namespace WorkoutSessions.Application.Features.WorkoutSessions.CreateWorkoutSession
+﻿namespace WorkoutSessions.Application.Features.WorkoutSessions.CreateWorkoutSession
 {
     public sealed class CreateWorkoutSessionCommandValidator : AbstractValidator<CreateWorkoutSessionCommand>
     {
@@ -6,6 +6,9 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.CreateWorkoutSess
         {
             RuleFor(x => x.WorkoutProgramId).NotNull()
                                             .NotEmpty();
+
+            RuleFor(x => x.WorkoutProgramSplitId).NotNull()
+                                                 .NotEmpty();
 
             RuleFor(x => x.Date)
                 .NotEmpty();

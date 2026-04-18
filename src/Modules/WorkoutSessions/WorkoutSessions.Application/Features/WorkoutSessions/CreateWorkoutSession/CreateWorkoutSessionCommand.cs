@@ -3,6 +3,7 @@
 namespace WorkoutSessions.Application.Features.WorkoutSessions.CreateWorkoutSession
 {
     public sealed record CreateWorkoutSessionCommand(Guid WorkoutProgramId,
+                                                     Guid WorkoutProgramSplitId,
                                                      DateTime Date) : ICommand<Result<Guid>>, ICacheInvalidatingCommand
     {
         public string[] CacheKeysToInvalidate => [];

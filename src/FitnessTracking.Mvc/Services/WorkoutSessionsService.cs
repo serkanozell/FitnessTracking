@@ -30,7 +30,7 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
 
     public async Task<Guid> CreateAsync(WorkoutSessionEditModel model, CancellationToken cancellationToken = default)
     {
-        var payload = new { model.WorkoutProgramId, model.Date };
+        var payload = new { model.WorkoutProgramId, model.WorkoutProgramSplitId, model.Date };
         using var response = await httpClient.PostAsJsonAsync(BaseUrl, payload, cancellationToken);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<WorkoutSessionDto>(cancellationToken: cancellationToken);

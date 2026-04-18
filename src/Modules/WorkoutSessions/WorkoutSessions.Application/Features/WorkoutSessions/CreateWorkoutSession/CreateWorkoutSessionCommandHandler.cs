@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Application.Abstractions;
 using WorkoutPrograms.Contracts;
 using WorkoutSessions.Domain.Entity;
 using WorkoutSessions.Domain.Repositories;
@@ -21,7 +21,10 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.CreateWorkoutSess
             if (!_currentUser.IsAdmin && !await _workoutProgramModule.IsOwnedByUserAsync(request.WorkoutProgramId, userId, cancellationToken))
                 return Error.Forbidden();
 
-            var session = WorkoutSession.Create(userId, request.WorkoutProgramId, request.Date);
+            if (!await _workoutProgramModule.SplitBelongsToProgramAsync(request.WorkoutProgramId, request.WorkoutProgramSplitId, cancellationToken))
+                return WorkoutSessionErrors.SplitNotInProgram(request.WorkoutProgramSplitId, request.WorkoutProgramId);
+
+            var session = WorkoutSession.Create(userId, request.WorkoutProgramId, request.WorkoutProgramSplitId, request.Date);
 
             await _workoutSessionRepository.AddAsync(session, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

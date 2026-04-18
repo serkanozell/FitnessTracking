@@ -7,6 +7,7 @@ namespace WorkoutSessions.Application.Dtos
         public Guid Id { get; init; }
         public Guid UserId { get; init; }
         public Guid WorkoutProgramId { get; init; }
+        public Guid WorkoutProgramSplitId { get; init; }
         public DateTime Date { get; init; }
         public bool IsActive { get; init; }
         public bool IsDeleted { get; init; }
@@ -22,6 +23,7 @@ namespace WorkoutSessions.Application.Dtos
                 Id = entity.Id,
                 UserId = entity.UserId,
                 WorkoutProgramId = entity.WorkoutProgramId,
+                WorkoutProgramSplitId = entity.WorkoutProgramSplitId,
                 Date = entity.Date,
                 IsActive = entity.IsActive,
                 IsDeleted = entity.IsDeleted,

@@ -25,7 +25,7 @@ public class GetExercisesBySessionQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExercises_WhenSessionExists()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var exerciseId = Guid.NewGuid();
         session.AddEntry(exerciseId, 1, 80m, 10);
         session.AddEntry(exerciseId, 2, 85m, 8);

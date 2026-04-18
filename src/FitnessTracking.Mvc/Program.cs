@@ -59,7 +59,17 @@ builder.Services.AddHttpClient<INutritionService, NutritionService>(client =>
 builder.Services.AddHttpClient<IDashboardService, DashboardService>(client =>
     client.BaseAddress = apiBaseAddress)
     .AddHttpMessageHandler<AuthTokenHandler>()
-    .AddStandardResilienceHandler();
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+        PooledConnectionIdleTimeout = TimeSpan.FromSeconds(30)
+    })
+    .AddStandardResilienceHandler(options =>
+    {
+        options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(15);
+        options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(60);
+        options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(30);
+    });
 
 builder.Services.AddHttpClient<IUserManagementService, UserManagementService>(client =>
     client.BaseAddress = apiBaseAddress)

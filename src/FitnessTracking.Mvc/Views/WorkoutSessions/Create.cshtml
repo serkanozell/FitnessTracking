@@ -2,6 +2,15 @@
 @{
     ViewData["Title"] = "New Session";
     var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
+    var programSplits = (Dictionary<Guid, IReadOnlyList<WorkoutProgramSplitDto>>)(ViewData["ProgramSplits"] ?? new Dictionary<Guid, IReadOnlyList<WorkoutProgramSplitDto>>());
+
+    var programSplitsJson = programSplits.ToDictionary(
+        kv => kv.Key.ToString(),
+        kv => kv.Value
+            .Where(s => !s.IsDeleted)
+            .OrderBy(s => s.Order)
+            .Select(s => new { id = s.Id, name = $"{s.Order}. {s.Name}" })
+            .ToArray());
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
@@ -16,7 +25,7 @@
         <form asp-action="Create" method="post">
             <div class="mb-3">
                 <label asp-for="WorkoutProgramId" class="form-label">Program</label>
-                <select asp-for="WorkoutProgramId" class="form-select">
+                <select asp-for="WorkoutProgramId" id="program-select" class="form-select">
                     <option value="">-- select program --</option>
                     @foreach (var p in programs)
                     {
@@ -24,6 +33,13 @@
                     }
                 </select>
                 <span asp-validation-for="WorkoutProgramId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="WorkoutProgramSplitId" class="form-label">Split</label>
+                <select asp-for="WorkoutProgramSplitId" id="split-select" class="form-select" disabled>
+                    <option value="">-- select program first --</option>
+                </select>
+                <span asp-validation-for="WorkoutProgramSplitId" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Date" class="form-label"></label>
@@ -39,3 +55,50 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const programSplits = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(programSplitsJson));
+            const programSelect = document.getElementById('program-select');
+            const splitSelect = document.getElementById('split-select');
+            if (!programSelect || !splitSelect) return;
+
+            function refreshSplits() {
+                const programId = programSelect.value;
+                splitSelect.innerHTML = '';
+                const splits = programId ? (programSplits[programId] || []) : [];
+                if (!programId) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = '-- select program first --';
+                    splitSelect.appendChild(opt);
+                    splitSelect.disabled = true;
+                    return;
+                }
+                if (splits.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = '-- no splits in this program --';
+                    splitSelect.appendChild(opt);
+                    splitSelect.disabled = true;
+                    return;
+                }
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = '-- select split --';
+                splitSelect.appendChild(placeholder);
+                splits.forEach(function (s) {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    splitSelect.appendChild(opt);
+                });
+                splitSelect.disabled = false;
+            }
+
+            programSelect.addEventListener('change', refreshSplits);
+            refreshSplits();
+        })();
+    </script>
+}

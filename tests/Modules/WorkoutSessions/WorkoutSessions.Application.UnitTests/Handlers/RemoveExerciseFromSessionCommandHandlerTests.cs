@@ -26,7 +26,7 @@ public class RemoveExerciseFromSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldRemoveEntry_WhenSessionAndExerciseExist()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var entry = session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
         var command = new RemoveExerciseFromSessionCommand(session.Id, entry.Id);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
@@ -53,7 +53,7 @@ public class RemoveExerciseFromSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenEntryNotExists()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var command = new RemoveExerciseFromSessionCommand(session.Id, Guid.NewGuid());
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
 

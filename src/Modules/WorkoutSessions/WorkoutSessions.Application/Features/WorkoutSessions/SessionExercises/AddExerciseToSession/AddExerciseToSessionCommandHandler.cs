@@ -1,4 +1,4 @@
-using WorkoutPrograms.Contracts;
+﻿using WorkoutPrograms.Contracts;
 using BuildingBlocks.Application.Abstractions;
 using WorkoutSessions.Domain.Repositories;
 
@@ -24,10 +24,14 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
             if (!await _workoutProgramModule.ExistsAsync(workoutSession.WorkoutProgramId, cancellationToken))
                 return WorkoutSessionErrors.ProgramNotFound(workoutSession.WorkoutProgramId);
 
-            var programExercise = await _workoutProgramModule.GetProgramExerciseAsync(workoutSession.WorkoutProgramId, request.ExerciseId, cancellationToken);
+            var programExercise = await _workoutProgramModule.GetSplitExerciseAsync(
+                workoutSession.WorkoutProgramId,
+                workoutSession.WorkoutProgramSplitId,
+                request.ExerciseId,
+                cancellationToken);
 
             if (programExercise is null)
-                return WorkoutSessionErrors.ExerciseNotInProgram(request.ExerciseId, workoutSession.WorkoutProgramId);
+                return WorkoutSessionErrors.ExerciseNotInSplit(request.ExerciseId, workoutSession.WorkoutProgramSplitId);
 
             var currentSetCount = workoutSession.SessionExercises.Count(x => x.ExerciseId == request.ExerciseId);
 

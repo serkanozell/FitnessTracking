@@ -4,6 +4,7 @@ public sealed class WorkoutSessionDto
 {
     public Guid Id { get; set; }
     public Guid WorkoutProgramId { get; set; }
+    public Guid WorkoutProgramSplitId { get; set; }
     public DateTime Date { get; set; }
     public bool IsActive { get; set; }
     public bool IsDeleted { get; set; }
@@ -13,6 +14,7 @@ public sealed class WorkoutSessionDto
 public sealed class WorkoutSessionEditModel
 {
     public Guid WorkoutProgramId { get; set; }
+    public Guid WorkoutProgramSplitId { get; set; }
     public DateTime Date { get; set; } = DateTime.Today;
 }
 
@@ -20,6 +22,7 @@ public sealed class WorkoutSessionDetailsDto
 {
     public Guid Id { get; init; }
     public Guid WorkoutProgramId { get; init; }
+    public Guid WorkoutProgramSplitId { get; init; }
     public DateTime Date { get; init; }
     public IReadOnlyList<WorkoutExerciseDto> Exercises { get; init; } = [];
 }

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.GetWorkoutSessions;
@@ -26,8 +26,8 @@ public class GetWorkoutSessionsQueryHandlerTests
     {
         var sessions = new List<WorkoutSession>
         {
-            WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now),
-            WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now)
+            WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now),
+            WorkoutSession.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now)
         };
         var query = new GetWorkoutSessionsQuery(null, 1, 10);
         _repository.GetPagedByUserAsync(_userId, 1, 10, Arg.Any<CancellationToken>())
@@ -44,7 +44,7 @@ public class GetWorkoutSessionsQueryHandlerTests
     public async Task Handle_ShouldFilterByProgram_WhenProgramIdProvided()
     {
         var programId = Guid.NewGuid();
-        var sessions = new List<WorkoutSession> { WorkoutSession.Create(Guid.NewGuid(), programId, DateTime.Now) };
+        var sessions = new List<WorkoutSession> { WorkoutSession.Create(Guid.NewGuid(), programId, Guid.NewGuid(), DateTime.Now) };
         var query = new GetWorkoutSessionsQuery(programId, 1, 10);
         _repository.GetPagedByUserAndProgramAsync(_userId, programId, 1, 10, Arg.Any<CancellationToken>())
             .Returns(((IReadOnlyList<WorkoutSession>)sessions, 1));

@@ -54,4 +54,34 @@ public class WorkoutProgramModuleService(IWorkoutProgramRepository _workoutProgr
 
         return new ActiveProgramInfo(active.Id, active.Name, active.StartDate, active.EndDate);
     }
+
+    public async Task<bool> SplitBelongsToProgramAsync(Guid workoutProgramId, Guid workoutProgramSplitId, CancellationToken cancellationToken = default)
+    {
+        var program = await _workoutProgramRepository.GetByIdWithExercisesAsync(workoutProgramId, cancellationToken);
+
+        if (program is null)
+            return false;
+
+        return program.Splits.Any(s => s.Id == workoutProgramSplitId && !s.IsDeleted);
+    }
+
+    public async Task<ProgramExerciseInfo?> GetSplitExerciseAsync(Guid workoutProgramId, Guid workoutProgramSplitId, Guid exerciseId, CancellationToken cancellationToken = default)
+    {
+        var program = await _workoutProgramRepository.GetByIdWithExercisesAsync(workoutProgramId, cancellationToken);
+
+        if (program is null)
+            return null;
+
+        var split = program.Splits.FirstOrDefault(s => s.Id == workoutProgramSplitId && !s.IsDeleted);
+
+        if (split is null)
+            return null;
+
+        var exercise = split.Exercises.FirstOrDefault(x => x.ExerciseId == exerciseId);
+
+        if (exercise is null)
+            return null;
+
+        return new ProgramExerciseInfo(exercise.ExerciseId, exercise.Sets);
+    }
 }

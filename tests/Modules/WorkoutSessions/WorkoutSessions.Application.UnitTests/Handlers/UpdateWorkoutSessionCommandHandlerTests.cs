@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSession;
@@ -26,7 +26,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldUpdateDate_WhenSessionExists()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 1));
         var newDate = new DateTime(2025, 7, 1);
         var command = new UpdateWorkoutSessionCommand(session.Id, newDate);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);
@@ -54,7 +54,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
     public async Task Handle_ShouldReturnForbidden_WhenUserDoesNotOwnSession()
     {
         var otherUserId = Guid.NewGuid();
-        var session = WorkoutSession.Create(otherUserId, Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var session = WorkoutSession.Create(otherUserId, Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 1));
         var command = new UpdateWorkoutSessionCommand(session.Id, new DateTime(2025, 7, 1));
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);
 
@@ -68,7 +68,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
     public async Task Handle_ShouldAllowAdmin_WhenUserDoesNotOwnSession()
     {
         var otherUserId = Guid.NewGuid();
-        var session = WorkoutSession.Create(otherUserId, Guid.NewGuid(), new DateTime(2025, 6, 1));
+        var session = WorkoutSession.Create(otherUserId, Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 1));
         var command = new UpdateWorkoutSessionCommand(session.Id, new DateTime(2025, 7, 1));
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(session);
         _currentUser.IsAdmin.Returns(true);

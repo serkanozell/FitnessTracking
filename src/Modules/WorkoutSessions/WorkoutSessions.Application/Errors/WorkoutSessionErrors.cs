@@ -1,4 +1,4 @@
-namespace WorkoutSessions.Application.Errors;
+﻿namespace WorkoutSessions.Application.Errors;
 
 public static class WorkoutSessionErrors
 {
@@ -16,6 +16,12 @@ public static class WorkoutSessionErrors
 
     public static Error ExerciseNotInProgram(Guid exerciseId, Guid programId) =>
         new("WorkoutSession.ExerciseNotInProgram", $"Exercise '{exerciseId}' is not part of workout program '{programId}'.");
+
+    public static Error SplitNotInProgram(Guid splitId, Guid programId) =>
+        new("WorkoutSession.SplitNotInProgram", $"Split '{splitId}' is not part of workout program '{programId}'.");
+
+    public static Error ExerciseNotInSplit(Guid exerciseId, Guid splitId) =>
+        new("WorkoutSession.ExerciseNotInSplit", $"Exercise '{exerciseId}' is not part of split '{splitId}'.");
 
     public static Error SetLimitExceeded(Guid exerciseId, int maxSets, int currentSets) =>
         new("WorkoutSession.SetLimitExceeded", $"Exercise '{exerciseId}' is limited to {maxSets} sets. Current: {currentSets}.");

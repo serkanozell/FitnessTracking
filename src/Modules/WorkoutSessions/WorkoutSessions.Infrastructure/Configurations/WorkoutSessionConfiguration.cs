@@ -22,6 +22,11 @@ namespace WorkoutSessions.Infrastructure.Configurations
             builder.Property(x => x.WorkoutProgramId)
                    .IsRequired();
 
+            builder.Property(x => x.WorkoutProgramSplitId)
+                   .IsRequired();
+
+            builder.HasIndex(x => x.WorkoutProgramSplitId);
+
             builder.Property(x => x.Date)
                    .IsRequired();
 

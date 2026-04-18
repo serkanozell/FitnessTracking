@@ -24,13 +24,14 @@ public class CreateWorkoutSessionCommandHandlerTests
         _currentUser.IsAuthenticated.Returns(true);
         _programModule.ExistsAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(true);
         _programModule.IsOwnedByUserAsync(Arg.Any<Guid>(), TestUserId, Arg.Any<CancellationToken>()).Returns(true);
+        _programModule.SplitBelongsToProgramAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(true);
         _sut = new CreateWorkoutSessionCommandHandler(_repository, _programModule, _unitOfWork, _currentUser);
     }
 
     [Fact]
     public async Task Handle_ShouldCreateSession()
     {
-        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), new DateTime(2025, 6, 15));
+        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 15));
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
@@ -44,7 +45,7 @@ public class CreateWorkoutSessionCommandHandlerTests
     public async Task Handle_ShouldReturnProgramNotFound_WhenProgramDoesNotExist()
     {
         _programModule.ExistsAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(false);
-        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), new DateTime(2025, 6, 15));
+        var command = new CreateWorkoutSessionCommand(Guid.NewGuid(), Guid.NewGuid(), new DateTime(2025, 6, 15));
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
@@ -57,7 +58,7 @@ public class CreateWorkoutSessionCommandHandlerTests
     {
         var programId = Guid.NewGuid();
         _programModule.IsOwnedByUserAsync(programId, TestUserId, Arg.Any<CancellationToken>()).Returns(false);
-        var command = new CreateWorkoutSessionCommand(programId, new DateTime(2025, 6, 15));
+        var command = new CreateWorkoutSessionCommand(programId, Guid.NewGuid(), new DateTime(2025, 6, 15));
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
@@ -71,7 +72,7 @@ public class CreateWorkoutSessionCommandHandlerTests
         var programId = Guid.NewGuid();
         _currentUser.IsAdmin.Returns(true);
         _programModule.IsOwnedByUserAsync(programId, TestUserId, Arg.Any<CancellationToken>()).Returns(false);
-        var command = new CreateWorkoutSessionCommand(programId, new DateTime(2025, 6, 15));
+        var command = new CreateWorkoutSessionCommand(programId, Guid.NewGuid(), new DateTime(2025, 6, 15));
 
         var result = await _sut.Handle(command, CancellationToken.None);
 

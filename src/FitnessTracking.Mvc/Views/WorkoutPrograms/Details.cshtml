@@ -83,12 +83,40 @@ else
                     <div class="accordion-body">
                         <!-- Split actions -->
                         <div class="d-flex gap-2 mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                    data-coreui-toggle="collapse" data-coreui-target="#edit-split-@split.Id">
+                                <i class="bi bi-pencil me-1"></i>Edit Split
+                            </button>
                             <form asp-action="DeleteSplit" asp-route-id="@Model.Id" asp-route-splitId="@split.Id"
                                   method="post" onsubmit="return confirm('Delete this split?')">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="bi bi-trash me-1"></i>Delete Split
                                 </button>
                             </form>
+                        </div>
+
+                        <!-- Edit split form (collapsible) -->
+                        <div class="collapse mb-3" id="edit-split-@split.Id">
+                            <div class="card card-body bg-body-tertiary">
+                                <form asp-action="UpdateSplit" asp-route-id="@Model.Id" asp-route-splitId="@split.Id"
+                                      method="post">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Name</label>
+                                            <input name="name" class="form-control" value="@split.Name" required />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Order</label>
+                                            <input name="order" type="number" class="form-control" value="@split.Order" min="1" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="bi bi-check-lg me-1"></i>Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         <!-- Add exercise to split -->

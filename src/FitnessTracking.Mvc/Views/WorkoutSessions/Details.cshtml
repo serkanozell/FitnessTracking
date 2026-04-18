@@ -4,7 +4,21 @@
     var exercises = Model.Exercises;
     var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
     var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
+    var splits = (IReadOnlyList<WorkoutProgramSplitDto>)(ViewData["Splits"] ?? new List<WorkoutProgramSplitDto>());
+    var splitExercises = (Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>)(ViewData["SplitExercises"] ?? new Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>());
     var programName = programs.FirstOrDefault(p => p.Id == Model.WorkoutProgramId)?.Name ?? "Unknown";
+
+    // The session is bound to a specific split; only that split's exercises are valid for adding sets.
+    var sessionSplit = splits.FirstOrDefault(s => s.Id == Model.WorkoutProgramSplitId);
+    var sessionSplitExercises = (splitExercises.GetValueOrDefault(Model.WorkoutProgramSplitId) ?? [])
+        .Where(x => !x.IsDeleted)
+        .Select(x => new
+        {
+            Id = x.ExerciseId,
+            Name = allExercises.FirstOrDefault(a => a.Id == x.ExerciseId)?.Name ?? x.ExerciseName
+        })
+        .OrderBy(x => x.Name)
+        .ToList();
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
@@ -16,8 +30,25 @@
 
 <div class="card mb-4">
     <div class="card-body">
-        <span class="text-body-secondary small text-uppercase fw-semibold">Program</span>
-        <div class="fw-semibold">@programName</div>
+        <div class="row">
+            <div class="col-auto">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Program</span>
+                <div class="fw-semibold">@programName</div>
+            </div>
+            <div class="col-auto">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Split</span>
+                <div class="fw-semibold">
+                    @if (sessionSplit is not null)
+                    {
+                        @($"{sessionSplit.Order}. {sessionSplit.Name}")
+                    }
+                    else
+                    {
+                        <span class="text-body-secondary">—</span>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -51,6 +82,7 @@
                         @foreach (var e in exercises.OrderBy(x => x.SetNumber))
                         {
                             var exName = allExercises.FirstOrDefault(x => x.Id == e.ExerciseId)?.Name ?? e.ExerciseId.ToString()[..8];
+                            var editId = $"edit-set-{e.Id}";
                             <tr>
                                 <td class="fw-semibold">@exName</td>
                                 <td>@e.SetNumber</td>
@@ -67,6 +99,10 @@
                                     }
                                 </td>
                                 <td class="text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" title="Edit"
+                                            data-coreui-toggle="collapse" data-coreui-target="#@editId">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
                                     @if (!e.IsActive)
                                     {
                                         <form asp-action="ActivateExercise"
@@ -89,6 +125,53 @@
                                     </form>
                                 </td>
                             </tr>
+                            <tr class="collapse" id="@editId">
+                                <td colspan="6" class="bg-body-tertiary">
+                                    <form asp-action="UpdateExercise"
+                                          asp-route-id="@Model.Id"
+                                          asp-route-workoutExerciseId="@e.Id"
+                                          method="post">
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Exercise</label>
+                                                <select name="exerciseId" class="form-select" required>
+                                                    @foreach (var ex in allExercises)
+                                                    {
+                                                        if (ex.Id == e.ExerciseId)
+                                                        {
+                                                            <option value="@ex.Id" selected>@ex.Name</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@ex.Id">@ex.Name</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">Set #</label>
+                                                <input name="setNumber" type="number" class="form-control"
+                                                       value="@e.SetNumber" min="1" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">Weight</label>
+                                                <input name="weight" type="number" step="0.5" class="form-control"
+                                                       value="@e.Weight" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">Reps</label>
+                                                <input name="reps" type="number" class="form-control"
+                                                       value="@e.Reps" min="1" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="submit" class="btn btn-primary w-100">
+                                                    <i class="bi bi-check-lg me-1"></i>Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -103,36 +186,54 @@
         <i class="bi bi-plus-circle me-2"></i>Add Set
     </div>
     <div class="card-body">
-        <form asp-action="AddExercise" asp-route-id="@Model.Id" method="post">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label">Exercise</label>
-                    <select name="exerciseId" class="form-select" required>
-                        <option value="">-- select --</option>
-                        @foreach (var ex in allExercises)
-                        {
-                            <option value="@ex.Id">@ex.Name</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Set #</label>
-                    <input name="setNumber" type="number" class="form-control" value="@(exercises.Count + 1)" min="1" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Weight</label>
-                    <input name="weight" type="number" step="0.5" class="form-control" value="0" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Reps</label>
-                    <input name="reps" type="number" class="form-control" value="10" min="1" />
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-plus-lg me-1"></i>Add Set
-                    </button>
-                </div>
+        @if (sessionSplit is null)
+        {
+            <div class="alert alert-warning mb-0">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                The split bound to this session no longer exists.
             </div>
-        </form>
+        }
+        else if (sessionSplitExercises.Count == 0)
+        {
+            <div class="alert alert-warning mb-0">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                The bound split has no exercises. Add exercises to the split first.
+            </div>
+        }
+        else
+        {
+            <form asp-action="AddExercise" asp-route-id="@Model.Id" method="post">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Exercise</label>
+                        <select name="exerciseId" class="form-select" required>
+                            <option value="">-- select --</option>
+                            @foreach (var ex in sessionSplitExercises)
+                            {
+                                <option value="@ex.Id">@ex.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Set #</label>
+                        <input name="setNumber" type="number" class="form-control" value="@(exercises.Count + 1)" min="1" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Weight</label>
+                        <input name="weight" type="number" step="0.5" class="form-control" value="0" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Reps</label>
+                        <input name="reps" type="number" class="form-control" value="10" min="1" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-plus-lg me-1"></i>Add Set
+                        </button>
+                    </div>
+                </div>
+            </form>
+        }
     </div>
 </div>
+

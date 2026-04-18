@@ -12,7 +12,7 @@ public class WorkoutSessionTests
     private static readonly DateTime DefaultDate = new(2025, 6, 15);
 
     private static WorkoutSession CreateDefaultSession()
-        => WorkoutSession.Create(Guid.NewGuid(), DefaultProgramId, DefaultDate);
+        => WorkoutSession.Create(Guid.NewGuid(), DefaultProgramId, Guid.NewGuid(), DefaultDate);
 
     private static WorkoutSession CreateActiveSessionWithEntry(out Guid entryId)
     {
@@ -29,7 +29,7 @@ public class WorkoutSessionTests
     [Fact]
     public void Create_ShouldSetProperties()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DefaultProgramId, DefaultDate);
+        var session = WorkoutSession.Create(Guid.NewGuid(), DefaultProgramId, Guid.NewGuid(), DefaultDate);
 
         session.Id.Should().NotBeEmpty();
         session.WorkoutProgramId.Should().Be(DefaultProgramId);
@@ -40,7 +40,7 @@ public class WorkoutSessionTests
     [Fact]
     public void Create_ShouldRaiseWorkoutSessionCreatedEvent()
     {
-        var session = WorkoutSession.Create(Guid.NewGuid(), DefaultProgramId, DefaultDate);
+        var session = WorkoutSession.Create(Guid.NewGuid(), DefaultProgramId, Guid.NewGuid(), DefaultDate);
 
         session.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<WorkoutSessionCreatedEvent>()

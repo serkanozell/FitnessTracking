@@ -26,7 +26,7 @@ public class UpdateExerciseInSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldUpdateEntry_WhenSessionAndExerciseExist()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var entry = session.AddEntry(Guid.NewGuid(), 1, 80m, 10);
         var command = new UpdateExerciseInSessionCommand(session.Id, entry.Id, 2, 90m, 8);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
@@ -55,7 +55,7 @@ public class UpdateExerciseInSessionCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenEntryNotExists()
     {
-        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), DateTime.Now);
+        var session = WorkoutSession.Create(TestUserId, Guid.NewGuid(), Guid.NewGuid(), DateTime.Now);
         var command = new UpdateExerciseInSessionCommand(session.Id, Guid.NewGuid(), 2, 90m, 8);
         _repository.GetByIdAsync(command.WorkoutSessionId, Arg.Any<CancellationToken>()).Returns(session);
 

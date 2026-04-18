@@ -8,6 +8,7 @@ namespace WorkoutSessions.Domain.Entity
     {
         public Guid UserId { get; private set; }
         public Guid WorkoutProgramId { get; private set; }
+        public Guid WorkoutProgramSplitId { get; private set; }
         public DateTime Date { get; private set; }
 
         private readonly List<SessionExercise> _sessionExercises = new();
@@ -15,19 +16,20 @@ namespace WorkoutSessions.Domain.Entity
 
         private WorkoutSession() { }
 
-        private WorkoutSession(Guid id, Guid userId, Guid workoutProgramId, DateTime date)
+        private WorkoutSession(Guid id, Guid userId, Guid workoutProgramId, Guid workoutProgramSplitId, DateTime date)
         {
             Id = id;
             UserId = userId;
             WorkoutProgramId = workoutProgramId;
+            WorkoutProgramSplitId = workoutProgramSplitId;
             Date = date;
         }
 
-        public static WorkoutSession Create(Guid userId, Guid workoutProgramId, DateTime dateTime)
+        public static WorkoutSession Create(Guid userId, Guid workoutProgramId, Guid workoutProgramSplitId, DateTime dateTime)
         {
-            var workoutSession = new WorkoutSession(Guid.NewGuid(), userId, workoutProgramId, dateTime);
+            var workoutSession = new WorkoutSession(Guid.NewGuid(), userId, workoutProgramId, workoutProgramSplitId, dateTime);
 
-            workoutSession.AddDomainEvent(new WorkoutSessionCreatedEvent(workoutSession.Id, workoutProgramId));
+            workoutSession.AddDomainEvent(new WorkoutSessionCreatedEvent(workoutSession.Id, workoutProgramId, workoutProgramSplitId));
 
             return workoutSession;
         }
