@@ -167,17 +167,22 @@ else
                                             <th>Exercise</th>
                                             <th>Sets</th>
                                             <th>Rep Range</th>
-                                            <th class="text-end" style="width: 100px;">Actions</th>
+                                            <th class="text-end" style="width: 140px;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach (var e in exercises)
                                         {
+                                            var editExId = $"edit-ex-{e.WorkoutProgramExerciseId}";
                                             <tr>
                                                 <td class="fw-semibold">@e.ExerciseName</td>
                                                 <td>@e.Sets</td>
                                                 <td>@e.MinimumReps — @e.MaximumReps</td>
                                                 <td class="text-end">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                                            data-coreui-toggle="collapse" data-coreui-target="#@editExId">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
                                                     <form asp-action="RemoveExerciseFromSplit"
                                                           asp-route-id="@Model.Id"
                                                           asp-route-splitId="@split.Id"
@@ -187,6 +192,38 @@ else
                                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                                             <i class="bi bi-x-lg"></i>
                                                         </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <tr class="collapse" id="@editExId">
+                                                <td colspan="4" class="bg-body-tertiary">
+                                                    <form asp-action="UpdateSplitExercise"
+                                                          asp-route-id="@Model.Id"
+                                                          asp-route-splitId="@split.Id"
+                                                          asp-route-exerciseId="@e.WorkoutProgramExerciseId"
+                                                          method="post">
+                                                        <div class="row g-2 align-items-end">
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Sets</label>
+                                                                <input name="sets" type="number" class="form-control"
+                                                                       value="@e.Sets" min="1" required />
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Min Reps</label>
+                                                                <input name="minimumReps" type="number" class="form-control"
+                                                                       value="@e.MinimumReps" min="1" required />
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label">Max Reps</label>
+                                                                <input name="maximumReps" type="number" class="form-control"
+                                                                       value="@e.MaximumReps" min="1" required />
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <button type="submit" class="btn btn-primary w-100">
+                                                                    <i class="bi bi-check-lg me-1"></i>Save
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </form>
                                                 </td>
                                             </tr>

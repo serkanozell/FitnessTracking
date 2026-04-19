@@ -1,0 +1,140 @@
+﻿@model BodyMetricDto
+@{
+    ViewData["Title"] = "Body Metric Details";
+
+    static string Fmt(decimal? value, string unit) =>
+        value.HasValue ? $"{value.Value:F1} {unit}" : "—";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="page-title">Body Metric Details</h4>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to list
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <span class="text-body-secondary small text-uppercase fw-semibold">Date</span>
+        <div class="fw-semibold">@Model.Date.ToShortDateString()</div>
+    </div>
+    <div class="col-md-4">
+        <span class="text-body-secondary small text-uppercase fw-semibold">Status</span>
+        <div>
+            @if (Model.IsActive)
+            {
+                <span class="badge bg-success-subtle text-success">Active</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+            }
+        </div>
+    </div>
+    @if (Model.CreatedDate.HasValue)
+    {
+        <div class="col-md-4">
+            <span class="text-body-secondary small text-uppercase fw-semibold">Created</span>
+            <div class="fw-semibold">@Model.CreatedDate.Value.ToString("g")</div>
+        </div>
+    }
+</div>
+
+<!-- Measurements -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-rulers me-2"></i>Measurements
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Weight</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.Weight, "kg")</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Height</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.Height, "cm")</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Body Fat</span>
+                <div class="fs-5 fw-bold">@(Model.BodyFatPercentage.HasValue ? $"{Model.BodyFatPercentage:F1}%" : "—")</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Muscle Mass</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.MuscleMass, "kg")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Circumferences -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-arrows-angle-expand me-2"></i>Circumferences (cm)
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Chest</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.ChestCircumference, "cm")</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Waist</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.WaistCircumference, "cm")</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Hip</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.HipCircumference, "cm")</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Arm</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.ArmCircumference, "cm")</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Thigh</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.ThighCircumference, "cm")</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <span class="text-body-secondary small text-uppercase fw-semibold">Neck</span>
+                <div class="fs-5 fw-bold">@Fmt(Model.NeckCircumference, "cm")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.Note))
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-sticky me-2"></i>Note
+        </div>
+        <div class="card-body">
+            <p class="mb-0">@Model.Note</p>
+        </div>
+    </div>
+}
+
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+        <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    @if (!Model.IsActive)
+    {
+        <form asp-action="Activate" asp-route-id="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-success">
+                <i class="bi bi-check-circle me-1"></i>Activate
+            </button>
+        </form>
+    }
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline"
+          onsubmit="return confirm('Delete this entry?')">
+        <button type="submit" class="btn btn-outline-danger">
+            <i class="bi bi-trash me-1"></i>Delete
+        </button>
+    </form>
+</div>

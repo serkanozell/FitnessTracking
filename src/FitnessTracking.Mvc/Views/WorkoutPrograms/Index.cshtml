@@ -238,6 +238,7 @@
                                                                             <tbody>
                                                                                 @foreach (var e in exercises)
                                                                                 {
+                                                                                    var editExId = $"edit-ex-idx-{e.WorkoutProgramExerciseId}";
                                                                                     <tr>
                                                                                         <td class="fw-semibold">@e.ExerciseName</td>
                                                                                         <td>@e.Sets</td>
@@ -270,6 +271,10 @@
                                                                                             }
                                                                                             @if (e.IsActive && !e.IsDeleted)
                                                                                             {
+                                                                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                                                                        data-coreui-toggle="collapse" data-coreui-target="#@editExId" title="Edit">
+                                                                                                    <i class="bi bi-pencil"></i>
+                                                                                                </button>
                                                                                                 <form asp-action="RemoveExerciseFromSplit"
                                                                                                       asp-route-id="@p.Id"
                                                                                                       asp-route-splitId="@split.Id"
@@ -286,6 +291,44 @@
                                                                                             }
                                                                                         </td>
                                                                                     </tr>
+                                                                                    @if (e.IsActive && !e.IsDeleted)
+                                                                                    {
+                                                                                        <tr class="collapse" id="@editExId">
+                                                                                            <td colspan="5" class="bg-body-tertiary">
+                                                                                                <form asp-action="UpdateSplitExercise"
+                                                                                                      asp-route-id="@p.Id"
+                                                                                                      asp-route-splitId="@split.Id"
+                                                                                                      asp-route-exerciseId="@e.WorkoutProgramExerciseId"
+                                                                                                      method="post">
+                                                                                                    <input type="hidden" name="returnTo" value="Index" />
+                                                                                                    <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                                                    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                                                    <div class="row g-2 align-items-end">
+                                                                                                        <div class="col-md-3">
+                                                                                                            <label class="form-label">Sets</label>
+                                                                                                            <input name="sets" type="number" class="form-control"
+                                                                                                                   value="@e.Sets" min="1" required />
+                                                                                                        </div>
+                                                                                                        <div class="col-md-3">
+                                                                                                            <label class="form-label">Min Reps</label>
+                                                                                                            <input name="minimumReps" type="number" class="form-control"
+                                                                                                                   value="@e.MinimumReps" min="1" required />
+                                                                                                        </div>
+                                                                                                        <div class="col-md-3">
+                                                                                                            <label class="form-label">Max Reps</label>
+                                                                                                            <input name="maximumReps" type="number" class="form-control"
+                                                                                                                   value="@e.MaximumReps" min="1" required />
+                                                                                                        </div>
+                                                                                                        <div class="col-md-3">
+                                                                                                            <button type="submit" class="btn btn-primary w-100">
+                                                                                                                <i class="bi bi-check-lg me-1"></i>Save
+                                                                                                            </button>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </form>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    }
                                                                                 }
                                                                             </tbody>
                                                                         </table>

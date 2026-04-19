@@ -1,6 +1,9 @@
 ﻿@model PagedResult<BodyMetricDto>
 @{
     ViewData["Title"] = "Body Metrics";
+
+    static string Fmt(decimal? value, string suffix) =>
+        value.HasValue ? $"{value.Value:F1}{suffix}" : "—";
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
@@ -13,22 +16,30 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
                 <thead class="table-light">
                     <tr>
                         <th>Date</th>
                         <th>Weight</th>
+                        <th>Height</th>
                         <th>Body Fat</th>
                         <th>Muscle Mass</th>
+                        <th>Chest</th>
+                        <th>Waist</th>
+                        <th>Hip</th>
+                        <th>Arm</th>
+                        <th>Thigh</th>
+                        <th>Neck</th>
+                        <th>Note</th>
                         <th>Status</th>
-                        <th class="text-end" style="width: 200px;">Actions</th>
+                        <th class="text-end" style="width: 220px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model.Items.Count == 0)
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-body-secondary py-5">
+                            <td colspan="14" class="text-center text-body-secondary py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>No body metrics found.
                             </td>
                         </tr>
@@ -37,9 +48,19 @@
                     {
                         <tr>
                             <td class="fw-semibold">@m.Date.ToShortDateString()</td>
-                            <td>@(m.Weight.HasValue ? $"{m.Weight:F1} kg" : "—")</td>
+                            <td>@Fmt(m.Weight, " kg")</td>
+                            <td>@Fmt(m.Height, " cm")</td>
                             <td>@(m.BodyFatPercentage.HasValue ? $"{m.BodyFatPercentage:F1}%" : "—")</td>
-                            <td>@(m.MuscleMass.HasValue ? $"{m.MuscleMass:F1} kg" : "—")</td>
+                            <td>@Fmt(m.MuscleMass, " kg")</td>
+                            <td>@Fmt(m.ChestCircumference, " cm")</td>
+                            <td>@Fmt(m.WaistCircumference, " cm")</td>
+                            <td>@Fmt(m.HipCircumference, " cm")</td>
+                            <td>@Fmt(m.ArmCircumference, " cm")</td>
+                            <td>@Fmt(m.ThighCircumference, " cm")</td>
+                            <td>@Fmt(m.NeckCircumference, " cm")</td>
+                            <td class="text-truncate" style="max-width: 200px;" title="@m.Note">
+                                @(string.IsNullOrWhiteSpace(m.Note) ? "—" : m.Note)
+                            </td>
                             <td>
                                 @if (m.IsActive)
                                 {
@@ -51,6 +72,9 @@
                                 }
                             </td>
                             <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@m.Id" class="btn btn-sm btn-outline-secondary" title="Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                                 <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-sm btn-outline-primary" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>

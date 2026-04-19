@@ -15,6 +15,14 @@ public class BodyMetricsController(IBodyMetricsService bodyMetricsService) : Con
     }
 
     [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var metric = await bodyMetricsService.GetByIdAsync(id, HttpContext.RequestAborted);
+        if (metric is null) return NotFound();
+        return View(metric);
+    }
+
+    [HttpGet]
     public IActionResult Create() => View(new BodyMetricEditModel());
 
     [HttpPost]
