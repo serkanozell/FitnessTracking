@@ -242,7 +242,7 @@
         {
             var nextSetByExercise = exercises
                 .GroupBy(x => x.ExerciseId)
-                .ToDictionary(g => g.Key, g => g.Max(s => s.SetNumber) + 1);
+                .ToDictionary(g => g.Key, g => g.Count() + 1);
 
             <form asp-action="AddExercise" asp-route-id="@Model.Id" method="post" id="addSetForm">
                 <div class="row g-2 align-items-end">
