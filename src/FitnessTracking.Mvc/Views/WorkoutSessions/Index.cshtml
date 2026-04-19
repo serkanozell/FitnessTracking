@@ -92,7 +92,14 @@
                                 <div class="collapse @(shouldExpand ? "show" : "")" id="@expandId">
                                     <div class="px-4 py-3 bg-body-tertiary border-top">
 
-                                        <!-- Add Exercise -->
+                                        <!-- Add Set -->
+                                        @{
+                                            var nextSetByExercise = exercises
+                                                .GroupBy(x => x.ExerciseId)
+                                                .ToDictionary(g => g.Key, g => g.Max(s => s.SetNumber) + 1);
+                                            var addSelectId = $"addSetExerciseSelect-{session.Id}";
+                                            var addSetInputId = $"addSetNumber-{session.Id}";
+                                        }
                                         <form asp-action="AddExercise" asp-route-id="@session.Id" method="post" class="mb-3">
                                             <input type="hidden" name="returnTo" value="Index" />
                                             <input type="hidden" name="page" value="@Model.PageNumber" />
@@ -100,17 +107,20 @@
                                             <div class="row g-2 align-items-end">
                                                 <div class="col-md-3">
                                                     <label class="form-label small fw-semibold">Exercise</label>
-                                                    <select name="exerciseId" class="form-select form-select-sm" required>
+                                                    <select name="exerciseId" id="@addSelectId"
+                                                            class="form-select form-select-sm add-set-exercise"
+                                                            data-set-input="#@addSetInputId" required>
                                                         <option value="">-- select --</option>
                                                         @foreach (var ex in allExercises)
                                                         {
-                                                            <option value="@ex.Id">@ex.Name</option>
+                                                            var nextSet = nextSetByExercise.GetValueOrDefault(ex.Id, 1);
+                                                            <option value="@ex.Id" data-next-set="@nextSet">@ex.Name</option>
                                                         }
                                                     </select>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label class="form-label small fw-semibold">Set #</label>
-                                                    <input name="setNumber" type="number" class="form-control form-control-sm" value="@(exercises.Count + 1)" min="1" />
+                                                    <input name="setNumber" id="@addSetInputId" type="number" class="form-control form-control-sm" value="1" min="1" />
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label class="form-label small fw-semibold">Weight</label>
@@ -136,70 +146,107 @@
                                         }
                                         else
                                         {
-                                            <div class="table-responsive">
-                                                <table class="table table-sm align-middle mb-0">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th>Exercise</th>
-                                                            <th>Set</th>
-                                                            <th>Weight</th>
-                                                            <th>Reps</th>
-                                                            <th>Status</th>
-                                                            <th class="text-end" style="width: 120px;"></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach (var e in exercises.OrderBy(x => x.SetNumber))
-                                                        {
-                                                            var exName = allExercises.FirstOrDefault(x => x.Id == e.ExerciseId)?.Name
-                                                                         ?? e.ExerciseId.ToString()[..8];
-                                                            <tr>
-                                                                <td class="fw-semibold">@exName</td>
-                                                                <td>@e.SetNumber</td>
-                                                                <td>@e.Weight</td>
-                                                                <td>@e.Reps</td>
-                                                                <td>
-                                                                    @if (e.IsActive)
-                                                                    {
-                                                                        <span class="badge bg-success-subtle text-success">Active</span>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
-                                                                    }
-                                                                </td>
-                                                                <td class="text-end">
-                                                                    @if (!e.IsActive)
-                                                                    {
-                                                                        <form asp-action="ActivateExercise"
-                                                                              asp-route-id="@session.Id"
-                                                                              asp-route-exerciseId="@e.Id"
-                                                                              method="post" class="d-inline">
-                                                                            <input type="hidden" name="returnTo" value="Index" />
-                                                                            <input type="hidden" name="page" value="@Model.PageNumber" />
-                                                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                                                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
-                                                                                <i class="bi bi-check-circle"></i>
-                                                                            </button>
-                                                                        </form>
-                                                                    }
-                                                                    <form asp-action="RemoveExercise"
-                                                                          asp-route-id="@session.Id"
-                                                                          asp-route-exerciseId="@e.Id"
-                                                                          method="post" class="d-inline"
-                                                                          onsubmit="return confirm('Remove this exercise?')">
-                                                                        <input type="hidden" name="returnTo" value="Index" />
-                                                                        <input type="hidden" name="page" value="@Model.PageNumber" />
-                                                                        <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                                            <i class="bi bi-x-lg"></i>
-                                                                        </button>
-                                                                    </form>
-                                                                </td>
-                                                            </tr>
-                                                        }
-                                                    </tbody>
-                                                </table>
+                                            var groupedExercises = exercises
+                                                .GroupBy(x => x.ExerciseId)
+                                                .Select(g => new
+                                                {
+                                                    ExerciseId = g.Key,
+                                                    Name = allExercises.FirstOrDefault(a => a.Id == g.Key)?.Name ?? g.Key.ToString()[..8],
+                                                    Sets = g.OrderBy(s => s.SetNumber).ToList()
+                                                })
+                                                .OrderBy(g => g.Name)
+                                                .ToList();
+                                            var accordionId = $"sessionExercisesAccordion-{session.Id}";
+
+                                            <div class="accordion accordion-flush" id="@accordionId">
+                                                @for (var gi = 0; gi < groupedExercises.Count; gi++)
+                                                {
+                                                    var group = groupedExercises[gi];
+                                                    var collapseId = $"exercise-group-{session.Id}-{group.ExerciseId}";
+                                                    var headingId = $"heading-{session.Id}-{group.ExerciseId}";
+                                                    var isFirst = gi == 0;
+                                                    var activeSets = group.Sets.Count(s => s.IsActive);
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="@headingId">
+                                                            <button class="accordion-button @(isFirst ? "" : "collapsed")" type="button"
+                                                                    data-coreui-toggle="collapse" data-coreui-target="#@collapseId"
+                                                                    aria-expanded="@(isFirst ? "true" : "false")" aria-controls="@collapseId">
+                                                                <span class="fw-semibold me-2">@group.Name</span>
+                                                                <span class="badge bg-primary-subtle text-primary me-2">@group.Sets.Count set</span>
+                                                                @if (activeSets > 0)
+                                                                {
+                                                                    <span class="badge bg-success-subtle text-success">@activeSets active</span>
+                                                                }
+                                                            </button>
+                                                        </h2>
+                                                        <div id="@collapseId" class="accordion-collapse collapse @(isFirst ? "show" : "")"
+                                                             aria-labelledby="@headingId">
+                                                            <div class="accordion-body p-0">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-sm align-middle mb-0">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th style="width: 80px;">Set</th>
+                                                                                <th>Weight</th>
+                                                                                <th>Reps</th>
+                                                                                <th>Status</th>
+                                                                                <th class="text-end" style="width: 140px;"></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var e in group.Sets)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td class="fw-semibold">@e.SetNumber</td>
+                                                                                    <td>@e.Weight</td>
+                                                                                    <td>@e.Reps</td>
+                                                                                    <td>
+                                                                                        @if (e.IsActive)
+                                                                                        {
+                                                                                            <span class="badge bg-success-subtle text-success">Active</span>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td class="text-end">
+                                                                                        @if (!e.IsActive)
+                                                                                        {
+                                                                                            <form asp-action="ActivateExercise"
+                                                                                                  asp-route-id="@session.Id"
+                                                                                                  asp-route-exerciseId="@e.Id"
+                                                                                                  method="post" class="d-inline">
+                                                                                                <input type="hidden" name="returnTo" value="Index" />
+                                                                                                <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                                                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                                                                                    <i class="bi bi-check-circle"></i>
+                                                                                                </button>
+                                                                                            </form>
+                                                                                        }
+                                                                                        <form asp-action="RemoveExercise"
+                                                                                              asp-route-id="@session.Id"
+                                                                                              asp-route-exerciseId="@e.Id"
+                                                                                              method="post" class="d-inline"
+                                                                                              onsubmit="return confirm('Remove this exercise?')">
+                                                                                            <input type="hidden" name="returnTo" value="Index" />
+                                                                                            <input type="hidden" name="page" value="@Model.PageNumber" />
+                                                                                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                                                <i class="bi bi-x-lg"></i>
+                                                                                            </button>
+                                                                                        </form>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
                                         }
 
@@ -223,3 +270,21 @@
     HasNextPage = Model.HasNextPage,
     HasPreviousPage = Model.HasPreviousPage
 })
+
+@section Scripts {
+    <script>
+        (function () {
+            document.querySelectorAll('select.add-set-exercise').forEach(function (select) {
+                const targetSelector = select.getAttribute('data-set-input');
+                if (!targetSelector) return;
+                const setInput = document.querySelector(targetSelector);
+                if (!setInput) return;
+                select.addEventListener('change', function () {
+                    const opt = select.options[select.selectedIndex];
+                    const next = opt?.getAttribute('data-next-set');
+                    if (next) setInput.value = next;
+                });
+            });
+        })();
+    </script>
+}
