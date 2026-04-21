@@ -6,6 +6,8 @@
     var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
     var splits = (IReadOnlyList<WorkoutProgramSplitDto>)(ViewData["Splits"] ?? new List<WorkoutProgramSplitDto>());
     var splitExercises = (Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>)(ViewData["SplitExercises"] ?? new Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>());
+    // O(1) name lookup instead of FirstOrDefault per row.
+    var exercisesById = allExercises.ToDictionary(e => e.Id);
     var programName = programs.FirstOrDefault(p => p.Id == Model.WorkoutProgramId)?.Name ?? "Unknown";
 
     // The session is bound to a specific split; only that split's exercises are valid for adding sets.
@@ -15,7 +17,7 @@
         .Select(x => new
         {
             Id = x.ExerciseId,
-            Name = allExercises.FirstOrDefault(a => a.Id == x.ExerciseId)?.Name ?? x.ExerciseName
+            Name = exercisesById.TryGetValue(x.ExerciseId, out var ex) ? ex.Name : x.ExerciseName
         })
         .OrderBy(x => x.Name)
         .ToList();
@@ -71,7 +73,7 @@
                 .Select(g => new
                 {
                     ExerciseId = g.Key,
-                    Name = allExercises.FirstOrDefault(a => a.Id == g.Key)?.Name ?? g.Key.ToString()[..8],
+                    Name = exercisesById.TryGetValue(g.Key, out var ex) ? ex.Name : g.Key.ToString()[..8],
                     FirstSet = g.Min(s => s.SetNumber),
                     Sets = g.OrderBy(s => s.SetNumber).ToList()
                 })

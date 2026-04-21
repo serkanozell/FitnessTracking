@@ -38,10 +38,17 @@ public class WorkoutSessionsController(
     public async Task<IActionResult> Create()
     {
         var ct = HttpContext.RequestAborted;
-        var programs = await programsService.GetPagedAsync(1, 100, ct);
-        ViewData["Programs"] = programs.Items;
-        ViewData["ProgramSplits"] = await LoadProgramSplitsMapAsync(programs.Items, ct);
-        return View(new WorkoutSessionEditModel());
+        try
+        {
+            var programs = await programsService.GetPagedAsync(1, 100, ct);
+            ViewData["Programs"] = programs.Items;
+            ViewData["ProgramSplits"] = await LoadProgramSplitsMapAsync(programs.Items, ct);
+            return View(new WorkoutSessionEditModel());
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            return new EmptyResult();
+        }
     }
 
     [HttpPost]
@@ -49,54 +56,81 @@ public class WorkoutSessionsController(
     public async Task<IActionResult> Create(WorkoutSessionEditModel model)
     {
         var ct = HttpContext.RequestAborted;
-        if (!ModelState.IsValid)
+        try
         {
-            var programs = await programsService.GetPagedAsync(1, 100, ct);
-            ViewData["Programs"] = programs.Items;
-            ViewData["ProgramSplits"] = await LoadProgramSplitsMapAsync(programs.Items, ct);
-            return View(model);
-        }
+            if (!ModelState.IsValid)
+            {
+                var programs = await programsService.GetPagedAsync(1, 100, ct);
+                ViewData["Programs"] = programs.Items;
+                ViewData["ProgramSplits"] = await LoadProgramSplitsMapAsync(programs.Items, ct);
+                return View(model);
+            }
 
-        var id = await sessionsService.CreateAsync(model, ct);
-        TempData["Success"] = "Session created.";
-        return RedirectToAction(nameof(Details), new { id });
+            var id = await sessionsService.CreateAsync(model, ct);
+            TempData["Success"] = "Session created.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            return new EmptyResult();
+        }
     }
 
     private async Task<Dictionary<Guid, IReadOnlyList<WorkoutProgramSplitDto>>> LoadProgramSplitsMapAsync(
         IEnumerable<WorkoutProgramDto> programs, CancellationToken ct)
     {
-        var map = new Dictionary<Guid, IReadOnlyList<WorkoutProgramSplitDto>>();
-        foreach (var p in programs)
-        {
-            map[p.Id] = await programsService.GetSplitsAsync(p.Id, ct);
-        }
+        // Fan out the per-program split lookups in parallel rather than awaiting
+        // them sequentially (which previously meant up to 100 round-trips back-to-back).
+        var programList = programs as IReadOnlyCollection<WorkoutProgramDto> ?? programs.ToList();
+        var tasks = programList
+            .Select(async p => (p.Id, Splits: await programsService.GetSplitsAsync(p.Id, ct)))
+            .ToArray();
+
+        var results = await Task.WhenAll(tasks);
+
+        var map = new Dictionary<Guid, IReadOnlyList<WorkoutProgramSplitDto>>(results.Length);
+        foreach (var (id, splits) in results)
+            map[id] = splits;
         return map;
     }
 
     public async Task<IActionResult> Details(Guid id)
     {
         var ct = HttpContext.RequestAborted;
-        var session = await sessionsService.GetByIdAsync(id, ct);
-        if (session is null) return NotFound();
-
-        var allExercises = await exercisesService.GetPagedAsync(1, 100, ct);
-        var programs = await programsService.GetPagedAsync(1, 100, ct);
-
-        // Load splits and their exercises for the program linked to this session,
-        // so the user can pick a split and only see exercises that belong to it.
-        var splits = await programsService.GetSplitsAsync(session.WorkoutProgramId, ct);
-        var splitExercises = new Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>();
-        foreach (var split in splits)
+        try
         {
-            var ex = await programsService.GetSplitExercisesAsync(session.WorkoutProgramId, split.Id, ct);
-            splitExercises[split.Id] = ex;
-        }
+            var session = await sessionsService.GetByIdAsync(id, ct);
+            if (session is null) return NotFound();
 
-        ViewData["AllExercises"] = allExercises.Items;
-        ViewData["Programs"] = programs.Items;
-        ViewData["Splits"] = splits;
-        ViewData["SplitExercises"] = splitExercises;
-        return View(session);
+            // Fan out independent lookups in parallel.
+            var allExercisesTask = exercisesService.GetPagedAsync(1, 100, ct);
+            var programsTask = programsService.GetPagedAsync(1, 100, ct);
+            var splitsTask = programsService.GetSplitsAsync(session.WorkoutProgramId, ct);
+
+            await Task.WhenAll(allExercisesTask, programsTask, splitsTask);
+
+            var splits = splitsTask.Result;
+
+            // Load all split exercises in parallel as well.
+            var splitExerciseTasks = splits
+                .Select(async s => (s.Id, Exercises: await programsService.GetSplitExercisesAsync(session.WorkoutProgramId, s.Id, ct)))
+                .ToArray();
+
+            var splitExerciseResults = await Task.WhenAll(splitExerciseTasks);
+            var splitExercises = new Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>(splitExerciseResults.Length);
+            foreach (var (splitId, ex) in splitExerciseResults)
+                splitExercises[splitId] = ex;
+
+            ViewData["AllExercises"] = allExercisesTask.Result.Items;
+            ViewData["Programs"] = programsTask.Result.Items;
+            ViewData["Splits"] = splits;
+            ViewData["SplitExercises"] = splitExercises;
+            return View(session);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            return new EmptyResult();
+        }
     }
 
     [HttpPost]
