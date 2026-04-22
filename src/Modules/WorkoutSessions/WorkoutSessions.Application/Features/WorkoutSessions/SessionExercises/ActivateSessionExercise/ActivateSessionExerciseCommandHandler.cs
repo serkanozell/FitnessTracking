@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.ActivateSessionExercise
@@ -29,7 +29,6 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
 
             workoutSession.ActivateEntry(request.SessionExerciseId);
 
-            _workoutSessionRepository.Update(workoutSession);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return request.SessionExerciseId;

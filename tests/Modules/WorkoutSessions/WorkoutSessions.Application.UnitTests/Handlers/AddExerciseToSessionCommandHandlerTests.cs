@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Domain.Exceptions;
 using NSubstitute;
 using WorkoutPrograms.Contracts;
 using WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.AddExerciseToSession;
@@ -112,7 +113,7 @@ public class AddExerciseToSessionCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnDuplicateSetError_WhenSetAlreadyExists()
+    public async Task Handle_ShouldThrowBusinessRuleViolation_WhenSetAlreadyExists()
     {
         var programId = Guid.NewGuid();
         var exerciseId = Guid.NewGuid();
@@ -125,9 +126,8 @@ public class AddExerciseToSessionCommandHandlerTests
         _programModule.GetSplitExerciseAsync(programId, session.WorkoutProgramSplitId, exerciseId, Arg.Any<CancellationToken>())
             .Returns(new ProgramExerciseInfo(exerciseId, 4));
 
-        var result = await _sut.Handle(command, CancellationToken.None);
+        var act = () => _sut.Handle(command, CancellationToken.None);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error!.Code.Should().Be("WorkoutSession.DuplicateSet");
+        await act.Should().ThrowAsync<BusinessRuleViolationException>();
     }
 }

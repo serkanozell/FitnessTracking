@@ -41,12 +41,8 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
             if (request.SetNumber > programExercise.Sets)
                 return WorkoutSessionErrors.SetNumberExceedsLimit(request.ExerciseId, programExercise.Sets);
 
-            if (workoutSession.SessionExercises.Any(x => x.ExerciseId == request.ExerciseId && x.SetNumber == request.SetNumber))
-                return WorkoutSessionErrors.DuplicateSet(request.ExerciseId, request.SetNumber);
-
             var entry = workoutSession.AddEntry(request.ExerciseId, request.SetNumber, request.Weight, request.Reps);
 
-            _workoutSessionRepository.Update(workoutSession);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entry.Id;

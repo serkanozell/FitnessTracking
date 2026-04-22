@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
 using WorkoutSessions.Domain.Repositories;
 
 namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.RemoveExerciseFromSession
@@ -26,7 +26,6 @@ namespace WorkoutSessions.Application.Features.WorkoutSessions.SessionExercises.
 
             workoutSession.RemoveEntry(request.SessionExerciseId);
 
-            _workoutSessionRepository.Update(workoutSession);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return true;
