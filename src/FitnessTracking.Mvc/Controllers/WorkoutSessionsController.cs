@@ -194,6 +194,25 @@ public class WorkoutSessionsController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateDate(Guid id, DateTime date)
+    {
+        var ct = HttpContext.RequestAborted;
+        try
+        {
+            var model = new WorkoutSessionEditModel { Date = date };
+            var success = await sessionsService.UpdateAsync(id, model, ct);
+            if (!success) return NotFound();
+            TempData["Success"] = "Session date updated.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            return new EmptyResult();
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id)
     {
         await sessionsService.DeleteAsync(id, HttpContext.RequestAborted);

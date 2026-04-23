@@ -24,10 +24,34 @@
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
-    <h4 class="page-title">Session — @Model.Date.ToShortDateString()</h4>
+    <h4 class="page-title">Session — @Model.Date.ToShortDateString()
+        <button type="button" class="btn btn-sm btn-outline-primary ms-2" title="Edit Date"
+                data-coreui-toggle="collapse" data-coreui-target="#editDateCollapse">
+            <i class="bi bi-pencil"></i>
+        </button>
+    </h4>
     <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left me-1"></i>Back to list
     </a>
+</div>
+
+<div class="collapse mb-3" id="editDateCollapse">
+    <div class="card card-body">
+        <form asp-action="UpdateDate" asp-route-id="@Model.Id" method="post">
+            <div class="row g-2 align-items-end">
+                <div class="col-auto">
+                    <label class="form-label">Date</label>
+                    <input name="date" type="date" class="form-control"
+                           value="@Model.Date.ToString("yyyy-MM-dd")" required />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div class="card mb-4">
