@@ -30,7 +30,7 @@ public class WorkoutProgramsController(
         if (!ModelState.IsValid) return View(model);
 
         var id = await programsService.CreateAsync(
-            new CreateWorkoutProgramRequest { Name = model.Name, StartDate = model.StartDate, EndDate = model.EndDate },
+            new CreateWorkoutProgramRequest { Name = model.Name, Description = model.Description, StartDate = model.StartDate, EndDate = model.EndDate },
             HttpContext.RequestAborted);
 
         TempData["Success"] = "Program created.";
@@ -46,6 +46,7 @@ public class WorkoutProgramsController(
         var model = new WorkoutProgramEditModel
         {
             Name = program.Name,
+            Description = program.Description,
             StartDate = program.StartDate,
             EndDate = program.EndDate
         };
@@ -64,7 +65,7 @@ public class WorkoutProgramsController(
         }
 
         await programsService.UpdateAsync(id,
-            new UpdateWorkoutProgramRequest { Name = model.Name, StartDate = model.StartDate, EndDate = model.EndDate },
+            new UpdateWorkoutProgramRequest { Name = model.Name, Description = model.Description, StartDate = model.StartDate, EndDate = model.EndDate },
             HttpContext.RequestAborted);
 
         TempData["Success"] = "Program updated.";

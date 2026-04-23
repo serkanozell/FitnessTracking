@@ -25,6 +25,14 @@
                 <div class="fw-semibold">@Model.EndDate.ToShortDateString()</div>
             </div>
         </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <hr class="my-3" />
+            <div>
+                <span class="text-body-secondary small text-uppercase fw-semibold">Description</span>
+                <div class="mt-1">@Model.Description</div>
+            </div>
+        }
     </div>
 </div>
 

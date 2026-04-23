@@ -4,6 +4,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
 {
     public sealed record UpdateWorkoutProgramCommand(Guid Id,
                                                      string Name,
+                                                     string? Description,
                                                      DateTime StartDate,
                                                      DateTime EndDate) : ICommand<Result<bool>>, ICacheInvalidatingCommand
     {

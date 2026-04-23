@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProgram;
@@ -24,7 +24,7 @@ public class CreateWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldCreateProgram_WhenDateRangeIsValid()
     {
-        var command = new CreateWorkoutProgramCommand("PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var command = new CreateWorkoutProgramCommand("PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
@@ -37,7 +37,7 @@ public class CreateWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnInvalidDateRangeError_WhenEndDateBeforeStartDate()
     {
-        var command = new CreateWorkoutProgramCommand("PPL", new DateTime(2025, 3, 31), new DateTime(2025, 1, 1));
+        var command = new CreateWorkoutProgramCommand("PPL", null, new DateTime(2025, 3, 31), new DateTime(2025, 1, 1));
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
@@ -50,7 +50,7 @@ public class CreateWorkoutProgramCommandHandlerTests
     public async Task Handle_ShouldReturnInvalidDateRangeError_WhenEndDateEqualsStartDate()
     {
         var sameDate = new DateTime(2025, 1, 1);
-        var command = new CreateWorkoutProgramCommand("PPL", sameDate, sameDate);
+        var command = new CreateWorkoutProgramCommand("PPL", null, sameDate, sameDate);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 

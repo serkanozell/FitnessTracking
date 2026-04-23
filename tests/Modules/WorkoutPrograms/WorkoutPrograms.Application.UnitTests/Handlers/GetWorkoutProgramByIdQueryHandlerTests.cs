@@ -25,7 +25,7 @@ public class GetWorkoutProgramByIdQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnDto_WhenExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var query = new GetWorkoutProgramByIdQuery(program.Id);
         _repository.GetByIdAsync(query.Id, Arg.Any<CancellationToken>()).Returns(program);
 

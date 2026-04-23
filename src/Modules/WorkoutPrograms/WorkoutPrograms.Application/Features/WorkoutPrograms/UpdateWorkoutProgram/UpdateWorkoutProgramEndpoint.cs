@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -10,7 +10,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
         {
             endpoints.MapPut("/workout-programs/{programId:guid}", async (Guid programId, UpdateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
             {
-                var command = new UpdateWorkoutProgramCommand(programId, request.Name, request.StartDate, request.EndDate);
+                var command = new UpdateWorkoutProgramCommand(programId, request.Name, request.Description, request.StartDate, request.EndDate);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess
@@ -27,6 +27,6 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
             .ProducesProblem(StatusCodes.Status400BadRequest);
         }
 
-        public sealed record UpdateWorkoutProgramRequest(string Name, DateTime StartDate, DateTime EndDate);
+        public sealed record UpdateWorkoutProgramRequest(string Name, string? Description, DateTime StartDate, DateTime EndDate);
     }
 }

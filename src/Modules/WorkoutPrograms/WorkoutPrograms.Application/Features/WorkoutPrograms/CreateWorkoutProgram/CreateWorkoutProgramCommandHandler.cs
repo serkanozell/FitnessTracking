@@ -16,7 +16,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProg
 
             var userId = Guid.Parse(_currentUser.UserId!);
 
-            var workoutProgram = WorkoutProgram.Create(userId, request.Name, request.StartDate, request.EndDate);
+            var workoutProgram = WorkoutProgram.Create(userId, request.Name, request.Description, request.StartDate, request.EndDate);
 
             await _workoutProgramRepository.AddAsync(workoutProgram, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

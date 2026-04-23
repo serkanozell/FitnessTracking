@@ -1,4 +1,4 @@
-using FluentValidation.TestHelper;
+﻿using FluentValidation.TestHelper;
 using WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProgram;
 using Xunit;
 
@@ -11,7 +11,7 @@ public class UpdateWorkoutProgramCommandValidatorTests
     [Fact]
     public void ShouldPass_WhenCommandIsValid()
     {
-        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var result = _sut.TestValidate(command);
         result.ShouldNotHaveAnyValidationErrors();
     }
@@ -19,7 +19,7 @@ public class UpdateWorkoutProgramCommandValidatorTests
     [Fact]
     public void ShouldFail_WhenIdIsEmpty()
     {
-        var command = new UpdateWorkoutProgramCommand(Guid.Empty, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var command = new UpdateWorkoutProgramCommand(Guid.Empty, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var result = _sut.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Id);
     }
@@ -27,7 +27,7 @@ public class UpdateWorkoutProgramCommandValidatorTests
     [Fact]
     public void ShouldFail_WhenNameIsEmpty()
     {
-        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), "", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), "", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var result = _sut.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Name);
     }
@@ -35,7 +35,7 @@ public class UpdateWorkoutProgramCommandValidatorTests
     [Fact]
     public void ShouldFail_WhenNameExceedsMaxLength()
     {
-        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), new string('A', 101), new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), new string('A', 101), null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var result = _sut.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Name);
     }
@@ -43,7 +43,7 @@ public class UpdateWorkoutProgramCommandValidatorTests
     [Fact]
     public void ShouldFail_WhenEndDateBeforeStartDate()
     {
-        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), "PPL", new DateTime(2025, 3, 31), new DateTime(2025, 1, 1));
+        var command = new UpdateWorkoutProgramCommand(Guid.NewGuid(), "PPL", null, new DateTime(2025, 3, 31), new DateTime(2025, 1, 1));
         var result = _sut.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.EndDate);
     }

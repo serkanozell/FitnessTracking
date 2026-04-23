@@ -3,6 +3,7 @@
 namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProgram
 {
     public sealed record CreateWorkoutProgramCommand(string Name,
+                                                     string? Description,
                                                      DateTime StartDate,
                                                      DateTime EndDate) : ICommand<Result<Guid>>, ICacheInvalidatingCommand
     {

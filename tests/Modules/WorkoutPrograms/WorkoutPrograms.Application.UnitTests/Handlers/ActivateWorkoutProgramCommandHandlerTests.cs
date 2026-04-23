@@ -26,7 +26,7 @@ public class ActivateWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldActivateProgram_WhenExistsAndNotActive()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new ActivateWorkoutProgramCommand(program.Id);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -53,7 +53,7 @@ public class ActivateWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnAlreadyActiveError_WhenAlreadyActive()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.Activate();
         var command = new ActivateWorkoutProgramCommand(program.Id);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
 using Exercises.Contracts;
 using NSubstitute;
@@ -30,8 +30,8 @@ public class GetWorkoutProgramListQueryHandlerTests
     {
         var programs = new List<WorkoutProgram>
         {
-            WorkoutProgram.Create(Guid.NewGuid(), "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31)),
-            WorkoutProgram.Create(Guid.NewGuid(), "Upper Lower", new DateTime(2025, 4, 1), new DateTime(2025, 6, 30))
+            WorkoutProgram.Create(Guid.NewGuid(), "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31)),
+            WorkoutProgram.Create(Guid.NewGuid(), "Upper Lower", null, new DateTime(2025, 4, 1), new DateTime(2025, 6, 30))
         };
         var query = new GetWorkoutProgramListQuery(1, 10);
         _repository.GetPagedByUserAsync(_userId, 1, 10, Arg.Any<CancellationToken>())

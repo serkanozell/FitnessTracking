@@ -26,7 +26,7 @@ public class DeleteWorkoutProgramCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldDeleteProgram_WhenExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new DeleteWorkoutProgramCommand(program.Id);
         _repository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(program);
 

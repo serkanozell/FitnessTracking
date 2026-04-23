@@ -9,6 +9,7 @@ namespace WorkoutPrograms.Domain.Entity
     {
         public Guid UserId { get; private set; }
         public string Name { get; private set; }
+        public string? Description { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
         private readonly List<WorkoutProgramSplit> _splits = new();
@@ -16,27 +17,29 @@ namespace WorkoutPrograms.Domain.Entity
 
         private WorkoutProgram() { }
 
-        private WorkoutProgram(Guid id, Guid userId, string name, DateTime startDate, DateTime endDate)
+        private WorkoutProgram(Guid id, Guid userId, string name, string? description, DateTime startDate, DateTime endDate)
         {
             Id = id;
             UserId = userId;
             Name = name;
+            Description = description;
             StartDate = startDate;
             EndDate = endDate;
         }
 
-        public static WorkoutProgram Create(Guid userId, string name, DateTime startDate, DateTime endDate)
+        public static WorkoutProgram Create(Guid userId, string name, string? description, DateTime startDate, DateTime endDate)
         {
-            var workoutProgram = new WorkoutProgram(Guid.NewGuid(), userId, name, startDate, endDate);
+            var workoutProgram = new WorkoutProgram(Guid.NewGuid(), userId, name, description, startDate, endDate);
 
             workoutProgram.AddDomainEvent(new WorkoutProgramCreatedEvent(workoutProgram.Id));
 
             return workoutProgram;
         }
 
-        public void Update(string name, DateTime startDate, DateTime endDate)
+        public void Update(string name, string? description, DateTime startDate, DateTime endDate)
         {
             Name = name;
+            Description = description;
             StartDate = startDate;
             EndDate = endDate;
 

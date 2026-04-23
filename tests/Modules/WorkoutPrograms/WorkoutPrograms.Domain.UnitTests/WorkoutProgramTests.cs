@@ -13,7 +13,7 @@ public class WorkoutProgramTests
     private static readonly DateTime DefaultEnd = new(2025, 3, 31);
 
     private static WorkoutProgram CreateDefaultProgram()
-        => WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", DefaultStart, DefaultEnd);
+        => WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", null, DefaultStart, DefaultEnd);
 
     private static WorkoutProgram CreateActiveProgramWithSplit(out Guid splitId)
     {
@@ -30,7 +30,7 @@ public class WorkoutProgramTests
     [Fact]
     public void Create_ShouldSetProperties()
     {
-        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", DefaultStart, DefaultEnd);
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", null, DefaultStart, DefaultEnd);
 
         program.Id.Should().NotBeEmpty();
         program.Name.Should().Be("PPL Program");
@@ -42,7 +42,7 @@ public class WorkoutProgramTests
     [Fact]
     public void Create_ShouldRaiseWorkoutProgramCreatedEvent()
     {
-        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", DefaultStart, DefaultEnd);
+        var program = WorkoutProgram.Create(Guid.NewGuid(), "PPL Program", null, DefaultStart, DefaultEnd);
 
         program.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<WorkoutProgramCreatedEvent>()
@@ -60,7 +60,7 @@ public class WorkoutProgramTests
         var newStart = new DateTime(2025, 4, 1);
         var newEnd = new DateTime(2025, 6, 30);
 
-        program.Update("Updated Program", newStart, newEnd);
+        program.Update("Updated Program", null, newStart, newEnd);
 
         program.Name.Should().Be("Updated Program");
         program.StartDate.Should().Be(newStart);
@@ -73,7 +73,7 @@ public class WorkoutProgramTests
         var program = CreateDefaultProgram();
         program.ClearDomainEvents();
 
-        program.Update("Updated", DefaultStart, DefaultEnd);
+        program.Update("Updated", null, DefaultStart, DefaultEnd);
 
         program.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<WorkoutProgramUpdatedEvent>()

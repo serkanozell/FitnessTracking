@@ -35,7 +35,7 @@ public class AddWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldAddSplit_WhenProgramExistsAndNameIsUnique()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new AddWorkoutProgramSplitCommand(program.Id, "Push Day", 1);
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -62,7 +62,7 @@ public class AddWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnDuplicateNameError_WhenSplitNameExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.AddSplit("Push Day", 1);
         var command = new AddWorkoutProgramSplitCommand(program.Id, "Push Day", 2);
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -92,7 +92,7 @@ public class DeleteWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldRemoveSplit_WhenProgramAndSplitExist()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var command = new DeleteWorkoutProgramSplitCommand(program.Id, split.Id);
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -119,7 +119,7 @@ public class DeleteWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new DeleteWorkoutProgramSplitCommand(program.Id, Guid.NewGuid());
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -148,7 +148,7 @@ public class UpdateWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldUpdateSplit_WhenProgramAndSplitExist()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var command = new UpdateWorkoutProgramSplitCommand(program.Id, split.Id, "Pull Day", 2);
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -176,7 +176,7 @@ public class UpdateWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new UpdateWorkoutProgramSplitCommand(program.Id, Guid.NewGuid(), "Pull Day", 2);
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -205,7 +205,7 @@ public class ActivateWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldActivateSplit_WhenProgramActiveAndSplitExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.Activate();
         var split = program.AddSplit("Push Day", 1);
         var command = new ActivateWorkoutProgramSplitCommand(program.Id, split.Id);
@@ -233,7 +233,7 @@ public class ActivateWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNotActiveError_WhenProgramNotActive()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var command = new ActivateWorkoutProgramSplitCommand(program.Id, split.Id);
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -247,7 +247,7 @@ public class ActivateWorkoutProgramSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.Activate();
         var command = new ActivateWorkoutProgramSplitCommand(program.Id, Guid.NewGuid());
         _repository.GetByIdAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -276,7 +276,7 @@ public class GetWorkoutProgramSplitsQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitsOrderedByOrder_WhenProgramExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.AddSplit("Leg Day", 3);
         program.AddSplit("Push Day", 1);
         program.AddSplit("Pull Day", 2);
@@ -323,7 +323,7 @@ public class AddExerciseToSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldAddExercise_WhenProgramAndSplitExist()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var exerciseId = Guid.NewGuid();
         var command = new AddExerciseToSplitCommand(program.Id, split.Id, exerciseId, 4, 8, 12);
@@ -351,7 +351,7 @@ public class AddExerciseToSplitCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new AddExerciseToSplitCommand(program.Id, Guid.NewGuid(), Guid.NewGuid(), 4, 8, 12);
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -380,7 +380,7 @@ public class UpdateSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldUpdateExercise_WhenAllExist()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
         var command = new UpdateSplitExerciseCommand(program.Id, split.Id, exercise.Id, 5, 6, 10);
@@ -410,7 +410,7 @@ public class UpdateSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new UpdateSplitExerciseCommand(program.Id, Guid.NewGuid(), Guid.NewGuid(), 5, 6, 10);
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -423,7 +423,7 @@ public class UpdateSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenExerciseNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var command = new UpdateSplitExerciseCommand(program.Id, split.Id, Guid.NewGuid(), 5, 6, 10);
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -453,7 +453,7 @@ public class RemoveSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldRemoveExercise_WhenAllExist()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var exercise = program.AddExerciseToSplit(split.Id, Guid.NewGuid(), 4, new RepRange(8, 12));
         var command = new RemoveSplitExerciseCommand(program.Id, split.Id, exercise.Id);
@@ -481,7 +481,7 @@ public class RemoveSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new RemoveSplitExerciseCommand(program.Id, Guid.NewGuid(), Guid.NewGuid());
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -494,7 +494,7 @@ public class RemoveSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenExerciseNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var split = program.AddSplit("Push Day", 1);
         var command = new RemoveSplitExerciseCommand(program.Id, split.Id, Guid.NewGuid());
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -524,7 +524,7 @@ public class ActivateSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldActivateExercise_WhenAllConditionsMet()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.Activate();
         var split = program.AddSplit("Push Day", 1);
         program.ActivateSplit(split.Id);
@@ -554,7 +554,7 @@ public class ActivateSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnNotActiveError_WhenProgramNotActive()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         var command = new ActivateSplitExerciseCommand(program.Id, Guid.NewGuid(), Guid.NewGuid());
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
 
@@ -567,7 +567,7 @@ public class ActivateSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnSplitNotFoundError_WhenSplitNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.Activate();
         var command = new ActivateSplitExerciseCommand(program.Id, Guid.NewGuid(), Guid.NewGuid());
         _repository.GetByIdWithExercisesAsync(command.WorkoutProgramId, Arg.Any<CancellationToken>()).Returns(program);
@@ -581,7 +581,7 @@ public class ActivateSplitExerciseCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnExerciseNotFoundError_WhenExerciseNotExists()
     {
-        var program = WorkoutProgram.Create(TestUserId, "PPL", new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
+        var program = WorkoutProgram.Create(TestUserId, "PPL", null, new DateTime(2025, 1, 1), new DateTime(2025, 3, 31));
         program.Activate();
         var split = program.AddSplit("Push Day", 1);
         var command = new ActivateSplitExerciseCommand(program.Id, split.Id, Guid.NewGuid());

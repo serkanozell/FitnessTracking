@@ -8,6 +8,7 @@ namespace WorkoutPrograms.Application.Dtos
         public Guid Id { get; init; }
         public Guid UserId { get; init; }
         public string Name { get; init; } = default!;
+        public string? Description { get; init; }
         public DateTime StartDate { get; init; }
         public DateTime EndDate { get; init; }
         public bool IsActive { get; init; }
@@ -24,6 +25,7 @@ namespace WorkoutPrograms.Application.Dtos
                 Id = entity.Id,
                 UserId = entity.UserId,
                 Name = entity.Name,
+                Description = entity.Description,
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 IsActive = entity.IsActive,
@@ -40,6 +42,7 @@ namespace WorkoutPrograms.Application.Dtos
                 Id = entity.Id,
                 UserId = entity.UserId,
                 Name = entity.Name,
+                Description = entity.Description,
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 IsActive = entity.IsActive,

@@ -22,7 +22,7 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.UpdateWorkoutProg
             if (request.EndDate <= request.StartDate)
                 return WorkoutProgramErrors.InvalidDateRange();
 
-            workoutProgram.Update(request.Name, request.StartDate, request.EndDate);
+            workoutProgram.Update(request.Name, request.Description, request.StartDate, request.EndDate);
 
             _workoutProgramRepository.Update(workoutProgram);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
