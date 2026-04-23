@@ -22,6 +22,7 @@ namespace BodyMetrics.Application.Features.BodyMetrics.UpdateBodyMetric
                                                           request.HipCircumference,
                                                           request.ThighCircumference,
                                                           request.NeckCircumference,
+                                                          request.ShoulderCircumference,
                                                           request.Note);
 
                 var result = await sender.Send(command, ct);
@@ -50,6 +51,7 @@ namespace BodyMetrics.Application.Features.BodyMetrics.UpdateBodyMetric
                                                      decimal? HipCircumference,
                                                      decimal? ThighCircumference,
                                                      decimal? NeckCircumference,
+                                                     decimal? ShoulderCircumference,
                                                      string? Note);
     }
 }

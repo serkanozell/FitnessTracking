@@ -17,6 +17,7 @@ namespace BodyMetrics.Application.Dtos
         public decimal? HipCircumference { get; init; }
         public decimal? ThighCircumference { get; init; }
         public decimal? NeckCircumference { get; init; }
+        public decimal? ShoulderCircumference { get; init; }
         public string? Note { get; init; }
         public bool IsActive { get; init; }
         public bool IsDeleted { get; init; }
@@ -38,6 +39,7 @@ namespace BodyMetrics.Application.Dtos
                 HipCircumference = entity.HipCircumference,
                 ThighCircumference = entity.ThighCircumference,
                 NeckCircumference = entity.NeckCircumference,
+                ShoulderCircumference = entity.ShoulderCircumference,
                 Note = entity.Note,
                 IsActive = entity.IsActive,
                 IsDeleted = entity.IsDeleted,

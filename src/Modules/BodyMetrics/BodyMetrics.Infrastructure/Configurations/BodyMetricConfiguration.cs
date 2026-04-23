@@ -49,6 +49,7 @@ namespace BodyMetrics.Infrastructure.Configurations
             builder.Property(x => x.HipCircumference).HasPrecision(5, 2);
             builder.Property(x => x.ThighCircumference).HasPrecision(5, 2);
             builder.Property(x => x.NeckCircumference).HasPrecision(5, 2);
+            builder.Property(x => x.ShoulderCircumference).HasPrecision(5, 2);
 
             builder.Property(x => x.Note).HasMaxLength(500);
 

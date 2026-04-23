@@ -23,6 +23,7 @@ namespace BodyMetrics.Application.Features.BodyMetrics.CreateBodyMetric
                                            request.HipCircumference,
                                            request.ThighCircumference,
                                            request.NeckCircumference,
+                                           request.ShoulderCircumference,
                                            request.Note);
 
             await _repository.AddAsync(metric, cancellationToken);

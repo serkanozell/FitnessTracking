@@ -39,6 +39,7 @@ public sealed class BodyMetricsService(HttpClient httpClient) : IBodyMetricsServ
             model.HipCircumference,
             model.ThighCircumference,
             model.NeckCircumference,
+            model.ShoulderCircumference,
             model.Note
         };
         using var response = await httpClient.PostAsJsonAsync(BaseUrl, payload, cancellationToken);
@@ -62,6 +63,7 @@ public sealed class BodyMetricsService(HttpClient httpClient) : IBodyMetricsServ
             model.HipCircumference,
             model.ThighCircumference,
             model.NeckCircumference,
+            model.ShoulderCircumference,
             model.Note
         };
         using var response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", payload, cancellationToken);

@@ -1,4 +1,4 @@
-﻿using BodyMetrics.Domain.Entity;
+using BodyMetrics.Domain.Entity;
 using BodyMetrics.Infrastructure.Persistence;
 using BodyMetrics.Infrastructure.Repositories;
 using BuildingBlocks.Application.Abstractions;
@@ -44,7 +44,7 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task AddAsync_ShouldPersistBodyMetric()
     {
-        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, 180m, 15m, 65m, 85m, 100m, 35m, 95m, 55m, 38m, "Test note");
+        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, 180m, 15m, 65m, 85m, 100m, 35m, 95m, 55m, 38m, null, "Test note");
 
         await _sut.AddAsync(metric);
         await _context.SaveChangesAsync();
@@ -61,7 +61,7 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task AddAsync_ShouldPersistWithNullOptionalFields()
     {
-        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, null, null, null, null, null, null, null, null, null, null);
+        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, null, null, null, null, null, null, null, null, null, null, null);
 
         await _sut.AddAsync(metric);
         await _context.SaveChangesAsync();
@@ -79,7 +79,7 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetByIdAsync_ShouldReturnBodyMetric_WhenExists()
     {
-        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, 180m, null, null, null, null, null, null, null, null, null);
+        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, 180m, null, null, null, null, null, null, null, null, null, null);
         await _context.BodyMetrics.AddAsync(metric);
         await _context.SaveChangesAsync();
 
@@ -102,9 +102,9 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetActiveByUserIdAsync_ShouldReturnOnlyActiveMetrics()
     {
-        var active1 = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, null, null, null, null, null, null, null, null, null, null);
-        var active2 = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 15), 79m, null, null, null, null, null, null, null, null, null, null);
-        var deleted = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 10), 81m, null, null, null, null, null, null, null, null, null, null);
+        var active1 = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, null, null, null, null, null, null, null, null, null, null, null);
+        var active2 = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 15), 79m, null, null, null, null, null, null, null, null, null, null, null);
+        var deleted = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 10), 81m, null, null, null, null, null, null, null, null, null, null, null);
         deleted.Delete();
 
         await _context.BodyMetrics.AddRangeAsync(active1, active2, deleted);
@@ -119,8 +119,8 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetActiveByUserIdAsync_ShouldNotReturnOtherUsersMetrics()
     {
-        var ownMetric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, null, null, null, null, null, null, null, null, null, null);
-        var otherMetric = BodyMetric.Create(Guid.NewGuid(), new DateTime(2025, 6, 1), 75m, null, null, null, null, null, null, null, null, null, null);
+        var ownMetric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, null, null, null, null, null, null, null, null, null, null, null);
+        var otherMetric = BodyMetric.Create(Guid.NewGuid(), new DateTime(2025, 6, 1), 75m, null, null, null, null, null, null, null, null, null, null, null);
 
         await _context.BodyMetrics.AddRangeAsync(ownMetric, otherMetric);
         await _context.SaveChangesAsync();
@@ -146,7 +146,7 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
         for (int i = 1; i <= 5; i++)
         {
             await _context.BodyMetrics.AddAsync(
-                BodyMetric.Create(TestUserId, new DateTime(2025, 6, i), 80m + i, null, null, null, null, null, null, null, null, null, null));
+                BodyMetric.Create(TestUserId, new DateTime(2025, 6, i), 80m + i, null, null, null, null, null, null, null, null, null, null, null));
         }
         await _context.SaveChangesAsync();
 
@@ -168,8 +168,8 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetPagedByUserAsync_ShouldOrderByDateDescending()
     {
-        var older = BodyMetric.Create(TestUserId, new DateTime(2025, 1, 1), 82m, null, null, null, null, null, null, null, null, null, null);
-        var newer = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 78m, null, null, null, null, null, null, null, null, null, null);
+        var older = BodyMetric.Create(TestUserId, new DateTime(2025, 1, 1), 82m, null, null, null, null, null, null, null, null, null, null, null);
+        var newer = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 78m, null, null, null, null, null, null, null, null, null, null, null);
 
         await _context.BodyMetrics.AddRangeAsync(older, newer);
         await _context.SaveChangesAsync();
@@ -184,11 +184,11 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task Update_ShouldModifyBodyMetric()
     {
-        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, 180m, null, null, null, null, null, null, null, null, null);
+        var metric = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80m, 180m, null, null, null, null, null, null, null, null, null, null);
         await _context.BodyMetrics.AddAsync(metric);
         await _context.SaveChangesAsync();
 
-        metric.Update(new DateTime(2025, 7, 1), 78m, 180m, 14m, null, null, null, null, null, null, null, "Updated");
+        metric.Update(new DateTime(2025, 7, 1), 78m, 180m, 14m, null, null, null, null, null, null, null, null, "Updated");
         _sut.Update(metric);
         await _context.SaveChangesAsync();
 
@@ -198,3 +198,4 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
         updated.Note.Should().Be("Updated");
     }
 }
+

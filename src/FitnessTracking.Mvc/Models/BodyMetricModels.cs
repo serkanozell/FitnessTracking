@@ -14,6 +14,7 @@ public sealed class BodyMetricDto
     public decimal? HipCircumference { get; init; }
     public decimal? ThighCircumference { get; init; }
     public decimal? NeckCircumference { get; init; }
+    public decimal? ShoulderCircumference { get; init; }
     public string? Note { get; init; }
     public bool IsActive { get; init; }
     public bool IsDeleted { get; init; }
@@ -33,5 +34,6 @@ public sealed class BodyMetricEditModel
     public decimal? HipCircumference { get; set; }
     public decimal? ThighCircumference { get; set; }
     public decimal? NeckCircumference { get; set; }
+    public decimal? ShoulderCircumference { get; set; }
     public string? Note { get; set; }
 }

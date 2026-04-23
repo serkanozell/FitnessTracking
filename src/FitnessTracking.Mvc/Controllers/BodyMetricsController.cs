@@ -55,6 +55,7 @@ public class BodyMetricsController(IBodyMetricsService bodyMetricsService) : Con
             HipCircumference = metric.HipCircumference,
             ThighCircumference = metric.ThighCircumference,
             NeckCircumference = metric.NeckCircumference,
+            ShoulderCircumference = metric.ShoulderCircumference,
             Note = metric.Note
         };
         ViewData["MetricId"] = id;

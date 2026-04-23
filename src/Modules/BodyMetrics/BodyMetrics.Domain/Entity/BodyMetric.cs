@@ -18,6 +18,7 @@ namespace BodyMetrics.Domain.Entity
         public decimal? HipCircumference { get; private set; }
         public decimal? ThighCircumference { get; private set; }
         public decimal? NeckCircumference { get; private set; }
+        public decimal? ShoulderCircumference { get; private set; }
         public string? Note { get; private set; }
 
         private BodyMetric() { }
@@ -35,6 +36,7 @@ namespace BodyMetrics.Domain.Entity
             decimal? hipCircumference,
             decimal? thighCircumference,
             decimal? neckCircumference,
+            decimal? shoulderCircumference,
             string? note)
         {
             var metric = new BodyMetric
@@ -52,6 +54,7 @@ namespace BodyMetrics.Domain.Entity
                 HipCircumference = hipCircumference,
                 ThighCircumference = thighCircumference,
                 NeckCircumference = neckCircumference,
+                ShoulderCircumference = shoulderCircumference,
                 Note = note
             };
 
@@ -72,6 +75,7 @@ namespace BodyMetrics.Domain.Entity
             decimal? hipCircumference,
             decimal? thighCircumference,
             decimal? neckCircumference,
+            decimal? shoulderCircumference,
             string? note)
         {
             Date = date;
@@ -85,6 +89,7 @@ namespace BodyMetrics.Domain.Entity
             HipCircumference = hipCircumference;
             ThighCircumference = thighCircumference;
             NeckCircumference = neckCircumference;
+            ShoulderCircumference = shoulderCircumference;
             Note = note;
 
             AddDomainEvent(new BodyMetricUpdatedEvent(Id));

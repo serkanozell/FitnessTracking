@@ -11,5 +11,6 @@
                                                  decimal? HipCircumference,
                                                  decimal? ThighCircumference,
                                                  decimal? NeckCircumference,
+                                                 decimal? ShoulderCircumference,
                                                  string? Note) : ICommand<Result<Guid>>;
 }

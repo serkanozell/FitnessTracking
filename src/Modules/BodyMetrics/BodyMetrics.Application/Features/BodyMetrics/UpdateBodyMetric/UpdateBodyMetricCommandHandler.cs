@@ -29,6 +29,7 @@ namespace BodyMetrics.Application.Features.BodyMetrics.UpdateBodyMetric
                           request.HipCircumference,
                           request.ThighCircumference,
                           request.NeckCircumference,
+                          request.ShoulderCircumference,
                           request.Note);
 
             _repository.Update(metric);

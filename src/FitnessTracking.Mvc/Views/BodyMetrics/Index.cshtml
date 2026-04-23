@@ -30,6 +30,7 @@
                         <th>Arm</th>
                         <th>Thigh</th>
                         <th>Neck</th>
+                        <th>Shoulder</th>
                         <th>Note</th>
                         <th>Status</th>
                         <th class="text-end" style="width: 220px;">Actions</th>
@@ -39,7 +40,7 @@
                     @if (Model.Items.Count == 0)
                     {
                         <tr>
-                            <td colspan="14" class="text-center text-body-secondary py-5">
+                            <td colspan="15" class="text-center text-body-secondary py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>No body metrics found.
                             </td>
                         </tr>
@@ -58,6 +59,7 @@
                             <td>@Fmt(m.ArmCircumference, " cm")</td>
                             <td>@Fmt(m.ThighCircumference, " cm")</td>
                             <td>@Fmt(m.NeckCircumference, " cm")</td>
+                            <td>@Fmt(m.ShoulderCircumference, " cm")</td>
                             <td class="text-truncate" style="max-width: 200px;" title="@m.Note">
                                 @(string.IsNullOrWhiteSpace(m.Note) ? "—" : m.Note)
                             </td>

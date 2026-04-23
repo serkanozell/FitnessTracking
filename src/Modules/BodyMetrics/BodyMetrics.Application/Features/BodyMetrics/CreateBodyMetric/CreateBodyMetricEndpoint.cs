@@ -16,7 +16,7 @@ namespace BodyMetrics.Application.Features.BodyMetrics.CreateBodyMetric
                     request.WaistCircumference, request.ChestCircumference,
                     request.ArmCircumference, request.HipCircumference,
                     request.ThighCircumference, request.NeckCircumference,
-                    request.Note);
+                    request.ShoulderCircumference, request.Note);
 
                 var result = await sender.Send(command, ct);
 
@@ -39,7 +39,7 @@ namespace BodyMetrics.Application.Features.BodyMetrics.CreateBodyMetric
             decimal? WaistCircumference, decimal? ChestCircumference,
             decimal? ArmCircumference, decimal? HipCircumference,
             decimal? ThighCircumference, decimal? NeckCircumference,
-            string? Note);
+            decimal? ShoulderCircumference, string? Note);
 
         public sealed record CreateBodyMetricResponse(Guid Id);
     }
