@@ -22,6 +22,7 @@ public interface INutritionService
 
     // Meals
     Task<Guid> AddMealAsync(Guid mealPlanId, string name, int order, CancellationToken ct = default);
+    Task<bool> UpdateMealAsync(Guid mealPlanId, Guid mealId, string name, int order, CancellationToken ct = default);
     Task<bool> RemoveMealAsync(Guid mealPlanId, Guid mealId, CancellationToken ct = default);
 
     // MealItems

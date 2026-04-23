@@ -130,6 +130,15 @@ public sealed class NutritionService(HttpClient httpClient) : INutritionService
         return result?.MealId ?? Guid.Empty;
     }
 
+    public async Task<bool> UpdateMealAsync(Guid mealPlanId, Guid mealId, string name, int order, CancellationToken ct = default)
+    {
+        var payload = new { Name = name, Order = order };
+        using var response = await httpClient.PutAsJsonAsync($"{MealPlansUrl}/{mealPlanId}/meals/{mealId}", payload, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
+
     public async Task<bool> RemoveMealAsync(Guid mealPlanId, Guid mealId, CancellationToken ct = default)
     {
         using var response = await httpClient.DeleteAsync($"{MealPlansUrl}/{mealPlanId}/meals/{mealId}", ct);

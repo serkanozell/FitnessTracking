@@ -104,6 +104,15 @@ public class MealPlansController(INutritionService nutritionService) : Controlle
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateMeal(Guid id, Guid mealId, string name, int order)
+    {
+        await nutritionService.UpdateMealAsync(id, mealId, name, order, HttpContext.RequestAborted);
+        TempData["Success"] = "Meal updated.";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RemoveMeal(Guid id, Guid mealId)
     {
         await nutritionService.RemoveMealAsync(id, mealId, HttpContext.RequestAborted);

@@ -108,10 +108,20 @@
 {
     <div class="card mb-4">
         <div class="card-header d-flex align-items-center justify-content-between">
-            <div>
-                <i class="bi bi-cup-hot me-2"></i>
-                <strong>@meal.Name</strong>
-                <span class="text-body-secondary ms-2 small">
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <i class="bi bi-cup-hot"></i>
+                <form asp-action="UpdateMeal" asp-route-id="@Model.Id" asp-route-mealId="@meal.Id" method="post"
+                      class="d-flex align-items-center gap-2 flex-grow-1">
+                    <input name="name" class="form-control form-control-sm" value="@meal.Name" style="max-width:200px;" required />
+                    <div class="input-group input-group-sm" style="max-width:120px;">
+                        <span class="input-group-text">#</span>
+                        <input name="order" type="number" class="form-control form-control-sm" value="@meal.Order" min="1" required />
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Update meal">
+                        <i class="bi bi-check-lg"></i>
+                    </button>
+                </form>
+                <span class="text-body-secondary small">
                     @meal.MealCalories.ToString("F0") kcal ·
                     P @meal.MealProtein.ToString("F1")g ·
                     C @meal.MealCarbohydrates.ToString("F1")g ·
