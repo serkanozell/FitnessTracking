@@ -6,6 +6,7 @@
     // Pre-build O(1) lookups so per-row rendering doesn't degrade to O(N*M).
     var programsById = programs.ToDictionary(p => p.Id);
     var exercisesById = allExercises.ToDictionary(e => e.Id);
+    var splitsById = programs.SelectMany(p => p.Splits).ToDictionary(s => s.Id);
     var expandSessionId = Context.Request.Query["expand"].FirstOrDefault();
 }
 
@@ -23,6 +24,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Program</th>
+                        <th>Split</th>
                         <th>Date</th>
                         <th>Status</th>
                         <th class="text-end" style="width: 200px;">Actions</th>
@@ -32,7 +34,7 @@
                     @if (Model.Items.Count == 0)
                     {
                         <tr>
-                            <td colspan="4" class="text-center text-body-secondary py-5">
+                            <td colspan="5" class="text-center text-body-secondary py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>No sessions found.
                             </td>
                         </tr>
@@ -42,6 +44,9 @@
                         var programName = programsById.TryGetValue(session.WorkoutProgramId, out var prog)
                             ? prog.Name
                             : session.WorkoutProgramId.ToString()[..8];
+                        var splitName = splitsById.TryGetValue(session.WorkoutProgramSplitId, out var split)
+                            ? split.Name
+                            : "—";
                         var exercises = session.Exercises;
                         var expandId = $"expand-{session.Id}";
                         var shouldExpand = session.Id.ToString() == expandSessionId;
@@ -59,6 +64,7 @@
                                     <span class="badge bg-primary-subtle text-primary ms-2">@exercises.Count sets</span>
                                 }
                             </td>
+                            <td>@splitName</td>
                             <td>@session.Date.ToShortDateString()</td>
                             <td>
                                 @if (session.IsActive)
@@ -92,7 +98,7 @@
                         </tr>
                         <!-- Expandable exercise detail row -->
                         <tr>
-                            <td colspan="4" class="p-0 border-0">
+                            <td colspan="5" class="p-0 border-0">
                                 <div class="collapse @(shouldExpand ? "show" : "")" id="@expandId">
                                     <div class="px-4 py-3 bg-body-tertiary border-top">
 
