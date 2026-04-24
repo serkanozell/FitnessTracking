@@ -2,6 +2,9 @@
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = "Index";
+    var extraQs = string.Join("&", Model.ExtraRouteValues.Select(kv => $"{kv.Key}={kv.Value}"));
+    var extraQsPrefix = extraQs.Length > 0 ? "&" + extraQs : "";
+    var allRouteData = new Dictionary<string, string>(Model.ExtraRouteValues);
 }
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mt-3">
@@ -20,7 +23,7 @@
         <div class="d-flex align-items-center gap-2">
             <label class="form-label mb-0 small text-body-secondary text-nowrap">Per page</label>
             <select class="form-select form-select-sm" style="width: auto;"
-                    onchange="window.location.href='?page=1&pageSize='+this.value">
+                    onchange="window.location.href='?page=1&pageSize='+this.value+'@Html.Raw(extraQsPrefix)'">
                 @foreach (var size in PaginationViewModel.PageSizeOptions)
                 {
                     <option value="@size" selected="@(size == Model.PageSize)">@size</option>
@@ -35,7 +38,8 @@
                     <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
                         <a class="page-link"
                            asp-controller="@controller" asp-action="@action"
-                           asp-route-page="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">
+                           asp-route-page="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize"
+                           asp-all-route-data="allRouteData">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
@@ -69,7 +73,8 @@
                         <li class="page-item">
                             <a class="page-link"
                                asp-controller="@controller" asp-action="@action"
-                               asp-route-page="1" asp-route-pageSize="@Model.PageSize">1</a>
+                               asp-route-page="1" asp-route-pageSize="@Model.PageSize"
+                               asp-all-route-data="allRouteData">1</a>
                         </li>
                         @if (start > 2)
                         {
@@ -82,7 +87,8 @@
                         <li class="page-item @(i == Model.PageNumber ? "active" : "")">
                             <a class="page-link"
                                asp-controller="@controller" asp-action="@action"
-                               asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+                               asp-route-page="@i" asp-route-pageSize="@Model.PageSize"
+                               asp-all-route-data="allRouteData">@i</a>
                         </li>
                     }
 
@@ -95,14 +101,16 @@
                         <li class="page-item">
                             <a class="page-link"
                                asp-controller="@controller" asp-action="@action"
-                               asp-route-page="@Model.TotalPages" asp-route-pageSize="@Model.PageSize">@Model.TotalPages</a>
+                               asp-route-page="@Model.TotalPages" asp-route-pageSize="@Model.PageSize"
+                               asp-all-route-data="allRouteData">@Model.TotalPages</a>
                         </li>
                     }
 
                     <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
                         <a class="page-link"
                            asp-controller="@controller" asp-action="@action"
-                           asp-route-page="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">
+                           asp-route-page="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize"
+                           asp-all-route-data="allRouteData">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>

@@ -9,10 +9,13 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
     private const string BaseUrl = "api/v1/workout-sessions";
 
     public async Task<PagedResult<WorkoutSessionDto>> GetPagedAsync(
-        int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default)
+        Guid? programId = null, int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        using var result = await httpClient.GetAsync(
-             $"{BaseUrl}?pageNumber={pageNumber}&pageSize={pageSize}", cancellationToken);
+        var url = $"{BaseUrl}?pageNumber={pageNumber}&pageSize={pageSize}";
+        if (programId.HasValue)
+            url += $"&programId={programId.Value}";
+
+        using var result = await httpClient.GetAsync(url, cancellationToken);
 
         result.EnsureSuccessStatusCode();
 

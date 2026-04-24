@@ -4,7 +4,7 @@ namespace FitnessTracking.Mvc.Services;
 
 public interface IWorkoutSessionsService
 {
-    Task<PagedResult<WorkoutSessionDto>> GetPagedAsync(int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default);
+    Task<PagedResult<WorkoutSessionDto>> GetPagedAsync(Guid? programId = null, int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default);
     Task<WorkoutSessionDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Guid> CreateAsync(WorkoutSessionEditModel model, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(Guid id, WorkoutSessionEditModel model, CancellationToken cancellationToken = default);

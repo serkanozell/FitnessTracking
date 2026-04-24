@@ -3,6 +3,7 @@
     ViewData["Title"] = "Workout Sessions";
     var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
     var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
+    var selectedProgramId = ViewData["SelectedProgramId"] as Guid?;
     // Pre-build O(1) lookups so per-row rendering doesn't degrade to O(N*M).
     var programsById = programs.ToDictionary(p => p.Id);
     var exercisesById = allExercises.ToDictionary(e => e.Id);
@@ -17,6 +18,34 @@
     </a>
 </div>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Program</label>
+                <select name="programId" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Select a program --</option>
+                    @foreach (var p in programs)
+                    {
+                        <option value="@p.Id" selected="@(selectedProgramId == p.Id)">@p.Name</option>
+                    }
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!selectedProgramId.HasValue)
+{
+    <div class="card">
+        <div class="card-body text-center text-body-secondary py-5">
+            <i class="bi bi-arrow-up-circle fs-1 d-block mb-2"></i>
+            Please select a program above to view its sessions.
+        </div>
+    </div>
+}
+else
+{
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -35,7 +64,7 @@
                     {
                         <tr>
                             <td colspan="5" class="text-center text-body-secondary py-5">
-                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>No sessions found.
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>No sessions found for this program.
                             </td>
                         </tr>
                     }
@@ -270,6 +299,7 @@
         </div>
     </div>
 </div>
+} @* end else (selectedProgramId) *@
 
 @await Html.PartialAsync("_PaginationPartial", new PaginationViewModel
 {
@@ -278,7 +308,10 @@
     TotalCount = Model.TotalCount,
     TotalPages = Model.TotalPages,
     HasNextPage = Model.HasNextPage,
-    HasPreviousPage = Model.HasPreviousPage
+    HasPreviousPage = Model.HasPreviousPage,
+    ExtraRouteValues = selectedProgramId.HasValue
+        ? new Dictionary<string, string> { ["programId"] = selectedProgramId.Value.ToString() }
+        : []
 })
 
 @section Scripts {

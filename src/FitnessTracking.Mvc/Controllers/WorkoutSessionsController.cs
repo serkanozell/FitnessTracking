@@ -11,21 +11,32 @@ public class WorkoutSessionsController(
     IWorkoutProgramsService programsService,
     IExercisesService exercisesService) : Controller
 {
-    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(Guid? programId = null, int page = 1, int pageSize = 10)
     {
         var ct = HttpContext.RequestAborted;
         try
         {
-            var sessionsTask = sessionsService.GetPagedAsync(page, pageSize, ct);
             var programsTask = programsService.GetPagedAsync(1, 100, ct);
             var exercisesTask = exercisesService.GetPagedAsync(1, 100, ct);
 
-            await Task.WhenAll(sessionsTask, programsTask, exercisesTask);
+            if (programId.HasValue)
+            {
+                var sessionsTask = sessionsService.GetPagedAsync(programId, page, pageSize, ct);
+                await Task.WhenAll(sessionsTask, programsTask, exercisesTask);
+
+                ViewData["Programs"] = programsTask.Result.Items;
+                ViewData["AllExercises"] = exercisesTask.Result.Items;
+                ViewData["SelectedProgramId"] = programId.Value;
+
+                return View(sessionsTask.Result);
+            }
+
+            await Task.WhenAll(programsTask, exercisesTask);
 
             ViewData["Programs"] = programsTask.Result.Items;
             ViewData["AllExercises"] = exercisesTask.Result.Items;
 
-            return View(sessionsTask.Result);
+            return View(new PagedResult<Models.WorkoutSessionDto>());
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
