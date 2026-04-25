@@ -1,7 +1,9 @@
-﻿using FitnessTracking.Mvc.Middleware;
+﻿using System.Globalization;
+using FitnessTracking.Mvc.Middleware;
 using FitnessTracking.Mvc.Services;
 using FitnessTracking.Mvc.Services.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Http.Resilience;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -117,6 +119,16 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+// Force invariant culture so decimal values (e.g. 7.5) are parsed correctly
+// regardless of the browser/OS locale (Turkish uses comma as decimal separator).
+var invariantCulture = CultureInfo.InvariantCulture;
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(invariantCulture),
+    SupportedCultures = [invariantCulture],
+    SupportedUICultures = [invariantCulture]
+});
 
 // Swallow client-cancellation exceptions (browser navigation/refresh) so that
 // they don't pollute logs or hit UseExceptionHandler. Must run before MVC and
