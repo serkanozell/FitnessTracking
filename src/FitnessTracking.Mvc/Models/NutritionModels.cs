@@ -86,7 +86,48 @@ public sealed class MealPlanEditModel
 
 // ── API Responses ──
 
+// -- DailyNutritionLog --
+
+public sealed class DailyNutritionLogDto
+{
+    public Guid Id { get; init; }
+    public Guid UserId { get; init; }
+    public DateTime Date { get; init; }
+    public decimal? DailyCalorieGoal { get; init; }
+    public string? Note { get; init; }
+    public decimal TotalCalories { get; init; }
+    public decimal TotalProtein { get; init; }
+    public decimal TotalCarbohydrates { get; init; }
+    public decimal TotalFat { get; init; }
+    public decimal? RemainingCalories { get; init; }
+    public bool IsActive { get; init; }
+    public bool IsDeleted { get; init; }
+    public DateTime? CreatedDate { get; init; }
+    public IReadOnlyList<LogEntryDto> Entries { get; init; } = [];
+}
+
+public sealed class LogEntryDto
+{
+    public Guid Id { get; init; }
+    public Guid FoodId { get; init; }
+    public string FoodName { get; init; } = default!;
+    public decimal Quantity { get; init; }
+    public string ServingUnit { get; init; } = default!;
+    public decimal Calories { get; init; }
+    public decimal Protein { get; init; }
+    public decimal Carbohydrates { get; init; }
+    public decimal Fat { get; init; }
+}
+
+public sealed class DailyNutritionLogEditModel
+{
+    public DateTime Date { get; set; } = DateTime.Today;
+    public decimal? DailyCalorieGoal { get; set; }
+    public string? Note { get; set; }
+}
 public sealed record CreateFoodResponse(Guid Id);
 public sealed record CreateMealPlanResponse(Guid Id);
 public sealed record AddMealResponse(Guid MealId);
 public sealed record AddMealItemResponse(Guid MealItemId);
+public sealed record CreateDailyLogResponse(Guid Id);
+public sealed record AddLogEntryResponse(Guid EntryId);

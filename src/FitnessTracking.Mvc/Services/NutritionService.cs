@@ -8,6 +8,7 @@ public sealed class NutritionService(HttpClient httpClient) : INutritionService
 {
     private const string FoodsUrl = "api/v1/foods";
     private const string MealPlansUrl = "api/v1/meal-plans";
+    private const string DailyLogsUrl = "api/v1/daily-nutrition-logs";
 
     // ── Foods ──
 
@@ -170,6 +171,77 @@ public sealed class NutritionService(HttpClient httpClient) : INutritionService
     {
         var payload = new { Quantity = quantity };
         using var response = await httpClient.PutAsJsonAsync($"{MealPlansUrl}/{mealPlanId}/meals/{mealId}/items/{mealItemId}", payload, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
+
+    // —— DailyNutritionLogs ——
+
+    public async Task<PagedResult<DailyNutritionLogDto>> GetDailyLogsPagedAsync(int pageNumber = 1, int pageSize = 10, CancellationToken ct = default)
+    {
+        var result = await httpClient.GetFromJsonAsync<PagedResult<DailyNutritionLogDto>>(
+            $"{DailyLogsUrl}?pageNumber={pageNumber}&pageSize={pageSize}", ct);
+        return result ?? new PagedResult<DailyNutritionLogDto>();
+    }
+
+    public async Task<DailyNutritionLogDto?> GetDailyLogByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        using var response = await httpClient.GetAsync($"{DailyLogsUrl}/{id}", ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<DailyNutritionLogDto>(cancellationToken: ct);
+    }
+
+    public async Task<Guid> CreateDailyLogAsync(DailyNutritionLogEditModel model, CancellationToken ct = default)
+    {
+        var payload = new { model.Date, model.DailyCalorieGoal, model.Note };
+        using var response = await httpClient.PostAsJsonAsync(DailyLogsUrl, payload, ct);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<CreateDailyLogResponse>(cancellationToken: ct);
+        return result?.Id ?? Guid.Empty;
+    }
+
+    public async Task<bool> UpdateDailyLogAsync(Guid id, DailyNutritionLogEditModel model, CancellationToken ct = default)
+    {
+        var payload = new { model.DailyCalorieGoal, model.Note };
+        using var response = await httpClient.PutAsJsonAsync($"{DailyLogsUrl}/{id}", payload, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
+
+    public async Task<bool> DeleteDailyLogAsync(Guid id, CancellationToken ct = default)
+    {
+        using var response = await httpClient.DeleteAsync($"{DailyLogsUrl}/{id}", ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
+
+    // —— LogEntries ——
+
+    public async Task<Guid> AddLogEntryAsync(Guid logId, Guid foodId, decimal quantity, CancellationToken ct = default)
+    {
+        var payload = new { FoodId = foodId, Quantity = quantity };
+        using var response = await httpClient.PostAsJsonAsync($"{DailyLogsUrl}/{logId}/entries", payload, ct);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<AddLogEntryResponse>(cancellationToken: ct);
+        return result?.EntryId ?? Guid.Empty;
+    }
+
+    public async Task<bool> RemoveLogEntryAsync(Guid logId, Guid entryId, CancellationToken ct = default)
+    {
+        using var response = await httpClient.DeleteAsync($"{DailyLogsUrl}/{logId}/entries/{entryId}", ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
+
+    public async Task<bool> UpdateLogEntryQuantityAsync(Guid logId, Guid entryId, decimal quantity, CancellationToken ct = default)
+    {
+        var payload = new { Quantity = quantity };
+        using var response = await httpClient.PutAsJsonAsync($"{DailyLogsUrl}/{logId}/entries/{entryId}/quantity", payload, ct);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
         return true;

@@ -29,4 +29,16 @@ public interface INutritionService
     Task<Guid> AddMealItemAsync(Guid mealPlanId, Guid mealId, Guid foodId, decimal quantity, CancellationToken ct = default);
     Task<bool> RemoveMealItemAsync(Guid mealPlanId, Guid mealId, Guid mealItemId, CancellationToken ct = default);
     Task<bool> UpdateMealItemQuantityAsync(Guid mealPlanId, Guid mealId, Guid mealItemId, decimal quantity, CancellationToken ct = default);
+
+    // DailyNutritionLogs
+    Task<PagedResult<DailyNutritionLogDto>> GetDailyLogsPagedAsync(int pageNumber = 1, int pageSize = 10, CancellationToken ct = default);
+    Task<DailyNutritionLogDto?> GetDailyLogByIdAsync(Guid id, CancellationToken ct = default);
+    Task<Guid> CreateDailyLogAsync(DailyNutritionLogEditModel model, CancellationToken ct = default);
+    Task<bool> UpdateDailyLogAsync(Guid id, DailyNutritionLogEditModel model, CancellationToken ct = default);
+    Task<bool> DeleteDailyLogAsync(Guid id, CancellationToken ct = default);
+
+    // LogEntries
+    Task<Guid> AddLogEntryAsync(Guid logId, Guid foodId, decimal quantity, CancellationToken ct = default);
+    Task<bool> RemoveLogEntryAsync(Guid logId, Guid entryId, CancellationToken ct = default);
+    Task<bool> UpdateLogEntryQuantityAsync(Guid logId, Guid entryId, decimal quantity, CancellationToken ct = default);
 }
