@@ -9,6 +9,7 @@ namespace Nutrition.Infrastructure.Persistence
     {
         public DbSet<Food> Foods => Set<Food>();
         public DbSet<MealPlan> MealPlans => Set<MealPlan>();
+        public DbSet<DailyNutritionLog> DailyNutritionLogs => Set<DailyNutritionLog>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -24,6 +24,7 @@ namespace Nutrition.Infrastructure
 
             services.AddScoped<IFoodRepository, FoodRepository>();
             services.AddScoped<IMealPlanRepository, MealPlanRepository>();
+            services.AddScoped<IDailyNutritionLogRepository, DailyNutritionLogRepository>();
             services.AddScoped<INutritionUnitOfWork, NutritionUnitOfWork>();
             services.AddScoped<INutritionModule, NutritionModuleService>();
 

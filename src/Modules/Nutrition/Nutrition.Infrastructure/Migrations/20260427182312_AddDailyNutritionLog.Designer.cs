@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nutrition.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Nutrition.Infrastructure.Persistence;
 namespace Nutrition.Infrastructure.Migrations
 {
     [DbContext(typeof(NutritionDbContext))]
-    partial class NutritionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260427182312_AddDailyNutritionLog")]
+    partial class AddDailyNutritionLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
