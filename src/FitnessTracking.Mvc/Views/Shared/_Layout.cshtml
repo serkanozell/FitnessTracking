@@ -45,6 +45,11 @@
                         <i class="nav-icon bi bi-play-circle"></i> Sessions
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link @(controllerName == "Analytics" ? "active" : "")" asp-controller="Analytics" asp-action="Index">
+                        <i class="nav-icon bi bi-graph-up-arrow"></i> Progress
+                    </a>
+                </li>
                 <li class="nav-title">Tracking</li>
                 <li class="nav-item">
                     <a class="nav-link @(controllerName == "BodyMetrics" ? "active" : "")" asp-controller="BodyMetrics" asp-action="Index">

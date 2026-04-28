@@ -1,0 +1,338 @@
+﻿@model AnalyticsViewModel
+@{
+    ViewData["Title"] = "Progress & Analytics";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+
+    string J(IEnumerable<string> values) => string.Join(",", values.Select(v => "'" + v.Replace("'", "\\'") + "'"));
+    string N(IEnumerable<decimal> values) => string.Join(",", values.Select(v => v.ToString(inv)));
+    string I(IEnumerable<int> values) => string.Join(",", values);
+
+    var volumeLabels = J(Model.VolumeTrend.Select(p => p.Date.ToString("MMM dd")));
+    var volumeData = N(Model.VolumeTrend.Select(p => Math.Round(p.TotalVolume, 0)));
+    var sessionData = I(Model.VolumeTrend.Select(p => p.SessionCount));
+
+    var muscleLabels = J(Model.MuscleGroupDistribution.Select(m => m.MuscleGroup));
+    var muscleData = N(Model.MuscleGroupDistribution.Select(m => Math.Round(m.TotalVolume, 0)));
+
+    var progressLabels = J(Model.ExerciseProgress.Select(p => p.Date.ToString("MMM dd")));
+    var maxWeightData = N(Model.ExerciseProgress.Select(p => p.MaxWeight));
+    var oneRmData = N(Model.ExerciseProgress.Select(p => p.Estimated1Rm));
+
+    var selectedExercise = Model.Exercises.FirstOrDefault(e => e.Id == Model.ExerciseId);
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="page-title mb-0">Progress &amp; Analytics</h4>
+</div>
+
+<!-- Filters -->
+<form method="get" class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Period</label>
+                <select name="days" class="form-select" onchange="this.form.submit()">
+                    <option value="7" selected="@(Model.Days == 7)">Last 7 days</option>
+                    <option value="30" selected="@(Model.Days == 30)">Last 30 days</option>
+                    <option value="90" selected="@(Model.Days == 90)">Last 90 days</option>
+                    <option value="180" selected="@(Model.Days == 180)">Last 180 days</option>
+                    <option value="365" selected="@(Model.Days == 365)">Last 365 days</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Group volume by</label>
+                <select name="period" class="form-select" onchange="this.form.submit()">
+                    <option value="0" selected="@(Model.Period == AnalyticsGroupingPeriod.Day)">Day</option>
+                    <option value="1" selected="@(Model.Period == AnalyticsGroupingPeriod.Week)">Week</option>
+                    <option value="2" selected="@(Model.Period == AnalyticsGroupingPeriod.Month)">Month</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Exercise (for progress chart)</label>
+                <select name="exerciseId" class="form-select" onchange="this.form.submit()">
+                    @if (Model.Exercises.Count == 0)
+                    {
+                        <option value="">No exercises available</option>
+                    }
+                    else
+                    {
+                        @foreach (var ex in Model.Exercises)
+                        {
+                            <option value="@ex.Id" selected="@(ex.Id == Model.ExerciseId)">@ex.Name (@ex.PrimaryMuscleGroup)</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 text-end">
+                <noscript><button type="submit" class="btn btn-primary w-100">Apply</button></noscript>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Volume Trend -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-bar-chart-line me-2"></i>Workout Volume Trend
+        <span class="text-body-secondary small ms-2">(sets × reps × weight)</span>
+    </div>
+    <div class="card-body">
+        @if (Model.VolumeTrend.Count == 0)
+        {
+            <div class="text-center text-body-secondary py-5">
+                <i class="bi bi-bar-chart fs-1 d-block mb-2"></i>
+                <p class="mb-0">No workout data in the selected period.</p>
+            </div>
+        }
+        else
+        {
+            <div class="chart-wrapper" style="position:relative;height:320px;">
+                <canvas id="volumeChart"></canvas>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Muscle Group Distribution -->
+    <div class="col-xl-5">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-pie-chart me-2"></i>Muscle Group Distribution
+            </div>
+            <div class="card-body">
+                @if (Model.MuscleGroupDistribution.Count == 0)
+                {
+                    <div class="text-center text-body-secondary py-5">
+                        <i class="bi bi-pie-chart-fill fs-1 d-block mb-2"></i>
+                        <p class="mb-0">No data to display.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="chart-wrapper" style="position:relative;height:280px;">
+                        <canvas id="muscleChart"></canvas>
+                    </div>
+                    <table class="table table-sm mt-3 mb-0">
+                        <thead>
+                            <tr>
+                                <th>Muscle</th>
+                                <th class="text-end">Volume</th>
+                                <th class="text-end">Sets</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model.MuscleGroupDistribution)
+                            {
+                                <tr>
+                                    <td>@m.MuscleGroup</td>
+                                    <td class="text-end">@m.TotalVolume.ToString("N0") kg</td>
+                                    <td class="text-end">@m.SetCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Progress -->
+    <div class="col-xl-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-graph-up-arrow me-2"></i>Exercise Progress
+                    @if (selectedExercise is not null)
+                    {
+                        <span class="text-body-secondary small ms-2">— @selectedExercise.Name</span>
+                    }
+                </span>
+            </div>
+            <div class="card-body">
+                @if (Model.ExerciseProgress.Count == 0)
+                {
+                    <div class="text-center text-body-secondary py-5">
+                        <i class="bi bi-activity fs-1 d-block mb-2"></i>
+                        <p class="mb-0">No sets recorded for this exercise yet.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="chart-wrapper" style="position:relative;height:320px;">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Personal Records -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-trophy me-2"></i>Top Personal Records (Estimated 1RM)
+    </div>
+    <div class="card-body p-0">
+        @if (Model.PersonalRecords.Count == 0)
+        {
+            <div class="text-center text-body-secondary py-5">
+                <i class="bi bi-trophy-fill fs-1 d-block mb-2"></i>
+                <p class="mb-0">No personal records yet — log your first session!</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Exercise</th>
+                            <th>Muscle</th>
+                            <th class="text-end">Max Weight</th>
+                            <th class="text-end">Reps</th>
+                            <th class="text-end">Est. 1RM</th>
+                            <th>Achieved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var rank = 1; }
+                        @foreach (var pr in Model.PersonalRecords)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@rank</td>
+                                <td>@pr.ExerciseName</td>
+                                <td><span class="badge bg-secondary-subtle text-secondary-emphasis">@pr.PrimaryMuscleGroup</span></td>
+                                <td class="text-end">@pr.MaxWeight.ToString("F1") kg</td>
+                                <td class="text-end">@pr.RepsAtMaxWeight</td>
+                                <td class="text-end fw-semibold text-primary">@pr.Estimated1Rm.ToString("F1") kg</td>
+                                <td>@pr.AchievedOn.ToShortDateString()</td>
+                            </tr>
+                            rank++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @if (Model.VolumeTrend.Count > 0 || Model.MuscleGroupDistribution.Count > 0 || Model.ExerciseProgress.Count > 0)
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@@4.4.7/dist/chart.umd.min.js"></script>
+        <script>
+            Chart.defaults.font.family = "'Inter','Segoe UI',sans-serif";
+            Chart.defaults.color = '#6c757d';
+
+            @if (Model.VolumeTrend.Count > 0)
+            {
+                <text>
+                new Chart(document.getElementById('volumeChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [@Html.Raw(volumeLabels)],
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Volume (kg)',
+                                data: [@Html.Raw(volumeData)],
+                                backgroundColor: 'rgba(50, 31, 219, 0.6)',
+                                borderColor: 'rgba(50, 31, 219, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'line',
+                                label: 'Sessions',
+                                data: [@Html.Raw(sessionData)],
+                                borderColor: 'rgba(46, 184, 92, 1)',
+                                backgroundColor: 'rgba(46, 184, 92, 0.2)',
+                                tension: 0.3,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Volume (kg)' } },
+                            y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Sessions' }, ticks: { stepSize: 1 } }
+                        }
+                    }
+                });
+                </text>
+            }
+
+            @if (Model.MuscleGroupDistribution.Count > 0)
+            {
+                <text>
+                new Chart(document.getElementById('muscleChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: [@Html.Raw(muscleLabels)],
+                        datasets: [{
+                            data: [@Html.Raw(muscleData)],
+                            backgroundColor: [
+                                '#321fdb','#39f','#2eb85c','#f9b115','#e55353',
+                                '#9b59b6','#1abc9c','#34495e','#d35400','#7f8c8d'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+                </text>
+            }
+
+            @if (Model.ExerciseProgress.Count > 0)
+            {
+                <text>
+                new Chart(document.getElementById('progressChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [@Html.Raw(progressLabels)],
+                        datasets: [
+                            {
+                                label: 'Max Weight (kg)',
+                                data: [@Html.Raw(maxWeightData)],
+                                borderColor: 'rgba(50, 31, 219, 1)',
+                                backgroundColor: 'rgba(50, 31, 219, 0.1)',
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 3
+                            },
+                            {
+                                label: 'Estimated 1RM (kg)',
+                                data: [@Html.Raw(oneRmData)],
+                                borderColor: 'rgba(229, 83, 83, 1)',
+                                backgroundColor: 'rgba(229, 83, 83, 0.1)',
+                                borderDash: [6, 4],
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: { beginAtZero: false, ticks: { callback: function(v){ return v + ' kg'; } } }
+                        }
+                    }
+                });
+                </text>
+            }
+        </script>
+    }
+}

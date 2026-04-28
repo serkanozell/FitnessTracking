@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Web\BuildingBlocks.Web.csproj" />
     <ProjectReference Include="..\..\BodyMetrics\BodyMetrics.Contracts\BodyMetrics.Contracts.csproj" />
+    <ProjectReference Include="..\..\Exercises\Exercises.Contracts\Exercises.Contracts.csproj" />
     <ProjectReference Include="..\..\WorkoutSessions\WorkoutSessions.Contracts\WorkoutSessions.Contracts.csproj" />
     <ProjectReference Include="..\..\WorkoutPrograms\WorkoutPrograms.Contracts\WorkoutPrograms.Contracts.csproj" />
   </ItemGroup>
