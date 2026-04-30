@@ -18,14 +18,15 @@ public class AnalyticsController(IDashboardService dashboardService,
         if (days <= 0) days = 30;
         if (days > 365) days = 365;
 
-        var exercisesPaged = await exercisesService.GetPagedAsync(1, 200, cancellationToken);
-        var exercises = exercisesPaged.Items.Where(e => e.IsActive && !e.IsDeleted).ToList();
-
+        // Fan out all independent dashboard/exercise lookups in parallel.
+        var exercisesPagedTask = exercisesService.GetPagedAsync(1, 200, cancellationToken);
         var volumeTrendTask = dashboardService.GetVolumeTrendAsync(days, period, cancellationToken);
         var muscleDistributionTask = dashboardService.GetMuscleGroupDistributionAsync(days, cancellationToken);
         var personalRecordsTask = dashboardService.GetPersonalRecordsAsync(10, cancellationToken);
 
-        await Task.WhenAll(volumeTrendTask, muscleDistributionTask, personalRecordsTask);
+        await Task.WhenAll(exercisesPagedTask, volumeTrendTask, muscleDistributionTask, personalRecordsTask);
+
+        var exercises = exercisesPagedTask.Result.Items.Where(e => e.IsActive && !e.IsDeleted).ToList();
 
         IReadOnlyList<ExerciseProgressPointDto> exerciseProgress = [];
         var selectedExerciseId = exerciseId ?? exercises.FirstOrDefault()?.Id;
@@ -42,10 +43,10 @@ public class AnalyticsController(IDashboardService dashboardService,
             Period = period,
             ExerciseId = selectedExerciseId,
             Exercises = exercises,
-            VolumeTrend = await volumeTrendTask,
-            MuscleGroupDistribution = await muscleDistributionTask,
+            VolumeTrend = volumeTrendTask.Result,
+            MuscleGroupDistribution = muscleDistributionTask.Result,
             ExerciseProgress = exerciseProgress,
-            PersonalRecords = await personalRecordsTask
+            PersonalRecords = personalRecordsTask.Result
         };
 
         return View(model);

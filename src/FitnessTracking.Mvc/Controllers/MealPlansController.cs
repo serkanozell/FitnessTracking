@@ -31,12 +31,18 @@ public class MealPlansController(INutritionService nutritionService) : Controlle
     [HttpGet]
     public async Task<IActionResult> Details(Guid id)
     {
-        var plan = await nutritionService.GetMealPlanByIdAsync(id, HttpContext.RequestAborted);
+        var ct = HttpContext.RequestAborted;
+
+        // Run independent lookups in parallel to avoid sequential MVC round-trips.
+        var planTask = nutritionService.GetMealPlanByIdAsync(id, ct);
+        var foodsTask = nutritionService.GetFoodsPagedAsync(1, 200, ct);
+
+        await Task.WhenAll(planTask, foodsTask);
+
+        var plan = planTask.Result;
         if (plan is null) return NotFound();
 
-        var foods = await nutritionService.GetFoodsPagedAsync(1, 200, HttpContext.RequestAborted);
-        ViewData["Foods"] = foods.Items;
-
+        ViewData["Foods"] = foodsTask.Result.Items;
         return View(plan);
     }
 

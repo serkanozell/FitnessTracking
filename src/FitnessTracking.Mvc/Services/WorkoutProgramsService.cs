@@ -23,6 +23,14 @@ public sealed class WorkoutProgramsService(HttpClient httpClient) : IWorkoutProg
         return await response.Content.ReadFromJsonAsync<WorkoutProgramDto>(cancellationToken: cancellationToken);
     }
 
+    public async Task<WorkoutProgramDetailViewDto?> GetDetailViewAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.GetAsync($"{BaseUrl}/{id}/detail-view", cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<WorkoutProgramDetailViewDto>(cancellationToken: cancellationToken);
+    }
+
     public async Task<Guid> CreateAsync(CreateWorkoutProgramRequest request, CancellationToken cancellationToken = default)
     {
         using var response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);

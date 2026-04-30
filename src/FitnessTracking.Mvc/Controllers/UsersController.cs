@@ -10,15 +10,18 @@ public class UsersController(IUserManagementService userService) : Controller
 {
     public async Task<IActionResult> Index(Guid? id)
     {
-        var roles = await userService.GetAllRolesAsync(HttpContext.RequestAborted);
-        ViewData["AllRoles"] = roles;
+        var ct = HttpContext.RequestAborted;
 
-        UserDto? user = null;
-        if (id.HasValue)
-        {
-            user = await userService.GetUserByIdAsync(id.Value, HttpContext.RequestAborted);
-        }
-        ViewData["SelectedUser"] = user;
+        // Run independent lookups in parallel.
+        var rolesTask = userService.GetAllRolesAsync(ct);
+        var userTask = id.HasValue
+            ? userService.GetUserByIdAsync(id.Value, ct)
+            : Task.FromResult<UserDto?>(null);
+
+        await Task.WhenAll(rolesTask, userTask);
+
+        ViewData["AllRoles"] = rolesTask.Result;
+        ViewData["SelectedUser"] = userTask.Result;
 
         return View();
     }
@@ -50,11 +53,18 @@ public class UsersController(IUserManagementService userService) : Controller
     [HttpGet]
     public async Task<IActionResult> Details(Guid id)
     {
-        var user = await userService.GetUserByIdAsync(id, HttpContext.RequestAborted);
+        var ct = HttpContext.RequestAborted;
+
+        // Run independent lookups in parallel.
+        var userTask = userService.GetUserByIdAsync(id, ct);
+        var rolesTask = userService.GetAllRolesAsync(ct);
+
+        await Task.WhenAll(userTask, rolesTask);
+
+        var user = userTask.Result;
         if (user is null) return NotFound();
 
-        var roles = await userService.GetAllRolesAsync(HttpContext.RequestAborted);
-        ViewData["AllRoles"] = roles;
+        ViewData["AllRoles"] = rolesTask.Result;
         return View(user);
     }
 

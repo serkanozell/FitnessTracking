@@ -12,12 +12,17 @@ public class WorkoutProgramsController(
 {
     public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
     {
-        var result = await programsService.GetPagedAsync(page, pageSize, HttpContext.RequestAborted);
-        var allExercises = await exercisesService.GetPagedAsync(1, 100, HttpContext.RequestAborted);
+        var ct = HttpContext.RequestAborted;
 
-        ViewData["AllExercises"] = allExercises.Items;
+        // Independent lookups; run them in parallel to halve wait time.
+        var resultTask = programsService.GetPagedAsync(page, pageSize, ct);
+        var allExercisesTask = exercisesService.GetPagedAsync(1, 100, ct);
 
-        return View(result);
+        await Task.WhenAll(resultTask, allExercisesTask);
+
+        ViewData["AllExercises"] = allExercisesTask.Result.Items;
+
+        return View(resultTask.Result);
     }
 
     [HttpGet]
@@ -94,24 +99,9 @@ public class WorkoutProgramsController(
 
     public async Task<IActionResult> Details(Guid id)
     {
-        var program = await programsService.GetByIdAsync(id, HttpContext.RequestAborted);
-        if (program is null) return NotFound();
-
-        var splits = await programsService.GetSplitsAsync(id, HttpContext.RequestAborted);
-        var exercises = await exercisesService.GetPagedAsync(1, 100, HttpContext.RequestAborted);
-
-        var splitExercises = new Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>();
-        foreach (var split in splits)
-        {
-            var ex = await programsService.GetSplitExercisesAsync(id, split.Id, HttpContext.RequestAborted);
-            splitExercises[split.Id] = ex;
-        }
-
-        ViewData["Splits"] = splits;
-        ViewData["SplitExercises"] = splitExercises;
-        ViewData["AllExercises"] = exercises.Items;
-
-        return View(program);
+        var view = await programsService.GetDetailViewAsync(id, HttpContext.RequestAborted);
+        if (view is null) return NotFound();
+        return View(view);
     }
 
     // --- Split CRUD ---

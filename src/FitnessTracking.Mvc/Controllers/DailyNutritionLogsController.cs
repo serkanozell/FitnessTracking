@@ -31,12 +31,18 @@ public class DailyNutritionLogsController(INutritionService nutritionService) : 
     [HttpGet]
     public async Task<IActionResult> Details(Guid id)
     {
-        var log = await nutritionService.GetDailyLogByIdAsync(id, HttpContext.RequestAborted);
+        var ct = HttpContext.RequestAborted;
+
+        // Run independent lookups in parallel to avoid sequential MVC round-trips.
+        var logTask = nutritionService.GetDailyLogByIdAsync(id, ct);
+        var foodsTask = nutritionService.GetFoodsPagedAsync(1, 200, ct);
+
+        await Task.WhenAll(logTask, foodsTask);
+
+        var log = logTask.Result;
         if (log is null) return NotFound();
 
-        var foods = await nutritionService.GetFoodsPagedAsync(1, 200, HttpContext.RequestAborted);
-        ViewData["Foods"] = foods.Items;
-
+        ViewData["Foods"] = foodsTask.Result.Items;
         return View(log);
     }
 

@@ -6,6 +6,7 @@ public interface IWorkoutProgramsService
 {
     Task<PagedResult<WorkoutProgramDto>> GetPagedAsync(int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default);
     Task<WorkoutProgramDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<WorkoutProgramDetailViewDto?> GetDetailViewAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Guid> CreateAsync(CreateWorkoutProgramRequest request, CancellationToken cancellationToken = default);
     Task UpdateAsync(Guid id, UpdateWorkoutProgramRequest request, CancellationToken cancellationToken = default);
     Task<bool> ActivateAsync(Guid id, CancellationToken cancellationToken = default);

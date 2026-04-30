@@ -2,9 +2,29 @@
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = "Index";
-    var extraQs = string.Join("&", Model.ExtraRouteValues.Select(kv => $"{kv.Key}={kv.Value}"));
-    var extraQsPrefix = extraQs.Length > 0 ? "&" + extraQs : "";
-    var allRouteData = new Dictionary<string, string>(Model.ExtraRouteValues);
+
+    // Build a fresh route-data dict per link so we can override page/pageSize per anchor.
+    Dictionary<string, string> RouteFor(int page, int pageSize)
+    {
+        var dict = new Dictionary<string, string>(Model.ExtraRouteValues, StringComparer.OrdinalIgnoreCase)
+        {
+            ["page"] = page.ToString(),
+            ["pageSize"] = pageSize.ToString()
+        };
+        return dict;
+    }
+
+    // For the per-page <select> we need the URL of page 1 with the new pageSize, while
+    // preserving any other route values (filters such as programId, expand, etc.).
+    string PageSizeUrl(int newPageSize)
+    {
+        var values = new Dictionary<string, string>(Model.ExtraRouteValues, StringComparer.OrdinalIgnoreCase)
+        {
+            ["page"] = "1",
+            ["pageSize"] = newPageSize.ToString()
+        };
+        return Url.Action(action, controller, values) ?? "?page=1&pageSize=" + newPageSize;
+    }
 }
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mt-3">
@@ -23,7 +43,8 @@
         <div class="d-flex align-items-center gap-2">
             <label class="form-label mb-0 small text-body-secondary text-nowrap">Per page</label>
             <select class="form-select form-select-sm" style="width: auto;"
-                    onchange="window.location.href='?page=1&pageSize='+this.value+'@Html.Raw(extraQsPrefix)'">
+                    data-pagesize-options='@System.Text.Json.JsonSerializer.Serialize(PaginationViewModel.PageSizeOptions.ToDictionary(s => s, PageSizeUrl))'
+                    onchange="window.location.href = JSON.parse(this.dataset.pagesizeOptions)[this.value];">
                 @foreach (var size in PaginationViewModel.PageSizeOptions)
                 {
                     <option value="@size" selected="@(size == Model.PageSize)">@size</option>
@@ -38,8 +59,7 @@
                     <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
                         <a class="page-link"
                            asp-controller="@controller" asp-action="@action"
-                           asp-route-page="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize"
-                           asp-all-route-data="allRouteData">
+                           asp-all-route-data="RouteFor(Math.Max(Model.PageNumber - 1, 1), Model.PageSize)">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
@@ -73,8 +93,7 @@
                         <li class="page-item">
                             <a class="page-link"
                                asp-controller="@controller" asp-action="@action"
-                               asp-route-page="1" asp-route-pageSize="@Model.PageSize"
-                               asp-all-route-data="allRouteData">1</a>
+                               asp-all-route-data="RouteFor(1, Model.PageSize)">1</a>
                         </li>
                         @if (start > 2)
                         {
@@ -87,8 +106,7 @@
                         <li class="page-item @(i == Model.PageNumber ? "active" : "")">
                             <a class="page-link"
                                asp-controller="@controller" asp-action="@action"
-                               asp-route-page="@i" asp-route-pageSize="@Model.PageSize"
-                               asp-all-route-data="allRouteData">@i</a>
+                               asp-all-route-data="RouteFor(i, Model.PageSize)">@i</a>
                         </li>
                     }
 
@@ -101,16 +119,14 @@
                         <li class="page-item">
                             <a class="page-link"
                                asp-controller="@controller" asp-action="@action"
-                               asp-route-page="@Model.TotalPages" asp-route-pageSize="@Model.PageSize"
-                               asp-all-route-data="allRouteData">@Model.TotalPages</a>
+                               asp-all-route-data="RouteFor(Model.TotalPages, Model.PageSize)">@Model.TotalPages</a>
                         </li>
                     }
 
                     <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
                         <a class="page-link"
                            asp-controller="@controller" asp-action="@action"
-                           asp-route-page="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize"
-                           asp-all-route-data="allRouteData">
+                           asp-all-route-data="RouteFor(Math.Min(Model.PageNumber + 1, Model.TotalPages), Model.PageSize)">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
