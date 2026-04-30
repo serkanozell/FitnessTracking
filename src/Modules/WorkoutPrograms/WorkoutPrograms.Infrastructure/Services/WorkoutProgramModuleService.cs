@@ -84,4 +84,25 @@ public class WorkoutProgramModuleService(IWorkoutProgramRepository _workoutProgr
 
         return new ProgramExerciseInfo(exercise.ExerciseId, exercise.Sets);
     }
+
+    public async Task<ProgramDetailInfo?> GetProgramWithSplitsAsync(Guid workoutProgramId, CancellationToken cancellationToken = default)
+    {
+        var program = await _workoutProgramRepository.GetByIdWithExercisesAsync(workoutProgramId, cancellationToken);
+
+        if (program is null)
+            return null;
+
+        var splits = program.Splits
+            .Select(s => new ProgramSplitSummaryInfo(
+                s.Id,
+                s.Name,
+                s.Order,
+                s.IsDeleted,
+                s.Exercises
+                    .Select(e => new ProgramSplitExerciseInfo(e.ExerciseId, e.IsDeleted))
+                    .ToList()))
+            .ToList();
+
+        return new ProgramDetailInfo(program.Id, program.Name, splits);
+    }
 }

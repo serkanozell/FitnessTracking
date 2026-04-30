@@ -11,6 +11,7 @@ public interface IWorkoutSessionsService
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     Task<bool> ActivateAsync(Guid id, CancellationToken cancellationToken = default);
     Task<WorkoutSessionDetailsDto?> GetDetailsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<WorkoutSessionDetailViewDto?> GetDetailViewAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<WorkoutExerciseDto>> GetWorkoutExercisesAsync(Guid sessionId, CancellationToken cancellationToken = default);
     Task<Guid> AddWorkoutExerciseAsync(Guid sessionId, WorkoutExerciseEditModel model, CancellationToken cancellationToken = default);
     Task<bool> UpdateWorkoutExerciseAsync(Guid sessionId, Guid workoutExerciseId, WorkoutExerciseEditModel model, CancellationToken cancellationToken = default);

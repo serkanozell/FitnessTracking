@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Xunit;
@@ -56,6 +56,14 @@ public class WorkoutSessionEndpointTests : IClassFixture<FitnessTrackingWebAppFa
     public async Task GetWorkoutSessionById_ShouldReturn404_WhenNotExists()
     {
         var response = await _client.GetAsync($"/api/v1/workout-sessions/{Guid.NewGuid()}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetWorkoutSessionDetailView_ShouldReturn404_WhenNotExists()
+    {
+        var response = await _client.GetAsync($"/api/v1/workout-sessions/{Guid.NewGuid()}/detail-view");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

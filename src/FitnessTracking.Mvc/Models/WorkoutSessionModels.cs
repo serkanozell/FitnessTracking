@@ -50,3 +50,25 @@ public sealed class WorkoutExerciseAddResult
 {
     public Guid SessionExerciseId { get; set; }
 }
+
+public sealed class WorkoutSessionDetailViewDto
+{
+    public WorkoutSessionDto Session { get; set; } = new();
+    public string ProgramName { get; set; } = string.Empty;
+    public IReadOnlyList<SessionSplitInfoDto> ProgramSplits { get; set; } = [];
+    public IReadOnlyList<SessionSplitExerciseInfoDto> SessionSplitExercises { get; set; } = [];
+    public IReadOnlyDictionary<Guid, string> ExerciseNames { get; set; } = new Dictionary<Guid, string>();
+}
+
+public sealed class SessionSplitInfoDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int Order { get; set; }
+}
+
+public sealed class SessionSplitExerciseInfoDto
+{
+    public Guid ExerciseId { get; set; }
+    public string Name { get; set; } = string.Empty;
+}

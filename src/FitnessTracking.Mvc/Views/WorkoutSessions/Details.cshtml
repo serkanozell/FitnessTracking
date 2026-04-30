@@ -1,30 +1,18 @@
-﻿@model WorkoutSessionDto
+﻿@model WorkoutSessionDetailViewDto
 @{
     ViewData["Title"] = "Session Details";
-    var exercises = Model.Exercises;
-    var allExercises = (IReadOnlyList<ExerciseDto>)ViewData["AllExercises"]!;
-    var programs = (IReadOnlyList<WorkoutProgramDto>)ViewData["Programs"]!;
-    var splits = (IReadOnlyList<WorkoutProgramSplitDto>)(ViewData["Splits"] ?? new List<WorkoutProgramSplitDto>());
-    var splitExercises = (Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>)(ViewData["SplitExercises"] ?? new Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>());
-    // O(1) name lookup instead of FirstOrDefault per row.
-    var exercisesById = allExercises.ToDictionary(e => e.Id);
-    var programName = programs.FirstOrDefault(p => p.Id == Model.WorkoutProgramId)?.Name ?? "Unknown";
+    var session = Model.Session;
+    var exercises = session.Exercises;
+    var exerciseNames = Model.ExerciseNames;
+    var programName = string.IsNullOrEmpty(Model.ProgramName) ? "Unknown" : Model.ProgramName;
 
     // The session is bound to a specific split; only that split's exercises are valid for adding sets.
-    var sessionSplit = splits.FirstOrDefault(s => s.Id == Model.WorkoutProgramSplitId);
-    var sessionSplitExercises = (splitExercises.GetValueOrDefault(Model.WorkoutProgramSplitId) ?? [])
-        .Where(x => !x.IsDeleted)
-        .Select(x => new
-        {
-            Id = x.ExerciseId,
-            Name = exercisesById.TryGetValue(x.ExerciseId, out var ex) ? ex.Name : x.ExerciseName
-        })
-        .OrderBy(x => x.Name)
-        .ToList();
+    var sessionSplit = Model.ProgramSplits.FirstOrDefault(s => s.Id == session.WorkoutProgramSplitId);
+    var sessionSplitExercises = Model.SessionSplitExercises;
 }
 
 <div class="d-flex align-items-center justify-content-between mb-4">
-    <h4 class="page-title">Session — @Model.Date.ToShortDateString()
+    <h4 class="page-title">Session — @session.Date.ToShortDateString()
         <button type="button" class="btn btn-sm btn-outline-primary ms-2" title="Edit Date"
                 data-coreui-toggle="collapse" data-coreui-target="#editDateCollapse">
             <i class="bi bi-pencil"></i>
@@ -37,12 +25,12 @@
 
 <div class="collapse mb-3" id="editDateCollapse">
     <div class="card card-body">
-        <form asp-action="UpdateDate" asp-route-id="@Model.Id" method="post">
+        <form asp-action="UpdateDate" asp-route-id="@session.Id" method="post">
             <div class="row g-2 align-items-end">
                 <div class="col-auto">
                     <label class="form-label">Date</label>
                     <input name="date" type="date" class="form-control"
-                           value="@Model.Date.ToString("yyyy-MM-dd")" required />
+                           value="@session.Date.ToString("yyyy-MM-dd")" required />
                 </div>
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary">
@@ -97,7 +85,7 @@
                 .Select(g => new
                 {
                     ExerciseId = g.Key,
-                    Name = exercisesById.TryGetValue(g.Key, out var ex) ? ex.Name : g.Key.ToString()[..8],
+                    Name = exerciseNames.TryGetValue(g.Key, out var nm) ? nm : g.Key.ToString()[..8],
                     FirstSet = g.Min(s => s.SetNumber),
                     Sets = g.OrderBy(s => s.SetNumber).ToList()
                 })
@@ -165,7 +153,7 @@
                                                         @if (!e.IsActive)
                                                         {
                                                             <form asp-action="ActivateExercise"
-                                                                  asp-route-id="@Model.Id"
+                                                                  asp-route-id="@session.Id"
                                                                   asp-route-exerciseId="@e.Id"
                                                                   method="post" class="d-inline">
                                                                 <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
@@ -174,7 +162,7 @@
                                                             </form>
                                                         }
                                                         <form asp-action="RemoveExercise"
-                                                              asp-route-id="@Model.Id"
+                                                              asp-route-id="@session.Id"
                                                               asp-route-exerciseId="@e.Id"
                                                               method="post" class="d-inline"
                                                               onsubmit="return confirm('Remove this exercise?')">
@@ -187,22 +175,22 @@
                                                 <tr class="collapse" id="@editId">
                                                     <td colspan="5" class="bg-body-tertiary">
                                                         <form asp-action="UpdateExercise"
-                                                              asp-route-id="@Model.Id"
+                                                              asp-route-id="@session.Id"
                                                               asp-route-workoutExerciseId="@e.Id"
                                                               method="post">
                                                             <div class="row g-2 align-items-end">
                                                                 <div class="col-md-3">
                                                                     <label class="form-label">Exercise</label>
                                                                     <select name="exerciseId" class="form-select" required>
-                                                                        @foreach (var ex in allExercises)
+                                                                        @foreach (var ex in sessionSplitExercises)
                                                                         {
-                                                                            if (ex.Id == e.ExerciseId)
+                                                                            if (ex.ExerciseId == e.ExerciseId)
                                                                             {
-                                                                                <option value="@ex.Id" selected>@ex.Name</option>
+                                                                                <option value="@ex.ExerciseId" selected>@ex.Name</option>
                                                                             }
                                                                             else
                                                                             {
-                                                                                <option value="@ex.Id">@ex.Name</option>
+                                                                                <option value="@ex.ExerciseId">@ex.Name</option>
                                                                             }
                                                                         }
                                                                     </select>
@@ -270,7 +258,7 @@
                 .GroupBy(x => x.ExerciseId)
                 .ToDictionary(g => g.Key, g => g.Count() + 1);
 
-            <form asp-action="AddExercise" asp-route-id="@Model.Id" method="post" id="addSetForm">
+            <form asp-action="AddExercise" asp-route-id="@session.Id" method="post" id="addSetForm">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-4">
                         <label class="form-label">Exercise</label>
@@ -278,8 +266,8 @@
                             <option value="">-- select --</option>
                             @foreach (var ex in sessionSplitExercises)
                             {
-                                var nextSet = nextSetByExercise.GetValueOrDefault(ex.Id, 1);
-                                <option value="@ex.Id" data-next-set="@nextSet">@ex.Name</option>
+                                var nextSet = nextSetByExercise.GetValueOrDefault(ex.ExerciseId, 1);
+                                <option value="@ex.ExerciseId" data-next-set="@nextSet">@ex.Name</option>
                             }
                         </select>
                     </div>

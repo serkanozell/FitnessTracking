@@ -110,33 +110,9 @@ public class WorkoutSessionsController(
         var ct = HttpContext.RequestAborted;
         try
         {
-            var session = await sessionsService.GetByIdAsync(id, ct);
-            if (session is null) return NotFound();
-
-            // Fan out independent lookups in parallel.
-            var allExercisesTask = exercisesService.GetPagedAsync(1, 100, ct);
-            var programsTask = programsService.GetPagedAsync(1, 100, ct);
-            var splitsTask = programsService.GetSplitsAsync(session.WorkoutProgramId, ct);
-
-            await Task.WhenAll(allExercisesTask, programsTask, splitsTask);
-
-            var splits = splitsTask.Result;
-
-            // Load all split exercises in parallel as well.
-            var splitExerciseTasks = splits
-                .Select(async s => (s.Id, Exercises: await programsService.GetSplitExercisesAsync(session.WorkoutProgramId, s.Id, ct)))
-                .ToArray();
-
-            var splitExerciseResults = await Task.WhenAll(splitExerciseTasks);
-            var splitExercises = new Dictionary<Guid, IReadOnlyList<WorkoutProgramExerciseDto>>(splitExerciseResults.Length);
-            foreach (var (splitId, ex) in splitExerciseResults)
-                splitExercises[splitId] = ex;
-
-            ViewData["AllExercises"] = allExercisesTask.Result.Items;
-            ViewData["Programs"] = programsTask.Result.Items;
-            ViewData["Splits"] = splits;
-            ViewData["SplitExercises"] = splitExercises;
-            return View(session);
+            var view = await sessionsService.GetDetailViewAsync(id, ct);
+            if (view is null) return NotFound();
+            return View(view);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {

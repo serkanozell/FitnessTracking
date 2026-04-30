@@ -65,6 +65,14 @@ public sealed class WorkoutSessionsService(HttpClient httpClient) : IWorkoutSess
         return await response.Content.ReadFromJsonAsync<WorkoutSessionDetailsDto>(cancellationToken: cancellationToken);
     }
 
+    public async Task<WorkoutSessionDetailViewDto?> GetDetailViewAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.GetAsync($"{BaseUrl}/{id}/detail-view", cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<WorkoutSessionDetailViewDto>(cancellationToken: cancellationToken);
+    }
+
     public async Task<bool> ActivateAsync(Guid id, CancellationToken cancellationToken = default)
     {
         using var response = await httpClient.PutAsync($"{BaseUrl}/{id}/activate", null, cancellationToken);
