@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WorkoutPrograms.Contracts;
 using WorkoutSessions.Contracts;
 using WorkoutSessions.Infrastructure.Persistence;
 
 namespace WorkoutSessions.Infrastructure.Services
 {
-    internal sealed class WorkoutSessionModuleService(WorkoutSessionsDbContext _context) : IWorkoutSessionModule
+    internal sealed class WorkoutSessionModuleService(WorkoutSessionsDbContext _context,
+                                                      IWorkoutProgramModule _workoutProgramModule) : IWorkoutSessionModule
     {
         public async Task<WorkoutSessionStatsInfo> GetStatsByUserAsync(Guid userId, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken = default)
         {
@@ -38,6 +40,7 @@ namespace WorkoutSessions.Infrastructure.Services
                 .Select(s => new
                 {
                     s.Date,
+                    s.WorkoutProgramSplitId,
                     Volume = s.SessionExercises
                               .Where(e => e.IsActive && !e.IsDeleted)
                               .Sum(e => (decimal?)e.Weight * e.Reps) ?? 0m,
@@ -45,6 +48,15 @@ namespace WorkoutSessions.Infrastructure.Services
                     RepCount = s.SessionExercises.Where(e => e.IsActive && !e.IsDeleted).Sum(e => (int?)e.Reps) ?? 0
                 })
                 .ToListAsync(cancellationToken);
+
+            var splitIds = perSession.Select(x => x.WorkoutProgramSplitId)
+                                     .Where(id => id != Guid.Empty)
+                                     .Distinct()
+                                     .ToList();
+
+            var splitOrders = splitIds.Count > 0
+                ? await _workoutProgramModule.GetSplitOrdersAsync(splitIds, cancellationToken)
+                : new Dictionary<Guid, int>();
 
             return perSession
                 .GroupBy(x => GetBucketStart(x.Date, period))
@@ -54,7 +66,12 @@ namespace WorkoutSessions.Infrastructure.Services
                     TotalVolume: g.Sum(x => x.Volume),
                     SessionCount: g.Count(),
                     TotalSets: g.Sum(x => x.SetCount),
-                    TotalReps: g.Sum(x => x.RepCount)))
+                    TotalReps: g.Sum(x => x.RepCount),
+                    SplitOrders: g.Select(x => splitOrders.TryGetValue(x.WorkoutProgramSplitId, out var order) ? (int?)order : null)
+                                  .Where(o => o.HasValue)
+                                  .Select(o => o!.Value)
+                                  .OrderBy(o => o)
+                                  .ToList()))
                 .ToList();
         }
 

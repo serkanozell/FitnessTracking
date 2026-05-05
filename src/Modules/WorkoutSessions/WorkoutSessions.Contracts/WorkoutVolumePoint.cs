@@ -4,5 +4,6 @@
                                      decimal TotalVolume,
                                      int SessionCount,
                                      int TotalSets,
-                                     int TotalReps);
+                                     int TotalReps,
+                                     IReadOnlyList<int> SplitOrders);
 }

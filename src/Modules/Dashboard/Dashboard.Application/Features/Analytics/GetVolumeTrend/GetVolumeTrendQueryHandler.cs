@@ -22,7 +22,8 @@ namespace Dashboard.Application.Features.Analytics.GetVolumeTrend
                 TotalVolume = p.TotalVolume,
                 SessionCount = p.SessionCount,
                 TotalSets = p.TotalSets,
-                TotalReps = p.TotalReps
+                TotalReps = p.TotalReps,
+                SplitOrders = p.SplitOrders
             }).ToList();
 
             return Result<IReadOnlyList<VolumeTrendPointDto>>.Success(result);

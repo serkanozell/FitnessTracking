@@ -13,5 +13,6 @@ namespace WorkoutPrograms.Domain.Repositories
         Task AddAsync(WorkoutProgram program, CancellationToken cancellationToken = default);
         void Update(WorkoutProgram program);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<IReadOnlyDictionary<Guid, int>> GetSplitOrdersAsync(IReadOnlyCollection<Guid> workoutProgramSplitIds, CancellationToken cancellationToken = default);
     }
 }

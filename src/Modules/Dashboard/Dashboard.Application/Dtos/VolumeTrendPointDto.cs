@@ -7,4 +7,5 @@ public sealed class VolumeTrendPointDto
     public int SessionCount { get; init; }
     public int TotalSets { get; init; }
     public int TotalReps { get; init; }
+    public IReadOnlyList<int> SplitOrders { get; init; } = [];
 }

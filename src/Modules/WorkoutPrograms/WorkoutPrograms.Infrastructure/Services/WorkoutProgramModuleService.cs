@@ -105,4 +105,9 @@ public class WorkoutProgramModuleService(IWorkoutProgramRepository _workoutProgr
 
         return new ProgramDetailInfo(program.Id, program.Name, splits);
     }
+
+    public Task<IReadOnlyDictionary<Guid, int>> GetSplitOrdersAsync(IReadOnlyCollection<Guid> workoutProgramSplitIds, CancellationToken cancellationToken = default)
+    {
+        return _workoutProgramRepository.GetSplitOrdersAsync(workoutProgramSplitIds, cancellationToken);
+    }
 }

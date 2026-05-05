@@ -10,6 +10,7 @@
     var volumeLabels = J(Model.VolumeTrend.Select(p => p.Date.ToString("MMM dd")));
     var volumeData = N(Model.VolumeTrend.Select(p => Math.Round(p.TotalVolume, 0)));
     var sessionData = I(Model.VolumeTrend.Select(p => p.SessionCount));
+    var splitOrdersData = "[" + string.Join(",", Model.VolumeTrend.Select(p => "[" + string.Join(",", p.SplitOrders) + "]")) + "]";
 
     var muscleLabels = J(Model.MuscleGroupDistribution.Select(m => m.MuscleGroup));
     var muscleData = N(Model.MuscleGroupDistribution.Select(m => Math.Round(m.TotalVolume, 0)));
@@ -229,6 +230,7 @@
             @if (Model.VolumeTrend.Count > 0)
             {
                 <text>
+                var splitOrdersByBucket = @Html.Raw(splitOrdersData);
                 new Chart(document.getElementById('volumeChart').getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -242,15 +244,6 @@
                                 borderColor: 'rgba(50, 31, 219, 1)',
                                 borderWidth: 1,
                                 yAxisID: 'y'
-                            },
-                            {
-                                type: 'line',
-                                label: 'Sessions',
-                                data: [@Html.Raw(sessionData)],
-                                borderColor: 'rgba(46, 184, 92, 1)',
-                                backgroundColor: 'rgba(46, 184, 92, 0.2)',
-                                tension: 0.3,
-                                yAxisID: 'y1'
                             }
                         ]
                     },
@@ -258,9 +251,29 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function (items) {
+                                        if (!items || items.length === 0) return '';
+                                        var idx = items[0].dataIndex;
+                                        var orders = splitOrdersByBucket[idx] || [];
+                                        if (orders.length === 0) return 'Split order: -';
+                                        var counts = {};
+                                        orders.forEach(function (o) { counts[o] = (counts[o] || 0) + 1; });
+                                        var parts = Object.keys(counts)
+                                            .sort(function (a, b) { return a - b; })
+                                            .map(function (k) {
+                                                var c = counts[k];
+                                                return c > 1 ? ('#' + k + ' ×' + c) : ('#' + k);
+                                            });
+                                        return 'Split order: ' + parts.join(', ');
+                                    }
+                                }
+                            }
+                        },
                         scales: {
-                            y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Volume (kg)' } },
-                            y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Sessions' }, ticks: { stepSize: 1 } }
+                            y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Volume (kg)' } }
                         }
                     }
                 });

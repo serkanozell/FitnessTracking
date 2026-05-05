@@ -79,5 +79,18 @@ namespace WorkoutPrograms.Infrastructure.Repositories
 
             _context.WorkoutPrograms.Remove(entity);
         }
+
+        public async Task<IReadOnlyDictionary<Guid, int>> GetSplitOrdersAsync(IReadOnlyCollection<Guid> workoutProgramSplitIds, CancellationToken cancellationToken = default)
+        {
+            if (workoutProgramSplitIds is null || workoutProgramSplitIds.Count == 0)
+                return new Dictionary<Guid, int>();
+
+            return await _context.WorkoutPrograms
+                .AsNoTracking()
+                .SelectMany(p => p.Splits)
+                .Where(s => workoutProgramSplitIds.Contains(s.Id))
+                .Select(s => new { s.Id, s.Order })
+                .ToDictionaryAsync(x => x.Id, x => x.Order, cancellationToken);
+        }
     }
 }
