@@ -95,13 +95,37 @@
 | F8 | **Session Duration / Rest Timer** | WorkoutSessions | Antrenman süresi takibi, setler arası dinlenme süresi kaydı |
 | F9 | **Workout Completion Status** | WorkoutSessions | Session'lara "tamamlandı/devam ediyor/planlandı" durum alanı |
 | F10 | **Superset / Circuit Support** | WorkoutPrograms, WorkoutSessions | Egzersizler arası superset ve devre antrenman desteği |
+| F16 | **Excel Import/Export (Raporlama)** | Tüm modüller + yeni Reporting | Antrenman seansları, vücut ölçümleri ve analytics verileri için Excel (`.xlsx`) export; toplu egzersiz/program/ölçüm import. ClosedXML veya EPPlus ile. Raporlama dashboard'una entegre. |
+| F17 | **Hangfire / Background Service Altyapısı** | BuildingBlocks + Api | Zamanlanmış işler (haftalık özet e-postası, eski outbox temizliği, periyodik istatistik/PR hesaplama) için Hangfire veya `IHostedService` tabanlı job altyapısı + dashboard ile job izleme. Mevcut Outbox `BackgroundService` ile birlikte konumlandırılır. |
 
 ### Düşük Öncelik
 
 | # | Özellik | Modül | Açıklama |
 |---|---|---|---|
-| F11 | **Export / Import** | Tüm modüller | PDF/CSV olarak veri dışa aktarma, antrenman programı içe aktarma |
+| F11 | **Export / Import** | Tüm modüller | PDF/CSV olarak veri dışa aktarma, antrenman programı içe aktarma (bkz. F16 — Excel raporlama) |
 | F12 | **Media Upload** | Exercises | Egzersiz görselleri/videoları için dosya yükleme (şu an sadece URL) — Azure Blob Storage |
 | F13 | **Audit Log Modülü** | Yeni modül | Kullanıcı aksiyonlarının detaylı loglanması (kim, ne zaman, ne yaptı) |
 | F14 | **Social / Sharing** | Yeni modül | Antrenman paylaşımı, arkadaş sistemi, lider tablosu |
 | F15 | **Multi-language (i18n)** | API + MVC | Çoklu dil desteği |
+
+---
+
+## 4. Performans İyileştirmeleri
+
+> Proje geneli inceleme sonucu tespit edilen performans maddeleri. Sırayla ele alınır.
+> Öncelik: **P1 (Yüksek)** → **P2 (Orta)** → **P3 (Düşük / mimari karar)**.
+> Tamamlanınca `[ ]` → `[x]` yapılır ve "Açıklama" sütununa commit/PR referansı eklenir.
+
+| # | Durum | Öncelik | Başlık | Çözüm |
+|---|---|---|---|---|
+| P1 | [ ] | P1 | **Cartesian explosion (`Include`+`ThenInclude`)** | `WorkoutProgramRepository` ve `WorkoutSessionRepository` çoklu koleksiyon JOIN'lerinde `.AsSplitQuery()` kullan. Satır duplikasyonu ve ağ trafiğini azaltır. |
+| P2 | [ ] | P1 | **Tutarsız `AsNoTracking`** | `WorkoutProgramRepository.GetListAsync`, `GetPagedAsync`, `GetByIdWithExercisesAsync` salt-okunur sorgularına `.AsNoTracking()` ekle. Tüm read query'lerini tutarlı hale getir. |
+| P3 | [ ] | P1 | **Handler'da in-memory DTO mapping (projeksiyon yok)** | Listeleme sorgularında tam entity grafiği yerine `IQueryable.Select(...)` ile doğrudan SQL projeksiyonu yap. Yalnızca gereken kolonlar çekilir. |
+| P4 | [ ] | P1 | **In-memory aggregation (`GetStatsByUserAsync`)** | `WorkoutSessionModuleService.GetStatsByUserAsync` aggregation'ını SQL tarafına taşı (`COUNT`/`SUM` projeksiyonu). `GetVolumeTrendAsync` referans örnektir. |
+| P5 | [ ] | P2 | **Dashboard ikili stats round-trip** | `GetDashboardQueryHandler` weekly + all-time istatistiğini tek sorguda döndüren contract metodu ile birleştir (conditional aggregation). İki DB round-trip → bir. |
+| P6 | [ ] | P2 | **Cache stampede koruması** | `CacheAsideService.GetOrAddAsync` için key-bazlı `SemaphoreSlim` (in-process) veya Redis distributed lock ekle. Thundering herd'i önle. |
+| P7 | [ ] | P2 | **Outbox: type cache + drain mantığı** | `OutboxBackgroundService`'te `Type.GetType` sonuçlarını `ConcurrentDictionary` ile cache'le; batch doluysa delay'i atlayıp sonraki batch'i işle. |
+| P8 | [ ] | P2 | **Eksik composite DB index'leri** | `WorkoutSessions(UserId, Date)`, `(WorkoutProgramId)`, `(WorkoutProgramSplitId)` için `HasIndex` ekle. Soft-delete için filtered index (`HasFilter("[IsDeleted] = 0")`). |
+| P9 | [ ] | P2 | **Rate limit değeri çok düşük** | IP başına 20 req/dk değeri dashboard'un çoklu analytics çağrısında yetersiz. Limiti artır veya endpoint başına policy uygula. |
+| P10 | [ ] | P3 | **MVC N+1 HTTP çağrısı** | `DashboardService` analytics için ayrı endpoint çağrılarını `GetAnalyticsPageAsync` tek aggregate endpoint ile değiştir; gerekirse `Task.WhenAll` ile paralelleştir. |
+| P11 | [ ] | P3 | **`DateTime.Now` → `DateTime.UtcNow`** | Sunucu zaman dilimi bağımlılığını kaldırmak için UTC'ye geçişi değerlendir. Global mimari karar — tüm projede tutarlı yapılmalı. |
