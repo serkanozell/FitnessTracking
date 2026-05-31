@@ -93,8 +93,11 @@ public sealed class AnalyticsViewModel
     public int Days { get; init; } = 30;
     public AnalyticsGroupingPeriod Period { get; init; } = AnalyticsGroupingPeriod.Day;
     public Guid? ExerciseId { get; init; }
+    public Guid? ProgramId { get; init; }
+    public Guid? SplitId { get; init; }
 
     public IReadOnlyList<ExerciseDto> Exercises { get; init; } = [];
+    public IReadOnlyList<WorkoutProgramDto> Programs { get; init; } = [];
     public IReadOnlyList<VolumeTrendPointDto> VolumeTrend { get; init; } = [];
     public IReadOnlyList<MuscleGroupVolumeDto> MuscleGroupDistribution { get; init; } = [];
     public IReadOnlyList<ExerciseProgressPointDto> ExerciseProgress { get; init; } = [];

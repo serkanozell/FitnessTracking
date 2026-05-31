@@ -14,7 +14,13 @@ namespace Dashboard.Application.Features.Analytics.GetVolumeTrend
             var dateTo = DateTime.Today.AddDays(1);
             var dateFrom = DateTime.Today.AddDays(-request.Days);
 
-            var data = await _sessionModule.GetVolumeTrendAsync(userId, dateFrom, dateTo, request.Period, cancellationToken);
+            var data = await _sessionModule.GetVolumeTrendAsync(userId,
+                                                                dateFrom,
+                                                                dateTo,
+                                                                request.Period,
+                                                                request.WorkoutProgramId,
+                                                                request.WorkoutProgramSplitId,
+                                                                cancellationToken);
 
             var result = data.Select(p => new VolumeTrendPointDto
             {

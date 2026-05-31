@@ -10,9 +10,17 @@ namespace Dashboard.Application.Features.Analytics.GetVolumeTrend
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/dashboard/analytics/volume-trend", async (int? days, GroupingPeriod? period, ISender sender, CancellationToken ct) =>
+            endpoints.MapGet("/dashboard/analytics/volume-trend", async (int? days,
+                                                                        GroupingPeriod? period,
+                                                                        Guid? workoutProgramId,
+                                                                        Guid? workoutProgramSplitId,
+                                                                        ISender sender,
+                                                                        CancellationToken ct) =>
             {
-                var result = await sender.Send(new GetVolumeTrendQuery(days ?? 30, period ?? GroupingPeriod.Day), ct);
+                var result = await sender.Send(new GetVolumeTrendQuery(days ?? 30,
+                                                                       period ?? GroupingPeriod.Day,
+                                                                       workoutProgramId,
+                                                                       workoutProgramSplitId), ct);
 
                 return result.IsSuccess
                     ? Results.Ok(result.Data)

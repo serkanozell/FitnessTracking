@@ -22,10 +22,17 @@ public sealed class DashboardService(HttpClient httpClient) : IDashboardService
 
     public async Task<IReadOnlyList<VolumeTrendPointDto>> GetVolumeTrendAsync(int days = 30,
                                                                               AnalyticsGroupingPeriod period = AnalyticsGroupingPeriod.Day,
+                                                                              Guid? workoutProgramId = null,
+                                                                              Guid? workoutProgramSplitId = null,
                                                                               CancellationToken cancellationToken = default)
     {
-        var result = await httpClient.GetFromJsonAsync<IReadOnlyList<VolumeTrendPointDto>>(
-            $"{AnalyticsUrl}/volume-trend?days={days}&period={(int)period}", cancellationToken);
+        var url = $"{AnalyticsUrl}/volume-trend?days={days}&period={(int)period}";
+        if (workoutProgramId.HasValue && workoutProgramId.Value != Guid.Empty)
+            url += $"&workoutProgramId={workoutProgramId.Value}";
+        if (workoutProgramSplitId.HasValue && workoutProgramSplitId.Value != Guid.Empty)
+            url += $"&workoutProgramSplitId={workoutProgramSplitId.Value}";
+
+        var result = await httpClient.GetFromJsonAsync<IReadOnlyList<VolumeTrendPointDto>>(url, cancellationToken);
         return result ?? [];
     }
 

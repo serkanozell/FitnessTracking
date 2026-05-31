@@ -9,6 +9,8 @@ public interface IDashboardService
 
     Task<IReadOnlyList<VolumeTrendPointDto>> GetVolumeTrendAsync(int days = 30,
                                                                  AnalyticsGroupingPeriod period = AnalyticsGroupingPeriod.Day,
+                                                                 Guid? workoutProgramId = null,
+                                                                 Guid? workoutProgramSplitId = null,
                                                                  CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<ExerciseProgressPointDto>> GetExerciseProgressAsync(Guid exerciseId,

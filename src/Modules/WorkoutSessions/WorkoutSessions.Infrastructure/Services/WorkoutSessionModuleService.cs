@@ -27,6 +27,8 @@ namespace WorkoutSessions.Infrastructure.Services
                                                                                  DateTime dateFrom,
                                                                                  DateTime dateTo,
                                                                                  GroupingPeriod period,
+                                                                                 Guid? workoutProgramId = null,
+                                                                                 Guid? workoutProgramSplitId = null,
                                                                                  CancellationToken cancellationToken = default)
         {
             // Per-session aggregation in SQL (one row per session in the range)
@@ -36,7 +38,9 @@ namespace WorkoutSessions.Infrastructure.Services
                             && s.IsActive
                             && !s.IsDeleted
                             && s.Date >= dateFrom
-                            && s.Date <= dateTo)
+                            && s.Date <= dateTo
+                            && (workoutProgramId == null || s.WorkoutProgramId == workoutProgramId)
+                            && (workoutProgramSplitId == null || s.WorkoutProgramSplitId == workoutProgramSplitId))
                 .Select(s => new
                 {
                     s.Date,

@@ -8,6 +8,8 @@
                                                                     DateTime dateFrom,
                                                                     DateTime dateTo,
                                                                     GroupingPeriod period,
+                                                                    Guid? workoutProgramId = null,
+                                                                    Guid? workoutProgramSplitId = null,
                                                                     CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<ExerciseProgressPoint>> GetExerciseProgressAsync(Guid userId,

@@ -27,7 +27,7 @@
 </div>
 
 <!-- Filters -->
-<form method="get" class="card mb-4">
+<form method="get" class="card mb-4" id="analyticsFilters">
     <div class="card-body">
         <div class="row g-3 align-items-end">
             <div class="col-md-3">
@@ -48,7 +48,34 @@
                     <option value="2" selected="@(Model.Period == AnalyticsGroupingPeriod.Month)">Month</option>
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label class="form-label">Program (volume filter)</label>
+                <select name="programId" id="programFilter" class="form-select" onchange="document.getElementById('splitFilter').value=''; this.form.submit();">
+                    <option value="">All programs</option>
+                    @foreach (var p in Model.Programs)
+                    {
+                        <option value="@p.Id" selected="@(p.Id == Model.ProgramId)">@p.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Split (volume filter)</label>
+                <select name="splitId" id="splitFilter" class="form-select" onchange="this.form.submit()" disabled="@(Model.ProgramId is null)">
+                    <option value="">All splits</option>
+                    @if (Model.ProgramId is not null)
+                    {
+                        var selectedProgram = Model.Programs.FirstOrDefault(p => p.Id == Model.ProgramId);
+                        if (selectedProgram is not null)
+                        {
+                            foreach (var s in selectedProgram.Splits.Where(s => !s.IsDeleted).OrderBy(s => s.Order))
+                            {
+                                <option value="@s.Id" selected="@(s.Id == Model.SplitId)">#@s.Order — @s.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
                 <label class="form-label">Exercise (for progress chart)</label>
                 <select name="exerciseId" class="form-select" onchange="this.form.submit()">
                     @if (Model.Exercises.Count == 0)
@@ -64,8 +91,18 @@
                     }
                 </select>
             </div>
-            <div class="col-md-2 text-end">
+            <div class="col-md-6 text-end">
                 <noscript><button type="submit" class="btn btn-primary w-100">Apply</button></noscript>
+                @if (Model.ProgramId is not null || Model.SplitId is not null)
+                {
+                    <a class="btn btn-outline-secondary"
+                       asp-action="Index"
+                       asp-route-days="@Model.Days"
+                       asp-route-period="@((int)Model.Period)"
+                       asp-route-exerciseId="@Model.ExerciseId">
+                        <i class="bi bi-x-circle me-1"></i>Clear program/split filter
+                    </a>
+                }
             </div>
         </div>
     </div>
@@ -73,9 +110,28 @@
 
 <!-- Volume Trend -->
 <div class="card mb-4">
-    <div class="card-header">
-        <i class="bi bi-bar-chart-line me-2"></i>Workout Volume Trend
-        <span class="text-body-secondary small ms-2">(sets × reps × weight)</span>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span>
+            <i class="bi bi-bar-chart-line me-2"></i>Workout Volume Trend
+            <span class="text-body-secondary small ms-2">(sets × reps × weight)</span>
+        </span>
+        @{
+            var activeProgram = Model.ProgramId is null ? null : Model.Programs.FirstOrDefault(p => p.Id == Model.ProgramId);
+            var activeSplit = activeProgram is null || Model.SplitId is null
+                ? null
+                : activeProgram.Splits.FirstOrDefault(s => s.Id == Model.SplitId);
+        }
+        @if (activeProgram is not null)
+        {
+            <span class="small text-body-secondary">
+                <i class="bi bi-funnel me-1"></i>
+                <span class="badge bg-primary-subtle text-primary-emphasis">@activeProgram.Name</span>
+                @if (activeSplit is not null)
+                {
+                    <span class="badge bg-info-subtle text-info-emphasis ms-1">Split #@activeSplit.Order — @activeSplit.Name</span>
+                }
+            </span>
+        }
     </div>
     <div class="card-body">
         @if (Model.VolumeTrend.Count == 0)
