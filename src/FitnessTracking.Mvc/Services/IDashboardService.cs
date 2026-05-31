@@ -22,4 +22,11 @@ public interface IDashboardService
 
     Task<IReadOnlyList<PersonalRecordDto>> GetPersonalRecordsAsync(int top = 10,
                                                                    CancellationToken cancellationToken = default);
+
+    Task<AnalyticsPageDto?> GetAnalyticsPageAsync(int days = 30,
+                                                  AnalyticsGroupingPeriod period = AnalyticsGroupingPeriod.Day,
+                                                  Guid? exerciseId = null,
+                                                  Guid? programId = null,
+                                                  Guid? splitId = null,
+                                                  CancellationToken cancellationToken = default);
 }

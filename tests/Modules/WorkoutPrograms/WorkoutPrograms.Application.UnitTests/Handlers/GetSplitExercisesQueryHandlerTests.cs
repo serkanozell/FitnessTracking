@@ -1,4 +1,4 @@
-using Exercises.Contracts;
+﻿using Exercises.Contracts;
 using FluentAssertions;
 using BuildingBlocks.Application.Abstractions;
 using NSubstitute;
@@ -38,7 +38,7 @@ public class GetSplitExercisesQueryHandlerTests
         _exerciseModule.GetExercisesAsync(Arg.Any<CancellationToken>())
             .Returns(new List<ExerciseInfo>
             {
-                new(exerciseId, "Bench Press", "Chest", "Triceps", "Flat bench")
+                new(exerciseId, "Bench Press", "Chest", "Triceps", "Flat bench", true, false)
             });
 
         var result = await _sut.Handle(query, CancellationToken.None);

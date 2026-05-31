@@ -60,4 +60,22 @@ public sealed class DashboardService(HttpClient httpClient) : IDashboardService
             $"{AnalyticsUrl}/personal-records?top={top}", cancellationToken);
         return result ?? [];
     }
+
+    public async Task<AnalyticsPageDto?> GetAnalyticsPageAsync(int days = 30,
+                                                               AnalyticsGroupingPeriod period = AnalyticsGroupingPeriod.Day,
+                                                               Guid? exerciseId = null,
+                                                               Guid? programId = null,
+                                                               Guid? splitId = null,
+                                                               CancellationToken cancellationToken = default)
+    {
+        var url = $"{AnalyticsUrl}/page?days={days}&period={(int)period}";
+        if (exerciseId.HasValue && exerciseId.Value != Guid.Empty)
+            url += $"&exerciseId={exerciseId.Value}";
+        if (programId.HasValue && programId.Value != Guid.Empty)
+            url += $"&programId={programId.Value}";
+        if (splitId.HasValue && splitId.Value != Guid.Empty)
+            url += $"&splitId={splitId.Value}";
+
+        return await httpClient.GetFromJsonAsync<AnalyticsPageDto>(url, cancellationToken);
+    }
 }

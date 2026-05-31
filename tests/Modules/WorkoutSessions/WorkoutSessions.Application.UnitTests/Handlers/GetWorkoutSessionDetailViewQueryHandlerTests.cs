@@ -88,10 +88,10 @@ public class GetWorkoutSessionDetailViewQueryHandlerTests
 
         _exerciseModule.GetExercisesAsync(Arg.Any<CancellationToken>()).Returns(new List<ExerciseInfo>
         {
-            new(exerciseInSplitId, "Bench Press", "Chest", null, ""),
-            new(deletedExerciseId, "Old Exercise", "Chest", null, ""),
-            new(unrelatedExerciseId, "Row", "Back", null, ""),
-            new(sessionExerciseId, "Squat", "Legs", null, "")
+            new(exerciseInSplitId, "Bench Press", "Chest", null, "", true, false),
+            new(deletedExerciseId, "Old Exercise", "Chest", null, "", false, true),
+            new(unrelatedExerciseId, "Row", "Back", null, "", true, false),
+            new(sessionExerciseId, "Squat", "Legs", null, "", true, false)
         });
 
         var result = await _sut.Handle(query, CancellationToken.None);

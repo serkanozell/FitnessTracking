@@ -19,6 +19,11 @@ namespace WorkoutSessions.Infrastructure.Configurations
 
             builder.HasIndex(x => x.UserId);
 
+            // All analytics queries (volume trend, exercise progress, personal records)
+            // filter sessions by UserId + Date range. A composite index keeps these
+            // range scans selective even over long periods (e.g. 365 days).
+            builder.HasIndex(x => new { x.UserId, x.Date });
+
             builder.Property(x => x.WorkoutProgramId)
                    .IsRequired();
 

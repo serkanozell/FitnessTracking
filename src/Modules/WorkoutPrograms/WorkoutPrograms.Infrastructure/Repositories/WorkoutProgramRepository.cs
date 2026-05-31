@@ -61,6 +61,17 @@ namespace WorkoutPrograms.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyList<WorkoutProgram>> GetListByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _context.WorkoutPrograms
+                .AsNoTracking()
+                .Include(x => x.Splits)
+                .ThenInclude(x => x.Exercises)
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task AddAsync(WorkoutProgram program, CancellationToken cancellationToken = default)
         {
             await _context.WorkoutPrograms.AddAsync(program, cancellationToken);

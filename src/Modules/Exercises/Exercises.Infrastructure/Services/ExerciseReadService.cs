@@ -13,7 +13,9 @@ namespace Exercises.Infrastructure.Services
                                                        x.Name,
                                                        x.PrimaryMuscleGroup.ToString(),
                                                        x.SecondaryMuscleGroup?.ToString(),
-                                                       x.Description))
+                                                       x.Description,
+                                                       x.IsActive,
+                                                       x.IsDeleted))
                          .ToList();
         }
     }

@@ -10,6 +10,7 @@
         Task<bool> SplitBelongsToProgramAsync(Guid workoutProgramId, Guid workoutProgramSplitId, CancellationToken cancellationToken = default);
         Task<ProgramExerciseInfo?> GetSplitExerciseAsync(Guid workoutProgramId, Guid workoutProgramSplitId, Guid exerciseId, CancellationToken cancellationToken = default);
         Task<ProgramDetailInfo?> GetProgramWithSplitsAsync(Guid workoutProgramId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<UserWorkoutProgramInfo>> GetProgramsByUserWithSplitsAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<IReadOnlyDictionary<Guid, int>> GetSplitOrdersAsync(IReadOnlyCollection<Guid> workoutProgramSplitIds, CancellationToken cancellationToken = default);
     }
 }

@@ -31,16 +31,26 @@ namespace WorkoutSessions.Infrastructure.Services
                                                                                  Guid? workoutProgramSplitId = null,
                                                                                  CancellationToken cancellationToken = default)
         {
-            // Per-session aggregation in SQL (one row per session in the range)
-            var perSession = await _context.WorkoutSessions
+            // Compose the filter conditionally instead of using the
+            // "(@param IS NULL OR col = @param)" catch-all pattern, which forces
+            // SQL Server into a full table scan / bad cached plan and makes the
+            // 365-day + split-filtered query extremely slow (eventually timing out).
+            var query = _context.WorkoutSessions
                 .AsNoTracking()
                 .Where(s => s.UserId == userId
                             && s.IsActive
                             && !s.IsDeleted
                             && s.Date >= dateFrom
-                            && s.Date <= dateTo
-                            && (workoutProgramId == null || s.WorkoutProgramId == workoutProgramId)
-                            && (workoutProgramSplitId == null || s.WorkoutProgramSplitId == workoutProgramSplitId))
+                            && s.Date <= dateTo);
+
+            if (workoutProgramId.HasValue && workoutProgramId.Value != Guid.Empty)
+                query = query.Where(s => s.WorkoutProgramId == workoutProgramId.Value);
+
+            if (workoutProgramSplitId.HasValue && workoutProgramSplitId.Value != Guid.Empty)
+                query = query.Where(s => s.WorkoutProgramSplitId == workoutProgramSplitId.Value);
+
+            // Per-session aggregation in SQL (one row per session in the range)
+            var perSession = await query
                 .Select(s => new
                 {
                     s.Date,

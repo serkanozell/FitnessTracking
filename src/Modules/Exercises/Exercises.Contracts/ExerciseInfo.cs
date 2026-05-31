@@ -1,3 +1,9 @@
-namespace Exercises.Contracts;
+﻿namespace Exercises.Contracts;
 
-public record ExerciseInfo(Guid Id, string Name, string PrimaryMuscleGroup, string? SecondaryMuscleGroup, string Description);
+public record ExerciseInfo(Guid Id,
+                           string Name,
+                           string PrimaryMuscleGroup,
+                           string? SecondaryMuscleGroup,
+                           string Description,
+                           bool IsActive,
+                           bool IsDeleted);

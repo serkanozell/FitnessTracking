@@ -106,6 +106,33 @@ public class WorkoutProgramModuleService(IWorkoutProgramRepository _workoutProgr
         return new ProgramDetailInfo(program.Id, program.Name, splits);
     }
 
+    public async Task<IReadOnlyList<UserWorkoutProgramInfo>> GetProgramsByUserWithSplitsAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var programs = await _workoutProgramRepository.GetListByUserAsync(userId, cancellationToken);
+
+        return programs
+            .Select(p => new UserWorkoutProgramInfo(
+                p.Id,
+                p.UserId,
+                p.Name,
+                p.Description,
+                p.StartDate,
+                p.EndDate,
+                p.IsActive,
+                p.IsDeleted,
+                p.Splits
+                    .Select(s => new UserWorkoutProgramSplitInfo(
+                        s.Id,
+                        s.Name,
+                        s.Order,
+                        s.IsDeleted,
+                        s.Exercises
+                            .Select(e => new UserWorkoutProgramSplitExerciseInfo(e.ExerciseId, e.IsActive, e.IsDeleted))
+                            .ToList()))
+                    .ToList()))
+            .ToList();
+    }
+
     public Task<IReadOnlyDictionary<Guid, int>> GetSplitOrdersAsync(IReadOnlyCollection<Guid> workoutProgramSplitIds, CancellationToken cancellationToken = default)
     {
         return _workoutProgramRepository.GetSplitOrdersAsync(workoutProgramSplitIds, cancellationToken);
