@@ -1,11 +1,7 @@
-﻿using BuildingBlocks.Application.Abstractions.Caching;
-
-namespace WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSession
+﻿namespace WorkoutSessions.Application.Features.WorkoutSessions.UpdateWorkoutSession
 {
+    // User-scoped queries are not cached (see docs/ARCHITECTURE.md), so there is
+    // nothing to invalidate here.
     public sealed record UpdateWorkoutSessionCommand(Guid Id,
-                                                     DateTime Date) : ICommand<Result<bool>>, ICacheInvalidatingCommand
-    {
-        public string[] CacheKeysToInvalidate => [$"workoutsessions:{Id}"];
-        public string[] CachePrefixesToInvalidate => ["workoutsessions:all", "workoutsessions:program:"];
-    }
+                                                     DateTime Date) : ICommand<Result<bool>>;
 }

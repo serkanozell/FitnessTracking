@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions.Caching;
+﻿using BuildingBlocks.Application.Abstractions.Caching;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
@@ -70,9 +70,31 @@ public class CacheAsideServiceTests
         var cts = new CancellationTokenSource();
         _cacheService.GetAsync<string>("key", cts.Token).Returns((string?)null);
 
-        await _sut.GetOrAddAsync("key", _ => Task.FromResult("val"), null, cts.Token);
+        await _sut.GetOrAddAsync("key", _ => Task.FromResult("val"), null, null, cts.Token);
 
-        await _cacheService.Received(1).GetAsync<string>("key", cts.Token);
+        await _cacheService.Received().GetAsync<string>("key", cts.Token);
         await _cacheService.Received(1).SetAsync("key", "val", null, cts.Token);
+    }
+
+    [Fact]
+    public async Task GetOrAddAsync_ShouldNotCache_WhenShouldCachePredicateReturnsFalse()
+    {
+        _cacheService.GetAsync<string>("key", Arg.Any<CancellationToken>()).Returns((string?)null);
+
+        var result = await _sut.GetOrAddAsync("key", _ => Task.FromResult("skip-me"), null, _ => false);
+
+        result.Should().Be("skip-me");
+        await _cacheService.DidNotReceive().SetAsync("key", Arg.Any<string>(), Arg.Any<TimeSpan?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetOrAddAsync_ShouldCache_WhenShouldCachePredicateReturnsTrue()
+    {
+        _cacheService.GetAsync<string>("key", Arg.Any<CancellationToken>()).Returns((string?)null);
+
+        var result = await _sut.GetOrAddAsync("key", _ => Task.FromResult("keep-me"), null, _ => true);
+
+        result.Should().Be("keep-me");
+        await _cacheService.Received(1).SetAsync("key", "keep-me", Arg.Any<TimeSpan?>(), Arg.Any<CancellationToken>());
     }
 }

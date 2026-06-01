@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Application.Abstractions.Caching;
+using Exercises.Application.Caching;
 
 namespace Exercises.Application.Features.Exercises.UpdateExercise
 {
@@ -10,7 +11,7 @@ namespace Exercises.Application.Features.Exercises.UpdateExercise
                                                string? ImageUrl,
                                                string? VideoUrl) : ICommand<Result<bool>>, ICacheInvalidatingCommand
     {
-        public string[] CacheKeysToInvalidate => [$"exercises:{Id}"];
-        public string[] CachePrefixesToInvalidate => ["exercises:all"];
+        public string[] CacheKeysToInvalidate => [ExerciseCacheKeys.ById(Id)];
+        public string[] CachePrefixesToInvalidate => [ExerciseCacheKeys.AllPrefix];
     }
 }

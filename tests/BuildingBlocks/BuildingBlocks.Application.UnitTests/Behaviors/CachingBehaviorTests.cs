@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Abstractions.Caching;
+﻿using BuildingBlocks.Application.Abstractions.Caching;
 using BuildingBlocks.Application.Behaviors;
 using BuildingBlocks.Application.CQRS;
 using BuildingBlocks.Application.Results;
@@ -30,6 +30,7 @@ public class CachingBehaviorTests
                 Arg.Any<string>(),
                 Arg.Any<Func<CancellationToken, Task<Result<string>>>>(),
                 Arg.Any<TimeSpan?>(),
+                Arg.Any<Func<Result<string>, bool>?>(),
                 Arg.Any<CancellationToken>())
             .Returns(expectedResult);
 
@@ -43,6 +44,7 @@ public class CachingBehaviorTests
             "test:cache:key",
             Arg.Any<Func<CancellationToken, Task<Result<string>>>>(),
             Arg.Any<TimeSpan?>(),
+            Arg.Any<Func<Result<string>, bool>?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -53,6 +55,7 @@ public class CachingBehaviorTests
                 Arg.Any<string>(),
                 Arg.Any<Func<CancellationToken, Task<Result<string>>>>(),
                 Arg.Any<TimeSpan?>(),
+                Arg.Any<Func<Result<string>, bool>?>(),
                 Arg.Any<CancellationToken>())
             .Returns(Result<string>.Success("data"));
 
@@ -65,6 +68,7 @@ public class CachingBehaviorTests
             Arg.Any<string>(),
             Arg.Any<Func<CancellationToken, Task<Result<string>>>>(),
             TimeSpan.FromMinutes(5),
+            Arg.Any<Func<Result<string>, bool>?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -76,6 +80,7 @@ public class CachingBehaviorTests
                 Arg.Any<string>(),
                 Arg.Any<Func<CancellationToken, Task<Result<string>>>>(),
                 Arg.Any<TimeSpan?>(),
+                Arg.Any<Func<Result<string>, bool>?>(),
                 Arg.Any<CancellationToken>())
             .Returns(Result<string>.Success("data"));
 
@@ -88,6 +93,7 @@ public class CachingBehaviorTests
             Arg.Any<string>(),
             Arg.Any<Func<CancellationToken, Task<Result<string>>>>(),
             customExpiration,
+            Arg.Any<Func<Result<string>, bool>?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -99,6 +105,7 @@ public class CachingBehaviorTests
                 Arg.Any<string>(),
                 Arg.Any<Func<CancellationToken, Task<Result<string>>>>(),
                 Arg.Any<TimeSpan?>(),
+                Arg.Any<Func<Result<string>, bool>?>(),
                 Arg.Any<CancellationToken>())
             .Returns(cachedResult);
 

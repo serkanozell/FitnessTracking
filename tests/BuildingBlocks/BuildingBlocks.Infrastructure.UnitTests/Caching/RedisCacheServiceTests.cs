@@ -1,11 +1,12 @@
-using BuildingBlocks.Infrastructure.Persistence.Caching;
+﻿using BuildingBlocks.Infrastructure.Persistence.Caching;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using Polly;
+using Polly.Registry;
 using StackExchange.Redis;
 using System.Text;
-using System.Text.Json;
 using Xunit;
 
 namespace BuildingBlocks.Infrastructure.UnitTests.Caching;
@@ -18,8 +19,14 @@ public class RedisCacheServiceTests
 
     public RedisCacheServiceTests()
     {
-        var options = Options.Create(new RedisOptions { DefaultExpiryMin = 10 });
-        _sut = new RedisCacheService(_distributedCache, _connectionMultiplexer, options);
+        _sut = new RedisCacheService(_distributedCache, _connectionMultiplexer, CreatePipelineProvider(), NullLogger<RedisCacheService>.Instance);
+    }
+
+    private static ResiliencePipelineProvider<string> CreatePipelineProvider()
+    {
+        var provider = Substitute.For<ResiliencePipelineProvider<string>>();
+        provider.GetPipeline(Arg.Any<string>()).Returns(ResiliencePipeline.Empty);
+        return provider;
     }
 
     [Fact]
@@ -42,6 +49,17 @@ public class RedisCacheServiceTests
             .Returns((byte[]?)null);
 
         var result = await _sut.GetAsync<TestDto>("missing");
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetAsync_ShouldReturnDefault_WhenRedisThrows()
+    {
+        _distributedCache.GetAsync("boom", Arg.Any<CancellationToken>())
+            .Returns<byte[]?>(_ => throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, "down"));
+
+        var result = await _sut.GetAsync<TestDto>("boom");
 
         result.Should().BeNull();
     }
@@ -75,30 +93,27 @@ public class RedisCacheServiceTests
     }
 
     [Fact]
-    public async Task SetAsync_ShouldUseDefaultExpiry_WhenNoExpiryProvided()
+    public async Task SetAsync_ShouldNotSetExpiry_WhenNoExpiryProvided()
     {
         await _sut.SetAsync("key", "value");
 
         await _distributedCache.Received(1).SetAsync(
             "key",
             Arg.Any<byte[]>(),
-            Arg.Is<DistributedCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == TimeSpan.FromMinutes(10)),
+            Arg.Is<DistributedCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == null),
             Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task SetAsync_ShouldNotSetExpiry_WhenNoExpiryAndNoDefault()
+    public async Task SetAsync_ShouldNotThrow_WhenRedisThrows()
     {
-        var options = Options.Create(new RedisOptions { DefaultExpiryMin = null });
-        var sut = new RedisCacheService(_distributedCache, _connectionMultiplexer, options);
+        _distributedCache
+            .When(c => c.SetAsync("key", Arg.Any<byte[]>(), Arg.Any<DistributedCacheEntryOptions>(), Arg.Any<CancellationToken>()))
+            .Do(_ => throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, "down"));
 
-        await sut.SetAsync("key", "value");
+        var act = async () => await _sut.SetAsync("key", "value");
 
-        await _distributedCache.Received(1).SetAsync(
-            "key",
-            Arg.Any<byte[]>(),
-            Arg.Is<DistributedCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == null),
-            Arg.Any<CancellationToken>());
+        await act.Should().NotThrowAsync();
     }
 
     [Fact]

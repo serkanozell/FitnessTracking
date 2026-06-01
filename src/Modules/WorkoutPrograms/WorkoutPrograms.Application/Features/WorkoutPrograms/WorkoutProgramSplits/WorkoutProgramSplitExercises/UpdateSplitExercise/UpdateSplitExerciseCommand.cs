@@ -1,15 +1,11 @@
-﻿using BuildingBlocks.Application.Abstractions.Caching;
-
-namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.UpdateSplitExercise
+﻿namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSplits.WorkoutProgramSplitExercises.UpdateSplitExercise
 {
+    // User-scoped queries are not cached (see docs/ARCHITECTURE.md), so there is
+    // nothing to invalidate here.
     public sealed record UpdateSplitExerciseCommand(Guid WorkoutProgramId,
                                                     Guid WorkoutProgramSplitId,
                                                     Guid WorkoutProgramExerciseId,
                                                     int Sets,
                                                     int MinimumReps,
-                                                    int MaximumReps) : ICommand<Result<bool>>, ICacheInvalidatingCommand
-    {
-        public string[] CacheKeysToInvalidate => [$"workoutprograms:{WorkoutProgramId}", $"workoutprograms:{WorkoutProgramId}:splits:{WorkoutProgramSplitId}:exercises"];
-        public string[] CachePrefixesToInvalidate => ["workoutprograms:all"];
-    }
+                                                    int MaximumReps) : ICommand<Result<bool>>;
 }

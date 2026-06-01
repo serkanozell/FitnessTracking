@@ -125,7 +125,7 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
 
     private sealed class PassThroughCacheAsideService : ICacheAsideService
     {
-        public Task<T> GetOrAddAsync<T>(string key, Func<CancellationToken, Task<T>> factory, TimeSpan? expiration = null, CancellationToken cancellationToken = default)
+        public Task<T> GetOrAddAsync<T>(string key, Func<CancellationToken, Task<T>> factory, TimeSpan? expiration = null, Func<T, bool>? shouldCache = null, CancellationToken cancellationToken = default)
         {
             return factory(cancellationToken);
         }

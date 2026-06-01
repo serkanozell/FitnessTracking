@@ -1,10 +1,6 @@
-﻿using BuildingBlocks.Application.Abstractions.Caching;
-
-namespace WorkoutSessions.Application.Features.WorkoutSessions.DeleteWorkoutSession
+﻿namespace WorkoutSessions.Application.Features.WorkoutSessions.DeleteWorkoutSession
 {
-    public sealed record DeleteWorkoutSessionCommand(Guid Id) : ICommand<Result<bool>>, ICacheInvalidatingCommand
-    {
-        public string[] CacheKeysToInvalidate => [$"workoutsessions:{Id}"];
-        public string[] CachePrefixesToInvalidate => ["workoutsessions:all", "workoutsessions:program:"];
-    }
+    // User-scoped queries are not cached (see docs/ARCHITECTURE.md), so there is
+    // nothing to invalidate here.
+    public sealed record DeleteWorkoutSessionCommand(Guid Id) : ICommand<Result<bool>>;
 }
