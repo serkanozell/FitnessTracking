@@ -7,6 +7,8 @@ namespace Users.Infrastructure.Persistence
     public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options)
         : ModuleDbContext(options)
     {
+        protected override string Schema => UsersSchema.Name;
+
         public DbSet<User> Users => Set<User>();
         public DbSet<Role> Roles => Set<Role>();
         public DbSet<UserRole> UserRoles => Set<UserRole>();

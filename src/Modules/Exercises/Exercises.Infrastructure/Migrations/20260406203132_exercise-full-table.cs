@@ -14,9 +14,6 @@ namespace Exercises.Infrastructure.Migrations
             migrationBuilder.EnsureSchema(
                 name: "exercises");
 
-            migrationBuilder.EnsureSchema(
-                name: "outbox");
-
             migrationBuilder.CreateTable(
                 name: "Exercises",
                 schema: "exercises",
@@ -41,32 +38,6 @@ namespace Exercises.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Exercises", x => x.Id);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "OutboxMessages",
-                schema: "outbox",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EventType = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsProcessed = table.Column<bool>(type: "bit", nullable: false),
-                    OccurredOnUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ProcessedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Error = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RetryCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OutboxMessages", x => x.Id);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OutboxMessages_IsProcessed_OccurredOnUtc",
-                schema: "outbox",
-                table: "OutboxMessages",
-                columns: new[] { "IsProcessed", "OccurredOnUtc" },
-                filter: "[IsProcessed] = 0");
         }
 
         /// <inheritdoc />
@@ -75,10 +46,6 @@ namespace Exercises.Infrastructure.Migrations
             migrationBuilder.DropTable(
                 name: "Exercises",
                 schema: "exercises");
-
-            migrationBuilder.DropTable(
-                name: "OutboxMessages",
-                schema: "outbox");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BodyMetrics.Domain.Entity;
+using BodyMetrics.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,7 +7,7 @@ namespace BodyMetrics.Infrastructure.Configurations
 {
     public class BodyMetricConfiguration : IEntityTypeConfiguration<BodyMetric>
     {
-        private const string Schema = "bodymetrics";
+        private const string Schema = BodyMetricsSchema.Name;
 
         public void Configure(EntityTypeBuilder<BodyMetric> builder)
         {

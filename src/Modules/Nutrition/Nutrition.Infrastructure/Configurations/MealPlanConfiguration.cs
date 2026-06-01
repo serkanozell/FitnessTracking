@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nutrition.Domain.Entity;
+using Nutrition.Infrastructure.Persistence;
 
 namespace Nutrition.Infrastructure.Configurations
 {
     public sealed class MealPlanConfiguration : IEntityTypeConfiguration<MealPlan>
     {
-        private const string Schema = "nutrition";
+        private const string Schema = NutritionSchema.Name;
 
         public void Configure(EntityTypeBuilder<MealPlan> builder)
         {

@@ -122,8 +122,8 @@ namespace FitnessTracking.Api.Extensions
 
             services.AddUsersInfrastructure(configuration)
                     .AddExercisesInfrastructure(configuration)
-                    .WorkoutProgramsInfrastructure(configuration)
-                    .WorkoutSessionsInfrastructure(configuration)
+                    .AddWorkoutProgramsInfrastructure(configuration)
+                    .AddWorkoutSessionsInfrastructure(configuration)
                     .AddBodyMetricsInfrastructure(configuration)
                     .AddNutritionInfrastructure(configuration);
 

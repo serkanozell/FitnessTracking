@@ -7,6 +7,8 @@ namespace BodyMetrics.Infrastructure.Persistence
     public sealed class BodyMetricsDbContext(DbContextOptions<BodyMetricsDbContext> options)
         : ModuleDbContext(options)
     {
+        protected override string Schema => BodyMetricsSchema.Name;
+
         public DbSet<BodyMetric> BodyMetrics => Set<BodyMetric>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

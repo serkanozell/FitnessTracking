@@ -7,6 +7,8 @@ namespace Nutrition.Infrastructure.Persistence
     public sealed class NutritionDbContext(DbContextOptions<NutritionDbContext> options)
         : ModuleDbContext(options)
     {
+        protected override string Schema => NutritionSchema.Name;
+
         public DbSet<Food> Foods => Set<Food>();
         public DbSet<MealPlan> MealPlans => Set<MealPlan>();
         public DbSet<DailyNutritionLog> DailyNutritionLogs => Set<DailyNutritionLog>();

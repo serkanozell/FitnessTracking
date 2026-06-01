@@ -1,5 +1,6 @@
 ﻿using Users.Domain.Entity;
 using Users.Domain.Constants;
+using Users.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +10,7 @@ namespace Users.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Role> builder)
         {
-            builder.ToTable(name: "Roles", schema: "users");
+            builder.ToTable(name: "Roles", schema: UsersSchema.Name);
 
             builder.HasKey(x => x.Id);
 

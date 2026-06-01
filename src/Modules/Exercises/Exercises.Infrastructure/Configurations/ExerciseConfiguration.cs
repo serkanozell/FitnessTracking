@@ -1,4 +1,5 @@
 ﻿using Exercises.Domain.Entity;
+using Exercises.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +9,7 @@ namespace Exercises.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Exercise> builder)
         {
-            builder.ToTable(name: "Exercises", schema: "exercises");
+            builder.ToTable(name: "Exercises", schema: ExercisesSchema.Name);
 
             builder.HasKey(x => x.Id);
 

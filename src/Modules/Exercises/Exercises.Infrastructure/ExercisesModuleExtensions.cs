@@ -1,10 +1,9 @@
+﻿using BuildingBlocks.Infrastructure.Persistence;
 using Exercises.Contracts;
 using Exercises.Domain.Repositories;
 using Exercises.Infrastructure.Persistence;
 using Exercises.Infrastructure.Repositories;
 using Exercises.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,13 +13,7 @@ namespace Exercises.Infrastructure
     {
         public static IServiceCollection AddExercisesInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("FitnessDbConnection");
-
-            services.AddDbContext<ExercisesDbContext>((sp, options) =>
-            {
-                options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                options.UseSqlServer(connectionString);
-            });
+            services.AddModuleDbContext<ExercisesDbContext>(configuration, ExercisesSchema.Name);
 
             // Repositories
             services.AddScoped<IExerciseRepository, ExerciseRepository>();

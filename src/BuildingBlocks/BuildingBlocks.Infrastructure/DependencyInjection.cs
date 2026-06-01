@@ -2,6 +2,7 @@
 using BuildingBlocks.Application.Abstractions.Caching;
 using BuildingBlocks.Infrastructure.Email;
 using BuildingBlocks.Infrastructure.Outbox;
+using BuildingBlocks.Infrastructure.Persistence;
 using BuildingBlocks.Infrastructure.Persistence.Caching;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using BuildingBlocks.Infrastructure.Resilience;
@@ -142,12 +143,7 @@ namespace BuildingBlocks.Infrastructure
         {
             services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.SectionName));
 
-            var connectionString = configuration.GetConnectionString("FitnessDbConnection");
-
-            services.AddDbContext<OutboxDbContext>(options =>
-            {
-                options.UseSqlServer(connectionString);
-            });
+            services.AddModuleDbContext<OutboxDbContext>(configuration, OutboxSchema.Name);
 
             services.AddHostedService<OutboxBackgroundService>();
         }

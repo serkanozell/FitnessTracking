@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WorkoutSessions.Domain.Entity;
+using WorkoutSessions.Infrastructure.Persistence;
 
 namespace WorkoutSessions.Infrastructure.Configurations
 {
     public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSession>
     {
-        private const string Schema = "workoutsessions";
+        private const string Schema = WorkoutSessionsSchema.Name;
 
         public void Configure(EntityTypeBuilder<WorkoutSession> builder)
         {

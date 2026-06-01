@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using BuildingBlocks.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nutrition.Contracts;
@@ -14,13 +13,7 @@ namespace Nutrition.Infrastructure
     {
         public static IServiceCollection AddNutritionInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("FitnessDbConnection");
-
-            services.AddDbContext<NutritionDbContext>((sp, options) =>
-            {
-                options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                options.UseSqlServer(connectionString);
-            });
+            services.AddModuleDbContext<NutritionDbContext>(configuration, NutritionSchema.Name);
 
             services.AddScoped<IFoodRepository, FoodRepository>();
             services.AddScoped<IMealPlanRepository, MealPlanRepository>();

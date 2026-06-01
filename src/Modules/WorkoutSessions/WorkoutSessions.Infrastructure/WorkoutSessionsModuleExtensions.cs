@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using BuildingBlocks.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WorkoutSessions.Contracts;
@@ -12,15 +11,9 @@ namespace WorkoutSessions.Infrastructure
 {
     public static class WorkoutSessionsModuleExtensions
     {
-        public static IServiceCollection WorkoutSessionsInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddWorkoutSessionsInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("FitnessDbConnection");
-
-            services.AddDbContext<WorkoutSessionsDbContext>((sp, options) =>
-            {
-                options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                options.UseSqlServer(connectionString);
-            });
+            services.AddModuleDbContext<WorkoutSessionsDbContext>(configuration, WorkoutSessionsSchema.Name);
 
             services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
             services.AddScoped<IWorkoutSessionsUnitOfWork, WorkoutSessionsUnitOfWork>();

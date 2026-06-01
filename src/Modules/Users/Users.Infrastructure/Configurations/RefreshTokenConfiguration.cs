@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Users.Domain.Entity;
+using Users.Infrastructure.Persistence;
 
 namespace Users.Infrastructure.Configurations
 {
@@ -8,7 +9,7 @@ namespace Users.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<RefreshToken> builder)
         {
-            builder.ToTable("RefreshTokens", schema: "users");
+            builder.ToTable("RefreshTokens", schema: UsersSchema.Name);
 
             builder.HasKey(x => x.Id);
 

@@ -3,11 +3,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BuildingBlocks.Infrastructure.Outbox
 {
-    public sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage>
+    public sealed class OutboxMessageConfiguration(bool excludeFromMigrations)
+        : IEntityTypeConfiguration<OutboxMessage>
     {
         public void Configure(EntityTypeBuilder<OutboxMessage> builder)
         {
-            builder.ToTable("OutboxMessages", "outbox");
+            if (excludeFromMigrations)
+            {
+                builder.ToTable("OutboxMessages", OutboxSchema.Name, t => t.ExcludeFromMigrations());
+            }
+            else
+            {
+                builder.ToTable("OutboxMessages", OutboxSchema.Name);
+            }
 
             builder.HasKey(x => x.Id);
 

@@ -36,6 +36,22 @@
 - **Sorun:** `CreateWorkoutSessionCommandHandler`, `WorkoutProgramId` alıyor ama programın mevcut kullanıcıya ait olduğunu doğrulamıyordu. User A, User B'nin programına session oluşturabiliyordu.
 - **Düzeltme:** `IWorkoutProgramModule`'e `IsOwnedByUserAsync` eklendi. Handler'a program varlık + ownership kontrolü eklendi (Admin bypass destekli). 4 unit test yazıldı.
 
+### R13 — DB Şema İzolasyonu & Outbox Sahipliği ✅
+- **Sorun:**
+  1. DI extension method'larında tutarsız adlandırma (`WorkoutProgramsInfrastructure`, `WorkoutSessionsInfrastructure` — `Add` prefix'i yok).
+  2. Modül context kayıtları tekrarlı (`AddDbContext` + interceptor + connection string her modülde elle).
+  3. `__EFMigrationsHistory` tüm modüllerde `dbo`'da ortaktı (şema izolasyonu yarım).
+  4. Şema isimleri string literal olarak dağınıktı.
+  5. **Outbox sahipliği belirsiz:** `OutboxMessage`, `ModuleDbContext` üzerinden **her** modül modeline dahil ediliyordu ama tabloyu yalnızca Exercises migration'ı oluşturuyordu → çift oluşturma/drift riski.
+- **Düzeltme:**
+  - `AddWorkoutProgramsInfrastructure` / `AddWorkoutSessionsInfrastructure` olarak yeniden adlandırıldı.
+  - `BuildingBlocks.Infrastructure.Persistence.PersistenceExtensions.AddModuleDbContext<TContext>` helper'ı eklendi: ortak connection string + `ISaveChangesInterceptor`'lar + şema-bazlı `__EFMigrationsHistory` izolasyonu.
+  - Her modül için `*Schema` sabit sınıfı (`users`, `exercises`, `nutrition`, `bodymetrics`, `workoutprograms`, `workoutsessions`, `outbox`); literal'ler bu sabitlere taşındı.
+  - `ModuleDbContext`'e `abstract Schema` (→ `HasDefaultSchema`) ve `virtual OwnsOutboxTable` eklendi. Tüm context'ler şema override eder.
+  - **Outbox 2(b) modeli:** `OutboxMessageConfiguration` artık `excludeFromMigrations` parametresi alır. Yalnızca `OutboxDbContext` (`OwnsOutboxTable => true`) tabloyu migration'da oluşturur; diğer modüller mapping'i korur ama `ExcludeFromMigrations` ile DDL üretmez.
+  - `OutboxDbContext` için `InitOutboxModule` baseline migration üretildi; eski Exercises migration'ından `OutboxMessages` CreateTable/DropTable kaldırıldı.
+  - **Mevcut DB için:** `Migrations/Scripts/outbox-baseline-existing-db.sql` — tabloyu yeniden oluşturmadan `InitOutboxModule`'u `outbox.__EFMigrationsHistory`'ye baseline olarak işaretler (tablolar zaten oluşturulmuş durumda).
+
 ---
 
 ## 2. Bekleyen Refactoring'ler
