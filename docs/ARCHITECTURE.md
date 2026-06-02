@@ -299,7 +299,38 @@ global using Microsoft.AspNetCore.Builder;
 - **Senkron operasyonlar** (`Update`, `Delete` with entity) `void` olarak tanımlanır — sahte async imza kullanılmaz.
 - Gerçekten async olan operasyonlar (DB sorgusu içeren `DeleteAsync(Guid id)`) `Task` döner.
 
-### 6.4 Concurrency Control
+### 6.4 Specification Pattern
+
+Tekrarlı veya bileşik filtreleme/sıralama/`Include` mantığını yeniden kullanılabilir, test edilebilir nesnelerde kapsüller. Repository metotlarındaki neredeyse aynı `Where`/`Include`/`OrderBy` zincirlerinin tekrarını önler.
+
+- **Soyutlama (Domain):** `ISpecification<T>` ve abstract `Specification<T>` base class'ı `BuildingBlocks.Domain/Abstractions` altında tanımlıdır. Domain katmanı EF Core'a bağımlı **değildir** — yalnızca `Expression<Func<T, ...>>` tutar.
+- **Builder metotları:** `SetCriteria`, `AddInclude` (expression veya string), `ApplyOrderBy` / `ApplyOrderByDescending`, `ApplyNoTracking`, `ApplySplitQuery`.
+- **Evaluator (Infrastructure):** `SpecificationEvaluator.GetQuery<T>` (`BuildingBlocks.Infrastructure/Specifications`) spec'i bir `IQueryable<T>` üzerine uygular. Operasyon sırası: **criteria → includes → ordering → split query → no-tracking**.
+- **Pagination entegrasyonu:** `SpecificationQueryableExtensions` spec-aware `ToListAsync(spec)` ve `ToPagedListAsync(spec, pageNumber, pageSize)` overload'larını sağlar (mevcut `PaginationDefaults` normalizasyonunu korur).
+- **Concrete spec'ler** ilgili modülün Infrastructure katmanında `{ModuleName}.Infrastructure/Specifications/` altında `sealed` olarak tanımlanır.
+
+```csharp
+public sealed class WorkoutSessionsByUserSpecification : Specification<WorkoutSession>
+{
+    public WorkoutSessionsByUserSpecification(Guid userId)
+        : base(x => x.UserId == userId)
+    {
+        AddInclude(x => x.SessionExercises);
+        ApplyOrderByDescending(x => x.Date);
+        ApplyNoTracking();
+    }
+}
+
+// Repository içinde
+public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByUserAsync(
+    Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default) =>
+    await _context.WorkoutSessions.ToPagedListAsync(
+        new WorkoutSessionsByUserSpecification(userId), pageNumber, pageSize, cancellationToken);
+```
+
+> **Kullanım rehberi:** Repository public interface'i değişmeden iç implementasyon spec'lere delege edilebilir (handler blast radius'u sıfır). Spec pattern, özellikle çoklu filtreleme/arama (bkz. F1) ihtiyacı doğan modüllerde tercih edilir. Basit tekil sorgular (`GetByIdAsync` vb.) için zorunlu değildir.
+
+### 6.5 Concurrency Control
 
 - Entity'lerde `RowVersion` property'si ile optimistic concurrency uygulanır.
 - `DbUpdateConcurrencyException` global exception handler'da 409 Conflict olarak döner.

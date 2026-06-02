@@ -1,8 +1,10 @@
 ﻿using BuildingBlocks.Infrastructure.Pagination;
+using BuildingBlocks.Infrastructure.Specifications;
 using Microsoft.EntityFrameworkCore;
 using WorkoutSessions.Domain.Entity;
 using WorkoutSessions.Domain.Repositories;
 using WorkoutSessions.Infrastructure.Persistence;
+using WorkoutSessions.Infrastructure.Specifications;
 
 namespace WorkoutSessions.Infrastructure.Repositories
 {
@@ -40,37 +42,22 @@ namespace WorkoutSessions.Infrastructure.Repositories
 
         public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _context.WorkoutSessions.Include(x => x.SessionExercises)
-                                                 .AsNoTracking()
-                                                 .OrderByDescending(x => x.Date)
-                                                 .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+            return await _context.WorkoutSessions.ToPagedListAsync(new WorkoutSessionsPagedSpecification(), pageNumber, pageSize, cancellationToken);
         }
 
         public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _context.WorkoutSessions.Include(x => x.SessionExercises)
-                                                 .AsNoTracking()
-                                                 .Where(x => x.UserId == userId)
-                                                 .OrderByDescending(x => x.Date)
-                                                 .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+            return await _context.WorkoutSessions.ToPagedListAsync(new WorkoutSessionsByUserSpecification(userId), pageNumber, pageSize, cancellationToken);
         }
 
         public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByUserAndProgramAsync(Guid userId, Guid workoutProgramId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _context.WorkoutSessions.Include(x => x.SessionExercises)
-                                                 .AsNoTracking()
-                                                 .Where(x => x.UserId == userId && x.WorkoutProgramId == workoutProgramId)
-                                                 .OrderByDescending(x => x.Date)
-                                                 .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+            return await _context.WorkoutSessions.ToPagedListAsync(new WorkoutSessionsByUserAndProgramSpecification(userId, workoutProgramId), pageNumber, pageSize, cancellationToken);
         }
 
         public async Task<(IReadOnlyList<WorkoutSession> Items, int TotalCount)> GetPagedByProgramAsync(Guid workoutProgramId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _context.WorkoutSessions.Include(x => x.SessionExercises)
-                                                 .AsNoTracking()
-                                                 .Where(x => x.WorkoutProgramId == workoutProgramId)
-                                                 .OrderByDescending(x => x.Date)
-                                                 .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+            return await _context.WorkoutSessions.ToPagedListAsync(new WorkoutSessionsByProgramSpecification(workoutProgramId), pageNumber, pageSize, cancellationToken);
         }
 
 

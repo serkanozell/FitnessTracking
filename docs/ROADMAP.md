@@ -36,26 +36,6 @@
 - **Sorun:** `CreateWorkoutSessionCommandHandler`, `WorkoutProgramId` alıyor ama programın mevcut kullanıcıya ait olduğunu doğrulamıyordu. User A, User B'nin programına session oluşturabiliyordu.
 - **Düzeltme:** `IWorkoutProgramModule`'e `IsOwnedByUserAsync` eklendi. Handler'a program varlık + ownership kontrolü eklendi (Admin bypass destekli). 4 unit test yazıldı.
 
-### R13 — DB Şema İzolasyonu & Outbox Sahipliği ✅
-- **Sorun:**
-  1. DI extension method'larında tutarsız adlandırma (`WorkoutProgramsInfrastructure`, `WorkoutSessionsInfrastructure` — `Add` prefix'i yok).
-  2. Modül context kayıtları tekrarlı (`AddDbContext` + interceptor + connection string her modülde elle).
-  3. `__EFMigrationsHistory` tüm modüllerde `dbo`'da ortaktı (şema izolasyonu yarım).
-  4. Şema isimleri string literal olarak dağınıktı.
-  5. **Outbox sahipliği belirsiz:** `OutboxMessage`, `ModuleDbContext` üzerinden **her** modül modeline dahil ediliyordu ama tabloyu yalnızca Exercises migration'ı oluşturuyordu → çift oluşturma/drift riski.
-- **Düzeltme:**
-  - `AddWorkoutProgramsInfrastructure` / `AddWorkoutSessionsInfrastructure` olarak yeniden adlandırıldı.
-  - `BuildingBlocks.Infrastructure.Persistence.PersistenceExtensions.AddModuleDbContext<TContext>` helper'ı eklendi: ortak connection string + `ISaveChangesInterceptor`'lar + şema-bazlı `__EFMigrationsHistory` izolasyonu.
-  - Her modül için `*Schema` sabit sınıfı (`users`, `exercises`, `nutrition`, `bodymetrics`, `workoutprograms`, `workoutsessions`, `outbox`); literal'ler bu sabitlere taşındı.
-  - `ModuleDbContext`'e `abstract Schema` (→ `HasDefaultSchema`) ve `virtual OwnsOutboxTable` eklendi. Tüm context'ler şema override eder.
-  - **Outbox 2(b) modeli:** `OutboxMessageConfiguration` artık `excludeFromMigrations` parametresi alır. Yalnızca `OutboxDbContext` (`OwnsOutboxTable => true`) tabloyu migration'da oluşturur; diğer modüller mapping'i korur ama `ExcludeFromMigrations` ile DDL üretmez.
-  - `OutboxDbContext` için `InitOutboxModule` baseline migration üretildi; eski Exercises migration'ından `OutboxMessages` CreateTable/DropTable kaldırıldı.
-  - **Mevcut DB için:** `Migrations/Scripts/outbox-baseline-existing-db.sql` — tabloyu yeniden oluşturmadan `InitOutboxModule`'u `outbox.__EFMigrationsHistory`'ye baseline olarak işaretler (tablolar zaten oluşturulmuş durumda).
-
----
-
-## 2. Bekleyen Refactoring'ler
-
 ### R8 — Dashboard GetDashboardQueryHandler Paralellik ✅
 - **Konum:** `Dashboard.Application/Features/Dashboard/GetDashboard/GetDashboardQueryHandler.cs`
 - **Sorun:** 4 çağrının tamamı `Task.WhenAll` ile paralel yapıldığında aynı `IWorkoutSessionModule` (aynı scoped DbContext) üzerinden iki concurrent sorgu çalışıyordu → EF Core thread-safety ihlali.
@@ -76,11 +56,33 @@
 - EF Core `OwnsOne` mapping ile mevcut kolon adları korundu (migration uyumlu).
 - 9 yeni domain validation testi (sınır değerler, negatif, max aşımı).
 
-### R11 — Specification Pattern 🟡
-- **Sorun:** Repository'lerde sorgular inline predicate'ler veya sabit metotlarla yapılıyor.
-- **Öneri:** Karmaşık filtreleme ihtiyacı arttığında (search, multi-filter) Specification pattern uygulanabilir.
-- **Risk:** Orta
-- **Öncelik:** Düşük (ihtiyaç doğduğunda)
+### R13 — DB Şema İzolasyonu & Outbox Sahipliği ✅
+- **Sorun:**
+  1. DI extension method'larında tutarsız adlandırma (`WorkoutProgramsInfrastructure`, `WorkoutSessionsInfrastructure` — `Add` prefix'i yok).
+  2. Modül context kayıtları tekrarlı (`AddDbContext` + interceptor + connection string her modülde elle).
+  3. `__EFMigrationsHistory` tüm modüllerde `dbo`'da ortaktı (şema izolasyonu yarım).
+  4. Şema isimleri string literal olarak dağınıktı.
+  5. **Outbox sahipliği belirsiz:** `OutboxMessage`, `ModuleDbContext` üzerinden **her** modül modeline dahil ediliyordu ama tabloyu yalnızca Exercises migration'ı oluşturuyordu → çift oluşturma/drift riski.
+- **Düzeltme:**
+  - `AddWorkoutProgramsInfrastructure` / `AddWorkoutSessionsInfrastructure` olarak yeniden adlandırıldı.
+  - `BuildingBlocks.Infrastructure.Persistence.PersistenceExtensions.AddModuleDbContext<TContext>` helper'ı eklendi: ortak connection string + `ISaveChangesInterceptor`'lar + şema-bazlı `__EFMigrationsHistory` izolasyonu.
+  - Her modül için `*Schema` sabit sınıfı (`users`, `exercises`, `nutrition`, `bodymetrics`, `workoutprograms`, `workoutsessions`, `outbox`); literal'ler bu sabitlere taşındı.
+  - `ModuleDbContext`'e `abstract Schema` (→ `HasDefaultSchema`) ve `virtual OwnsOutboxTable` eklendi. Tüm context'ler şema override eder.
+  - **Outbox 2(b) modeli:** `OutboxMessageConfiguration` artık `excludeFromMigrations` parametresi alır. Yalnızca `OutboxDbContext` (`OwnsOutboxTable => true`) tabloyu migration'da oluşturur; diğer modüller mapping'i korur ama `ExcludeFromMigrations` ile DDL üretmez.
+  - `OutboxDbContext` için `InitOutboxModule` baseline migration üretildi; eski Exercises migration'ından `OutboxMessages` CreateTable/DropTable kaldırıldı.
+  - **Mevcut DB için:** `Migrations/Scripts/outbox-baseline-existing-db.sql` — tabloyu yeniden oluşturmadan `InitOutboxModule`'u `outbox.__EFMigrationsHistory`'ye baseline olarak işaretler (tablolar zaten oluşturulmuş durumda).
+
+### R11 — Specification Pattern ✅
+- **Sorun:** Repository'lerde sorgular inline predicate'ler veya neredeyse aynı `Where`/`Include`/`OrderBy` zincirleriyle tekrarlanıyordu (örn: `WorkoutSessionRepository`'de 5 adet `GetPagedBy*` metodu yalnızca predicate'te farklılaşıyordu).
+- **Düzeltme:**
+  - `BuildingBlocks.Domain/Abstractions`'a EF-bağımsız `ISpecification<T>` + abstract `Specification<T>` base eklendi (criteria, includes [expr/string], ordering, `AsNoTracking`, `AsSplitQuery` + protected builder metotları).
+  - `BuildingBlocks.Infrastructure/Specifications`'a `SpecificationEvaluator.GetQuery<T>` (criteria → includes → ordering → split → no-tracking) ve spec-aware `ToListAsync`/`ToPagedListAsync` overload'ları eklendi.
+  - `WorkoutSessions.Infrastructure/Specifications`'a 4 concrete spec (`ByUser`, `ByUserAndProgram`, `ByProgram`, `Paged`) eklendi; `WorkoutSessionRepository`'nin 4 paged metodu spec'lere delege edildi. **Public interface değişmedi → handler blast radius sıfır.**
+  - 5 yeni unit test (`SpecificationEvaluatorTests` — criteria, ordering, no-criteria, paged, ToListAsync). ARCHITECTURE.md §6.4 eklendi.
+
+---
+
+## 2. Bekleyen Refactoring'ler
 
 ### R12 — Idempotency Key 🟡
 - **Sorun:** Create command'larda tekrarlanan request'lerde duplicate kayıt oluşabilir.
