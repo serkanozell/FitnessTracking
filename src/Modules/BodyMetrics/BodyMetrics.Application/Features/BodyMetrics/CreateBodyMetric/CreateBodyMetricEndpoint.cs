@@ -8,15 +8,17 @@ namespace BodyMetrics.Application.Features.BodyMetrics.CreateBodyMetric
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/body-metrics", async (CreateBodyMetricRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/body-metrics", async (CreateBodyMetricRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
                 var command = new CreateBodyMetricCommand(
                     request.Date, request.Weight, request.Height,
                     request.BodyFatPercentage, request.MuscleMass,
                     request.WaistCircumference, request.ChestCircumference,
                     request.ArmCircumference, request.HipCircumference,
                     request.ThighCircumference, request.NeckCircumference,
-                    request.ShoulderCircumference, request.Note);
+                    request.ShoulderCircumference, request.Note, idempotencyKey);
 
                 var result = await sender.Send(command, ct);
 

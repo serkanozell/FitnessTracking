@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -11,15 +11,19 @@ public sealed class AddExerciseToSessionEndpoint : IEndpoint
         endpoints.MapPost("/workout-sessions/{sessionId:guid}/exercises", async (
             Guid sessionId,
             AddExerciseRequest request,
+            HttpContext httpContext,
             ISender sender,
             CancellationToken ct) =>
         {
+            var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
             var command = new AddExerciseToSessionCommand(
                 sessionId,
                 request.ExerciseId,
                 request.SetNumber,
                 request.Weight,
-                request.Reps);
+                request.Reps,
+                idempotencyKey);
 
             var result = await sender.Send(command, ct);
 

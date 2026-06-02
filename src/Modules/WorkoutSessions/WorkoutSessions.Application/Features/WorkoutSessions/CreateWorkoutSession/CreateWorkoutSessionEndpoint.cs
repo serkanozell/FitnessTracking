@@ -8,9 +8,11 @@ public sealed class CreateWorkoutSessionEndpoint : IEndpoint
 {
     public void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/workout-sessions", async (CreateSessionRequest request, ISender sender, CancellationToken ct) =>
+        endpoints.MapPost("/workout-sessions", async (CreateSessionRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
         {
-            var command = new CreateWorkoutSessionCommand(request.WorkoutProgramId, request.WorkoutProgramSplitId, request.Date);
+            var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+            var command = new CreateWorkoutSessionCommand(request.WorkoutProgramId, request.WorkoutProgramSplitId, request.Date, idempotencyKey);
             var result = await sender.Send(command, ct);
 
             return result.IsSuccess

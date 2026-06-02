@@ -8,8 +8,10 @@ namespace Nutrition.Application.Features.Foods.CreateFood
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/foods", async (CreateFoodRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/foods", async (CreateFoodRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
                 var command = new CreateFoodCommand(
                     request.Name,
                     request.Category,
@@ -19,7 +21,8 @@ namespace Nutrition.Application.Features.Foods.CreateFood
                     request.Protein,
                     request.Carbohydrates,
                     request.Fat,
-                    request.Fiber);
+                    request.Fiber,
+                    idempotencyKey);
 
                 var result = await sender.Send(command, ct);
 

@@ -9,9 +9,11 @@ namespace Nutrition.Application.Features.MealPlans.Meals.MealItems.AddMealItem
         public void Map(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/meal-plans/{mealPlanId:guid}/meals/{mealId:guid}/items", async (
-                Guid mealPlanId, Guid mealId, AddMealItemRequest request, ISender sender, CancellationToken ct) =>
+                Guid mealPlanId, Guid mealId, AddMealItemRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
-                var command = new AddMealItemCommand(mealPlanId, mealId, request.FoodId, request.Quantity);
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+                var command = new AddMealItemCommand(mealPlanId, mealId, request.FoodId, request.Quantity, idempotencyKey);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess

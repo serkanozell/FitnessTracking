@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Abstractions.Caching;
+using BuildingBlocks.Application.Abstractions.Idempotency;
 using BuildingBlocks.Infrastructure.Email;
 using BuildingBlocks.Infrastructure.Outbox;
 using BuildingBlocks.Infrastructure.Persistence;
@@ -53,6 +54,8 @@ namespace BuildingBlocks.Infrastructure
             services.Configure<RedisOptions>(configuration.GetSection("Redis"));
 
             services.Configure<CacheOptions>(configuration.GetSection("Caching"));
+
+            services.Configure<IdempotencyOptions>(configuration.GetSection("Idempotency"));
 
             var redisConnectionString = configuration.GetConnectionString("Redis") ?? configuration["Redis:ConnectionString"];
 

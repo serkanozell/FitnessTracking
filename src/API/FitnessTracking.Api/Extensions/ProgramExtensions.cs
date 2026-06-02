@@ -150,6 +150,7 @@ namespace FitnessTracking.Api.Extensions
                 cfg.RegisterServicesFromAssemblies(moduleAssemblies);
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
                 cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+                cfg.AddOpenBehavior(typeof(IdempotencyBehavior<,>));
                 cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
                 cfg.AddOpenBehavior(typeof(CacheInvalidationBehavior<,>));
             });

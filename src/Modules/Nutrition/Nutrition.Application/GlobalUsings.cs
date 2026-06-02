@@ -2,6 +2,7 @@
 global using BuildingBlocks.Application.Events;
 global using BuildingBlocks.Application.Results;
 global using BuildingBlocks.Application.Abstractions;
+global using BuildingBlocks.Application.Abstractions.Idempotency;
 global using Nutrition.Domain.Repositories;
 global using FluentValidation;
 global using MediatR;

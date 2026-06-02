@@ -3,5 +3,6 @@
     public sealed record CreateDailyLogCommand(
         DateTime Date,
         decimal? DailyCalorieGoal,
-        string? Note) : ICommand<Result<Guid>>;
+        string? Note,
+        string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

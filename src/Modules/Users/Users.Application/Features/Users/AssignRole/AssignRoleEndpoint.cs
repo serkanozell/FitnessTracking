@@ -8,9 +8,11 @@ namespace Users.Application.Features.Users.AssignRole
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/users/{userId:guid}/roles", async (Guid userId, AssignRoleRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/users/{userId:guid}/roles", async (Guid userId, AssignRoleRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
-                var result = await sender.Send(new AssignRoleCommand(userId, request.RoleId), ct);
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+                var result = await sender.Send(new AssignRoleCommand(userId, request.RoleId, idempotencyKey), ct);
 
                 return result.IsSuccess ? Results.NoContent() :
                      result.Error!.ToProblem("Assign role failed.");

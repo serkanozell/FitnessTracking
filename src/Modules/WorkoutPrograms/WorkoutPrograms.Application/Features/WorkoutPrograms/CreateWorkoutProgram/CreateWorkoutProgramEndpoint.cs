@@ -8,9 +8,11 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.CreateWorkoutProg
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/workout-programs", async (CreateWorkoutProgramRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/workout-programs", async (CreateWorkoutProgramRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
-                var command = new CreateWorkoutProgramCommand(request.Name, request.Description, request.StartDate, request.EndDate);
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+                var command = new CreateWorkoutProgramCommand(request.Name, request.Description, request.StartDate, request.EndDate, idempotencyKey);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess

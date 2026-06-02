@@ -7,5 +7,6 @@
                                                    Guid ExerciseId,
                                                    int Sets,
                                                    int MinimumReps,
-                                                   int MaximumReps) : ICommand<Result<Guid>>;
+                                                   int MaximumReps,
+                                                   string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

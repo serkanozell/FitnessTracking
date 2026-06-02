@@ -8,9 +8,11 @@ namespace Nutrition.Application.Features.MealPlans.CreateMealPlan
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/meal-plans", async (CreateMealPlanRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/meal-plans", async (CreateMealPlanRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
-                var command = new CreateMealPlanCommand(request.Name, request.Date, request.Note);
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+                var command = new CreateMealPlanCommand(request.Name, request.Date, request.Note, idempotencyKey);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess

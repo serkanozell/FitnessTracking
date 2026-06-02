@@ -366,7 +366,18 @@ IModule[] modules = [new ExercisesModule(), new WorkoutProgramsModule(), new Wor
 Pipeline sırası:
 1. **ValidationBehavior** — FluentValidation ile komut doğrulama
 2. **LoggingBehavior** — Request/Response loglama (Serilog), 3 saniyeyi aşan request'ler için uyarı
-3. **CachingBehavior** — `ICacheableQuery` implement eden query'ler için cache-aside
+3. **IdempotencyBehavior** — `IIdempotentCommand` implement eden command'lar için tekrar koruması (bkz. §7.2.1)
+4. **CachingBehavior** — `ICacheableQuery` implement eden query'ler için cache-aside
+
+#### 7.2.1 Idempotency (IIdempotentCommand)
+
+Tekrarlanan create request'lerinde (örn: client timeout sonrası retry) duplicate kayıt oluşmasını engeller.
+
+- **Marker:** `IIdempotentCommand` (`BuildingBlocks.Application/Abstractions/Idempotency`) tek bir `string? IdempotencyKey` üyesi taşır. Key `null`/boş olduğunda `IdempotencyBehavior` no-op'tur — command normal akışında çalışır.
+- **Behavior:** `IdempotencyBehavior<TRequest, TResponse>` cache hit'te orijinal yanıtı replay eder; cache miss'te handler'ı çalıştırır ve yalnızca **başarılı** `Result`'ı `idempotency:{key}` anahtarıyla cache'ler. Başarısız denemeler cache'lenmez, böylece retry edilebilir. Süre `IdempotencyOptions.ExpirationMinutes` (`"Idempotency"` config section, varsayılan 60 dk) ile ayarlanır.
+- **Key kaynağı:** Endpoint, `X-Idempotency-Key` HTTP header'ını okuyup command'a propagate eder. Header yoksa key `null` olur ve davranış değişmez.
+- **Referans:** `CreateWorkoutSessionCommand` + `CreateWorkoutSessionEndpoint`.
+- **Kapsam:** Pattern tüm modüllerin create/add command'larına uygulanmıştır — WorkoutSessions, WorkoutPrograms, Exercises, BodyMetrics, Nutrition ve Users. Yeni bir state-değiştiren create/add endpoint eklerken aynı konvansiyonu izleyin: command'a trailing optional `string? IdempotencyKey = null` ekleyin, `IIdempotentCommand` implement edin ve endpoint'te `X-Idempotency-Key` header'ını propagate edin.
 
 ### 7.3 Exception Handling
 

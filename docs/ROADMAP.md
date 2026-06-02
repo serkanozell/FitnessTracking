@@ -80,15 +80,28 @@
   - `WorkoutSessions.Infrastructure/Specifications`'a 4 concrete spec (`ByUser`, `ByUserAndProgram`, `ByProgram`, `Paged`) eklendi; `WorkoutSessionRepository`'nin 4 paged metodu spec'lere delege edildi. **Public interface değişmedi → handler blast radius sıfır.**
   - 5 yeni unit test (`SpecificationEvaluatorTests` — criteria, ordering, no-criteria, paged, ToListAsync). ARCHITECTURE.md §6.4 eklendi.
 
+### R12 — Idempotency Key ✅
+- **Sorun:** Create command'larda tekrarlanan request'lerde (örn: client timeout sonrası retry) duplicate kayıt oluşabiliyordu.
+- **Düzeltme:**
+  - `BuildingBlocks.Application/Abstractions/Idempotency`'e marker `IIdempotentCommand` (`string? IdempotencyKey`) ve `IdempotencyOptions` (`ExpirationMinutes`, varsayılan 60) eklendi.
+  - `IdempotencyBehavior<TRequest, TResponse>` pipeline behavior eklendi: key boşsa no-op; cache hit'te orijinal yanıtı replay eder; cache miss'te handler'ı çalıştırır ve yalnızca **başarılı** `Result`'ı `idempotency:{key}` altında cache'ler (başarısız denemeler retry edilebilir). Mevcut `ICacheService` kullanılır.
+  - `ProgramExtensions.AddMediatR`'a `Validation → Logging → Idempotency → Caching → CacheInvalidation` sırasıyla register edildi; `IdempotencyOptions` `"Idempotency"` section'ından bind edildi.
+  - **Referans implementasyon:** `CreateWorkoutSessionCommand` artık `IIdempotentCommand`; endpoint `X-Idempotency-Key` header'ını okuyup command'a propagate eder. Public davranış değişmez (header yoksa eski akış).
+  - **Modül geneli yaygınlaştırma:** Aynı pattern tüm create/add command'larına uygulandı:
+    - **WorkoutSessions:** `CreateWorkoutSession`, `AddExerciseToSession`
+    - **WorkoutPrograms:** `CreateWorkoutProgram`, `AddWorkoutProgramSplit`, `AddExerciseToSplit`
+    - **Exercises:** `CreateExercise` (mevcut `ICacheInvalidatingCommand` korunarak)
+    - **BodyMetrics:** `CreateBodyMetric`
+    - **Nutrition:** `CreateFood`, `CreateMealPlan`, `CreateDailyLog`, `AddLogEntry`, `AddMeal`, `AddMealItem`
+    - **Users:** `CreateUser`, `CreateRole`, `AssignRole`
+  - Her command'a trailing optional `string? IdempotencyKey = null` parametresi eklendi (kaynak uyumluluğu korunur); her endpoint `X-Idempotency-Key` header'ını propagate eder.
+  - 4 yeni unit test (`IdempotencyBehaviorTests` — null key bypass, cached replay, success store, failure no-store). Tüm modül test suite'leri yeşil.
+
 ---
 
 ## 2. Bekleyen Refactoring'ler
 
-### R12 — Idempotency Key 🟡
-- **Sorun:** Create command'larda tekrarlanan request'lerde duplicate kayıt oluşabilir.
-- **Öneri:** Request header'dan `X-Idempotency-Key` okuyup pipeline behavior olarak implement etmek.
-- **Risk:** Orta
-- **Öncelik:** Düşük
+> Tüm planlanan refactoring'ler tamamlandı. 🎉
 
 ---
 

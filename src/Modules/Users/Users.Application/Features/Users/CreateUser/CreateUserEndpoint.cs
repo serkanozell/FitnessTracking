@@ -8,14 +8,17 @@ namespace Users.Application.Features.Users.CreateUser
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/users", async (CreateUserRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/users", async (CreateUserRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
                 var command = new CreateUserCommand(
                     request.Email,
                     request.Password,
                     request.FirstName,
                     request.LastName,
-                    request.RoleIds ?? []);
+                    request.RoleIds ?? [],
+                    idempotencyKey);
 
                 var result = await sender.Send(command, ct);
 

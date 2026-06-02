@@ -1,4 +1,4 @@
-using BuildingBlocks.Web;
+﻿using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -11,10 +11,13 @@ namespace WorkoutPrograms.Application.Features.WorkoutPrograms.WorkoutProgramSpl
             endpoints.MapPost("/workout-programs/{programId:guid}/splits", async (
                 Guid programId,
                 AddSplitRequest request,
+                HttpContext httpContext,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new AddWorkoutProgramSplitCommand(programId, request.Name, request.Order);
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+                var command = new AddWorkoutProgramSplitCommand(programId, request.Name, request.Order, idempotencyKey);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess ? Results.Created($"/api/v1/workout-programs/{programId}/splits/{result.Data}", new AddSplitResponse(result.Data))

@@ -12,5 +12,6 @@
                                                  decimal? ThighCircumference,
                                                  decimal? NeckCircumference,
                                                  decimal? ShoulderCircumference,
-                                                 string? Note) : ICommand<Result<Guid>>;
+                                                 string? Note,
+                                                 string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

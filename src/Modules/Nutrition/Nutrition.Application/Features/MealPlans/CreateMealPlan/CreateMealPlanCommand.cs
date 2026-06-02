@@ -3,5 +3,6 @@
     public sealed record CreateMealPlanCommand(
         string Name,
         DateTime Date,
-        string? Note) : ICommand<Result<Guid>>;
+        string? Note,
+        string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

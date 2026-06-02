@@ -9,9 +9,11 @@ namespace Nutrition.Application.Features.DailyNutritionLogs.LogEntries.AddLogEnt
         public void Map(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/daily-nutrition-logs/{logId:guid}/entries", async (
-                Guid logId, AddLogEntryRequest request, ISender sender, CancellationToken ct) =>
+                Guid logId, AddLogEntryRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
-                var command = new AddLogEntryCommand(logId, request.FoodId, request.Quantity);
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+                var command = new AddLogEntryCommand(logId, request.FoodId, request.Quantity, idempotencyKey);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess

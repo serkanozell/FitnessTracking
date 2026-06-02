@@ -4,5 +4,6 @@
                                                      Guid ExerciseId,
                                                      int SetNumber,
                                                      decimal Weight,
-                                                     int Reps) : ICommand<Result<Guid>>;
+                                                     int Reps,
+                                                     string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

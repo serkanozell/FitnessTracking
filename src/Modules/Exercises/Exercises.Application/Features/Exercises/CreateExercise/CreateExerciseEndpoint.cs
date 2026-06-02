@@ -8,10 +8,12 @@ namespace Exercises.Application.Features.Exercises.CreateExercise
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/exercises", async (CreateExerciseRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/exercises", async (CreateExerciseRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
                 var result = await sender.Send(
-                    new CreateExerciseCommand(request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description, request.ImageUrl, request.VideoUrl),
+                    new CreateExerciseCommand(request.Name, request.PrimaryMuscleGroup, request.SecondaryMuscleGroup, request.Description, request.ImageUrl, request.VideoUrl, idempotencyKey),
                     ct);
 
                 return result.IsSuccess

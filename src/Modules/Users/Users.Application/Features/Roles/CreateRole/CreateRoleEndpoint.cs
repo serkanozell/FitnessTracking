@@ -8,10 +8,12 @@ namespace Users.Application.Features.Roles.CreateRole
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/roles", async (CreateRoleRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/roles", async (CreateRoleRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
                 var result = await sender.Send(
-                    new CreateRoleCommand(request.Name, request.Description),
+                    new CreateRoleCommand(request.Name, request.Description, idempotencyKey),
                     ct);
 
                 return result.IsSuccess ? Results.Created($"/api/v1/roles/{result.Data}", new CreateRoleResponse(result.Data)) :

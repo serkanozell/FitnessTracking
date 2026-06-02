@@ -5,5 +5,6 @@
     public sealed record CreateWorkoutProgramCommand(string Name,
                                                      string? Description,
                                                      DateTime StartDate,
-                                                     DateTime EndDate) : ICommand<Result<Guid>>;
+                                                     DateTime EndDate,
+                                                     string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

@@ -1,4 +1,5 @@
-﻿global using BuildingBlocks.Application.CQRS;
+﻿global using BuildingBlocks.Application.Abstractions.Idempotency;
+global using BuildingBlocks.Application.CQRS;
 global using BuildingBlocks.Application.Events;
 global using BuildingBlocks.Application.Results;
 global using Users.Domain.Repositories;

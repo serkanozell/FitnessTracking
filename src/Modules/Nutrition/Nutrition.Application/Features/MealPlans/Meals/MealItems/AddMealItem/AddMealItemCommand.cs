@@ -4,5 +4,6 @@
         Guid MealPlanId,
         Guid MealId,
         Guid FoodId,
-        decimal Quantity) : ICommand<Result<Guid>>;
+        decimal Quantity,
+        string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

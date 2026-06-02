@@ -9,5 +9,6 @@
         decimal Protein,
         decimal Carbohydrates,
         decimal Fat,
-        decimal? Fiber) : ICommand<Result<Guid>>;
+        decimal? Fiber,
+        string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

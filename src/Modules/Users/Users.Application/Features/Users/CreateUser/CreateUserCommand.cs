@@ -5,5 +5,6 @@
         string Password,
         string FirstName,
         string LastName,
-        List<Guid> RoleIds) : ICommand<Result<Guid>>;
+        List<Guid> RoleIds,
+        string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }

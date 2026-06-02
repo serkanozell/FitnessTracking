@@ -8,9 +8,11 @@ namespace Nutrition.Application.Features.DailyNutritionLogs.CreateDailyLog
     {
         public void Map(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/daily-nutrition-logs", async (CreateDailyLogRequest request, ISender sender, CancellationToken ct) =>
+            endpoints.MapPost("/daily-nutrition-logs", async (CreateDailyLogRequest request, HttpContext httpContext, ISender sender, CancellationToken ct) =>
             {
-                var command = new CreateDailyLogCommand(request.Date, request.DailyCalorieGoal, request.Note);
+                var idempotencyKey = httpContext.Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+
+                var command = new CreateDailyLogCommand(request.Date, request.DailyCalorieGoal, request.Note, idempotencyKey);
                 var result = await sender.Send(command, ct);
 
                 return result.IsSuccess

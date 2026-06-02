@@ -4,5 +4,6 @@
     // nothing to invalidate here.
     public sealed record AddWorkoutProgramSplitCommand(Guid WorkoutProgramId,
                                                        string Name,
-                                                       int Order) : ICommand<Result<Guid>>;
+                                                       int Order,
+                                                       string? IdempotencyKey = null) : ICommand<Result<Guid>>, IIdempotentCommand;
 }
