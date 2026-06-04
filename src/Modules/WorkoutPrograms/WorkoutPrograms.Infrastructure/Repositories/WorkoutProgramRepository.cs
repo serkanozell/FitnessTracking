@@ -19,6 +19,7 @@ namespace WorkoutPrograms.Infrastructure.Repositories
         {
             return await _context.WorkoutPrograms.Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
+                                                 .AsSplitQuery()
                                                  .ToListAsync(cancellationToken: cancellationToken);
         }
 
@@ -26,6 +27,7 @@ namespace WorkoutPrograms.Infrastructure.Repositories
         {
             return await _context.WorkoutPrograms.Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
+                                                 .AsSplitQuery()
                                                  .OrderByDescending(x => x.CreatedDate)
                                                  .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
         }
@@ -34,6 +36,7 @@ namespace WorkoutPrograms.Infrastructure.Repositories
         {
             return await _context.WorkoutPrograms.Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
+                                                 .AsSplitQuery()
                                                  .Where(x => x.UserId == userId)
                                                  .OrderByDescending(x => x.CreatedDate)
                                                  .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
@@ -43,6 +46,7 @@ namespace WorkoutPrograms.Infrastructure.Repositories
         {
             return await _context.WorkoutPrograms.Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
+                                                 .AsSplitQuery()
                                                  .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
@@ -50,6 +54,7 @@ namespace WorkoutPrograms.Infrastructure.Repositories
         {
             return _context.WorkoutPrograms.Include(x => x.Splits)
                                            .ThenInclude(x => x.Exercises)
+                                           .AsSplitQuery()
                                            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
@@ -67,6 +72,7 @@ namespace WorkoutPrograms.Infrastructure.Repositories
                 .AsNoTracking()
                 .Include(x => x.Splits)
                 .ThenInclude(x => x.Exercises)
+                .AsSplitQuery()
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync(cancellationToken);

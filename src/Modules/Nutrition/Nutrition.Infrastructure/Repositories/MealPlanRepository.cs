@@ -13,6 +13,7 @@ namespace Nutrition.Infrastructure.Repositories
             return await _context.MealPlans
                 .Include(x => x.Meals)
                     .ThenInclude(x => x.MealItems)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
@@ -21,6 +22,7 @@ namespace Nutrition.Infrastructure.Repositories
             return await _context.MealPlans
                 .Include(x => x.Meals)
                     .ThenInclude(x => x.MealItems)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
@@ -29,6 +31,7 @@ namespace Nutrition.Infrastructure.Repositories
             return await _context.MealPlans
                 .Include(x => x.Meals)
                     .ThenInclude(x => x.MealItems)
+                .AsSplitQuery()
                 .Where(x => x.UserId == userId && !x.IsDeleted)
                 .OrderByDescending(x => x.Date)
                 .ToListAsync(cancellationToken);
@@ -40,6 +43,7 @@ namespace Nutrition.Infrastructure.Repositories
             var query = _context.MealPlans
                 .Include(x => x.Meals)
                     .ThenInclude(x => x.MealItems)
+                .AsSplitQuery()
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(x => x.Date);
 

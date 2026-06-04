@@ -146,10 +146,12 @@
 > Proje geneli inceleme sonucu tespit edilen performans maddeleri. Sırayla ele alınır.
 > Öncelik: **P1 (Yüksek)** → **P2 (Orta)** → **P3 (Düşük / mimari karar)**.
 > Tamamlanınca `[ ]` → `[x]` yapılır ve "Açıklama" sütununa commit/PR referansı eklenir.
+>
+> ⚠️ **Cross-cutting tarama zorunluluğu:** Buradaki maddeler genellikle **tüm modülleri** ilgilendirir. Bir madde uygulanırken iş tek modülle sınırlı bırakılmamalı; **önce tüm ilgili dosyalar (örn. tüm `*Repository` sınıfları) taranmalı**, kural uygun olan her yere uygulanmalı, bilinçli olarak uygulanmayan yerler gerekçesiyle belgelenmelidir. Detaylı prensip: `docs/ARCHITECTURE.md` §13.
 
 | # | Durum | Öncelik | Başlık | Çözüm |
 |---|---|---|---|---|
-| P1 | [ ] | P1 | **Cartesian explosion (`Include`+`ThenInclude`)** | `WorkoutProgramRepository` ve `WorkoutSessionRepository` çoklu koleksiyon JOIN'lerinde `.AsSplitQuery()` kullan. Satır duplikasyonu ve ağ trafiğini azaltır. |
+| P1 | [x] | P1 | **Cartesian explosion (`Include`+`ThenInclude`)** | İki seviyeli koleksiyon içeren tüm repository sorgularına `.AsSplitQuery()` eklendi: `WorkoutProgramRepository` (`Splits → Exercises`, 6 metot) ve `MealPlanRepository` (`Meals → MealItems`, 4 metot). Tek koleksiyonlu repository'ler (`WorkoutSessionRepository` → `SessionExercises`, `DailyNutritionLogRepository` → `Entries`) ve referans navigasyon (`UserRepository` → `UserRoles.Role`) cartesian explosion üretmediğinden ve gereksiz ek round-trip yaratmamak için dokunulmadı. |
 | P2 | [ ] | P1 | **Tutarsız `AsNoTracking`** | `WorkoutProgramRepository.GetListAsync`, `GetPagedAsync`, `GetByIdWithExercisesAsync` salt-okunur sorgularına `.AsNoTracking()` ekle. Tüm read query'lerini tutarlı hale getir. |
 | P3 | [ ] | P1 | **Handler'da in-memory DTO mapping (projeksiyon yok)** | Listeleme sorgularında tam entity grafiği yerine `IQueryable.Select(...)` ile doğrudan SQL projeksiyonu yap. Yalnızca gereken kolonlar çekilir. |
 | P4 | [ ] | P1 | **In-memory aggregation (`GetStatsByUserAsync`)** | `WorkoutSessionModuleService.GetStatsByUserAsync` aggregation'ını SQL tarafına taşı (`COUNT`/`SUM` projeksiyonu). `GetVolumeTrendAsync` referans örnektir. |

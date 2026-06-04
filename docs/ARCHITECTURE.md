@@ -490,6 +490,7 @@ Yeni bir modül eklerken aşağıdaki adımları takip edin:
 8. Gerekiyorsa **Error** tanımı ekle
 9. Gerekiyorsa **Cache invalidation** handler'ı güncelle
 10. **Unit test** yaz
+11. **Cross-cutting kontrolü:** Değişiklik birden fazla modülü ilgilendiren bir pattern/performans düzeltmesiyse, §13 uyarınca **tüm modülleri tara** ve kuralı uygun olan her yere uygula.
 
 ---
 
@@ -515,3 +516,40 @@ Yeni bir modül eklerken aşağıdaki adımları takip edin:
 | Cache key | `{entity}:{id}` veya `{entity}:all` |
 | Zaman damgası | `DateTime.Now` (tüm projede tutarlı) |
 | Minimal API | `WithName`, `WithTags`, `WithSummary`, `Produces`, `ProducesProblem` |
+
+---
+
+## 13. Cross-Cutting & Performans Değişikliklerinde Tutarlılık Kuralı
+
+> **Temel prensip:** Bir performans iyileştirmesi, repository/query pattern düzeltmesi veya başka bir **cross-cutting** (tüm modülleri ilgilendiren) değişiklik yapılırken iş **tek bir modülle sınırlı bırakılmamalıdır.** Aynı kural, uygun olan **her modüle** tutarlı şekilde uygulanmalıdır.
+
+### 13.1 Neden?
+
+Modular Monolith'te tüm modüller aynı pattern'leri (repository, EF Core sorguları, caching, pagination, interceptor) paylaşır. Bir düzeltme yalnızca bir modüle uygulanırsa:
+
+- Diğer modüllerde aynı sorun (performans darboğazı, bug) sessizce kalır.
+- Kod tabanı tutarsızlaşır; aynı problemin iki farklı çözümü oluşur.
+- Gelecekteki geliştirici hangi pattern'in doğru olduğunu bilemez.
+
+### 13.2 Zorunlu Akış
+
+Cross-cutting bir değişiklik (özellikle §4 Performans maddeleri — `ROADMAP.md`) yaparken:
+
+1. **Tara:** Değişikliğin uygulanabileceği **tüm** dosyaları önce tespit et (örn: tüm `*Repository` sınıfları, tüm DbContext'ler, tüm handler'lar). Tek bir modülde başlayıp orada bitirme.
+2. **Sınıflandır:** Her aday dosya için kuralın **gerçekten geçerli olup olmadığını** değerlendir.
+3. **Uygula:** Kural geçerli olan **her yere** tutarlı uygula.
+4. **Belgele:** Bilinçli olarak **uygulanmayan** yerleri gerekçesiyle birlikte not et (PR açıklaması ve/veya `ROADMAP.md` ilgili madde).
+
+### 13.3 "Geçerli mi?" Değerlendirmesi — Önemli
+
+Tutarlılık, "kör kopyala-yapıştır" demek **değildir**. Kuralın **anlamlı olduğu** yerlere uygulanır:
+
+| Örnek değişiklik | Uygula | Uygulama (gerekçe) |
+|---|---|---|
+| `AsSplitQuery()` (P1) | **2+ koleksiyon** `Include` eden sorgular (`WorkoutProgram → Splits → Exercises`, `MealPlan → Meals → MealItems`) | Tek koleksiyon (`SessionExercises`, `Entries`) veya referans navigasyon (`UserRoles.Role`) — cartesian explosion oluşmaz, gereksiz round-trip ekler |
+| `AsNoTracking()` (P2) | Salt-okunur sorgular | Entity'nin `SaveChanges` ile güncellendiği (tracking gereken) sorgular |
+| SQL-side aggregation (P4) | `COUNT`/`SUM` in-memory yapılan yerler | Zaten projeksiyonla SQL'e taşınmış sorgular |
+
+### 13.4 Örnek Olay (P1 — Cartesian Explosion)
+
+P1 ilk uygulamada yalnızca `WorkoutProgramRepository`'ye uygulanmış, fakat `MealPlanRepository`'deki `Meals → MealItems` çift koleksiyonu **atlanmıştı**. Tüm `*Repository` sınıflarının baştan taranması bu eksikliği önleyecekti. Bu kural (§13) tam olarak bu durumu engellemek için eklenmiştir.
