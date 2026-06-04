@@ -20,7 +20,8 @@ namespace BodyMetrics.Infrastructure.Repositories
         public async Task<(IReadOnlyList<BodyMetric> Items, int TotalCount)> GetPagedByUserAsync(
             Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            var query = _context.BodyMetrics.Where(x => x.UserId == userId)
+            var query = _context.BodyMetrics.AsNoTracking()
+                                            .Where(x => x.UserId == userId)
                                             .OrderByDescending(x => x.Date);
 
             return await query.ToPagedListAsync(pageNumber, pageSize, cancellationToken);

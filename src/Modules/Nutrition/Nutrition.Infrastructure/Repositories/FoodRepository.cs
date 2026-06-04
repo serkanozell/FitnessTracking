@@ -14,6 +14,7 @@ namespace Nutrition.Infrastructure.Repositories
         public async Task<IReadOnlyList<Food>> GetAllActiveAsync(CancellationToken cancellationToken = default)
         {
             return await _context.Foods
+                .AsNoTracking()
                 .Where(x => !x.IsDeleted)
                 .OrderBy(x => x.Name)
                 .ToListAsync(cancellationToken);
@@ -31,6 +32,7 @@ namespace Nutrition.Infrastructure.Repositories
             Guid? userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
             var query = _context.Foods
+                .AsNoTracking()
                 .Where(x => x.UserId == null || x.UserId == userId)
                 .OrderBy(x => x.Name);
 

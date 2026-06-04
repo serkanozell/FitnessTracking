@@ -41,6 +41,7 @@ namespace Nutrition.Infrastructure.Repositories
             Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
             var query = _context.MealPlans
+                .AsNoTracking()
                 .Include(x => x.Meals)
                     .ThenInclude(x => x.MealItems)
                 .AsSplitQuery()

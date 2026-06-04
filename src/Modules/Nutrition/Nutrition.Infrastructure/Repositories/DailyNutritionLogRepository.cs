@@ -26,6 +26,7 @@ namespace Nutrition.Infrastructure.Repositories
             Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
             var query = _context.DailyNutritionLogs
+                .AsNoTracking()
                 .Include(x => x.Entries)
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(x => x.Date);

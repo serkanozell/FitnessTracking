@@ -17,7 +17,8 @@ namespace WorkoutPrograms.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<WorkoutProgram>> GetListAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.WorkoutPrograms.Include(x => x.Splits)
+            return await _context.WorkoutPrograms.AsNoTracking()
+                                                 .Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
                                                  .AsSplitQuery()
                                                  .ToListAsync(cancellationToken: cancellationToken);
@@ -25,7 +26,8 @@ namespace WorkoutPrograms.Infrastructure.Repositories
 
         public async Task<(IReadOnlyList<WorkoutProgram> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _context.WorkoutPrograms.Include(x => x.Splits)
+            return await _context.WorkoutPrograms.AsNoTracking()
+                                                 .Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
                                                  .AsSplitQuery()
                                                  .OrderByDescending(x => x.CreatedDate)
@@ -34,7 +36,8 @@ namespace WorkoutPrograms.Infrastructure.Repositories
 
         public async Task<(IReadOnlyList<WorkoutProgram> Items, int TotalCount)> GetPagedByUserAsync(Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _context.WorkoutPrograms.Include(x => x.Splits)
+            return await _context.WorkoutPrograms.AsNoTracking()
+                                                 .Include(x => x.Splits)
                                                  .ThenInclude(x => x.Exercises)
                                                  .AsSplitQuery()
                                                  .Where(x => x.UserId == userId)
