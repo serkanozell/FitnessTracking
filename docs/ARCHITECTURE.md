@@ -318,6 +318,8 @@ global using Microsoft.AspNetCore.Builder;
 - `OutboxBackgroundService` arka planda outbox mesajlarını işler ve MediatR ile publish eder.
 - **Retry mekanizması**: Başarısız mesajlar `RetryCount` ile takip edilir, `MaxRetries` (varsayılan 3) aşıldığında dead letter olarak işaretlenir.
 - Çözümlenemeyen tip veya deserialize hataları direkt dead letter olur (retry anlamsız).
+- **Type resolution cache**: `EventType` string'i CLR tipine `Type.GetType` ile çözülür; sonuç process ömrü boyunca `static ConcurrentDictionary<string, Type>` içinde cache'lenir (her mesajda reflection maliyeti ödenmez). Aynı string her zaman aynı tipe çözüldüğünden cache güvenlidir. **Çözülemeyen (null) tipler cache'lenmez** — böylece ilgili assembly sonradan yüklenirse yeniden denenir.
+- **Drain mantığı**: Bir tetikleme döngüsünde batch tam dolduğu sürece (`processedCount == BatchSize`, yani bekleyen daha fazla mesaj var) `Task.Delay` interval'i beklenmeden ardışık batch'ler hemen işlenir; birikmiş mesajlar boşaltılır. `OutboxOptions.MaxDrainIterations` (varsayılan 10) güvenlik tavanı, tek tetiklemede DB'yi süresiz sorgulamayı önler — tavana ulaşılırsa kalan mesajlar bir sonraki interval'de işlenir. Test edilebilirlik için `ProcessOutboxMessagesAsync` (işlenen sayıyı döndürür) ve `DrainOutboxAsync` `internal`'dır (`InternalsVisibleTo` ile unit test edilir).
 
 ### 6.3 Repository Implementasyonu
 
