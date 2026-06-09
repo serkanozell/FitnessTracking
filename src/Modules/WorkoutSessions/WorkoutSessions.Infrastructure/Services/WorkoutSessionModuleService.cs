@@ -10,15 +10,25 @@ namespace WorkoutSessions.Infrastructure.Services
     {
         public async Task<WorkoutSessionStatsInfo> GetStatsByUserAsync(Guid userId, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken = default)
         {
-            var sessions = await _context.WorkoutSessions.Include(x => x.SessionExercises)
-                                                         .Where(x => x.UserId == userId && x.IsActive && !x.IsDeleted && x.Date >= dateFrom && x.Date <= dateTo)
-                                                         .AsNoTracking()
-                                                         .ToListAsync(cancellationToken);
+            // Aggregate set/rep counts per session in SQL instead of loading the whole
+            // SessionExercises graph into memory. Only the per-session scalar projection
+            // (date + counts) is materialized; the streak is computed in memory because
+            // CalculateStreak cannot be translated to SQL.
+            var perSession = await _context.WorkoutSessions
+                .AsNoTracking()
+                .Where(x => x.UserId == userId && x.IsActive && !x.IsDeleted && x.Date >= dateFrom && x.Date <= dateTo)
+                .Select(s => new
+                {
+                    s.Date,
+                    SetCount = s.SessionExercises.Count(),
+                    RepCount = s.SessionExercises.Sum(e => (int?)e.Reps) ?? 0
+                })
+                .ToListAsync(cancellationToken);
 
-            var sessionCount = sessions.Count;
-            var totalSets = sessions.SelectMany(s => s.SessionExercises).Count();
-            var totalReps = sessions.SelectMany(s => s.SessionExercises).Sum(e => e.Reps);
-            var streakDays = CalculateStreak(sessions.Select(s => s.Date).Distinct().OrderByDescending(d => d));
+            var sessionCount = perSession.Count;
+            var totalSets = perSession.Sum(x => x.SetCount);
+            var totalReps = perSession.Sum(x => x.RepCount);
+            var streakDays = CalculateStreak(perSession.Select(x => x.Date).Distinct().OrderByDescending(d => d));
 
             return new WorkoutSessionStatsInfo(sessionCount, totalSets, totalReps, streakDays);
         }

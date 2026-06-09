@@ -13,4 +13,8 @@
     <ProjectReference Include="..\WorkoutSessions.Contracts\WorkoutSessions.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="WorkoutSessions.Infrastructure.IntegrationTests" />
+  </ItemGroup>
+
 </Project>
