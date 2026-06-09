@@ -328,6 +328,8 @@ global using Microsoft.AspNetCore.Builder;
 - **Senkron operasyonlar** (`Update`, `Delete` with entity) `void` olarak tanımlanır — sahte async imza kullanılmaz.
 - Gerçekten async olan operasyonlar (DB sorgusu içeren `DeleteAsync(Guid id)`) `Task` döner.
 
+> **FILTERED INDEX ↔ PREDICATE HİZALAMA KURALI:** Soft-delete'li entity'lerde (`IsDeleted`) sık erişilen sorgu kolonları için **filtered index** (`HasIndex(...).HasFilter("[IsDeleted] = 0")`) tercih edilir — index yalnızca canlı satırları içerdiğinden daha küçük/seçici olur. **Ancak SQL Server bir filtered index'i yalnızca sorgu predicate'i de aynı koşulu (`!IsDeleted`) içeriyorsa kullanır.** Bu yüzden filtered index eklemek **tek başına yeterli değildir**: ilgili tüm repository sorguları / specification'lar (`SetCriteria`/`base(...)`) `!x.IsDeleted` predicate'i ile **hizalanmalıdır**; aksi halde index ölü kalır ve sessiz performans kaybı oluşur. İkisi **birlikte** değiştirilmelidir. **İstisna — unique index'ler:** İş kuralı silinmiş satırları da kapsayan bir tekillik gerektiriyorsa (örn. `WorkoutSessions(WorkoutProgramId, Date)` — program başına tarih tekilliği soft-delete sonrası da korunmalı) unique compound index **bilinçli olarak filtered yapılmaz**; filtered yapmak silinen+yeni aynı-anahtar kaydına izin vererek iş kuralını bozar. Farklı bir erişim deseni (örn. `Date` predicate'siz `WorkoutProgramId` lookup) için gerekirse **ayrı bir filtered index** eklenir — unique index'in leftmost prefix'i filtered-match sağlamaz. Index ve predicate değişiklikleri **gerçek SQL Server'a karşı integration testiyle** doğrulanmalıdır (InMemory provider filtered index/SQL çevirisini kanıtlayamaz).
+
 ### 6.4 Specification Pattern
 
 Tekrarlı veya bileşik filtreleme/sıralama/`Include` mantığını yeniden kullanılabilir, test edilebilir nesnelerde kapsüller. Repository metotlarındaki neredeyse aynı `Where`/`Include`/`OrderBy` zincirlerinin tekrarını önler.
@@ -342,7 +344,7 @@ Tekrarlı veya bileşik filtreleme/sıralama/`Include` mantığını yeniden kul
 public sealed class WorkoutSessionsByUserSpecification : Specification<WorkoutSession>
 {
     public WorkoutSessionsByUserSpecification(Guid userId)
-        : base(x => x.UserId == userId)
+        : base(x => x.UserId == userId && !x.IsDeleted) // §6.3 filtered index hizalaması
     {
         AddInclude(x => x.SessionExercises);
         ApplyOrderByDescending(x => x.Date);

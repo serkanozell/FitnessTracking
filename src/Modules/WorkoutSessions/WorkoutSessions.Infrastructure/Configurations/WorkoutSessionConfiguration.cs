@@ -21,9 +21,11 @@ namespace WorkoutSessions.Infrastructure.Configurations
             builder.HasIndex(x => x.UserId);
 
             // All analytics queries (volume trend, exercise progress, personal records)
-            // filter sessions by UserId + Date range. A composite index keeps these
-            // range scans selective even over long periods (e.g. 365 days).
-            builder.HasIndex(x => new { x.UserId, x.Date });
+            // filter sessions by UserId + Date range AND !IsDeleted. A composite filtered
+            // index keeps these range scans selective over long periods (e.g. 365 days)
+            // while excluding soft-deleted rows from the index altogether.
+            builder.HasIndex(x => new { x.UserId, x.Date })
+                   .HasFilter("[IsDeleted] = 0");
 
             builder.Property(x => x.WorkoutProgramId)
                    .IsRequired();
@@ -31,7 +33,15 @@ namespace WorkoutSessions.Infrastructure.Configurations
             builder.Property(x => x.WorkoutProgramSplitId)
                    .IsRequired();
 
-            builder.HasIndex(x => x.WorkoutProgramSplitId);
+            builder.HasIndex(x => x.WorkoutProgramSplitId)
+                   .HasFilter("[IsDeleted] = 0");
+
+            // GetActiveByProgramIdAsync / GetListByProgramAsync filter by WorkoutProgramId
+            // (+ !IsDeleted) without a Date predicate, so the unique (WorkoutProgramId, Date)
+            // index's leftmost prefix is not a filtered match. A dedicated filtered index on
+            // WorkoutProgramId serves those soft-delete-aware lookups.
+            builder.HasIndex(x => x.WorkoutProgramId)
+                   .HasFilter("[IsDeleted] = 0");
 
             builder.Property(x => x.Date)
                    .IsRequired();
