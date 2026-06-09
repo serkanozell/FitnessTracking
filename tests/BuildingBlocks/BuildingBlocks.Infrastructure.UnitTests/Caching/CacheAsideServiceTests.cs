@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Application.Abstractions.Caching;
 using FluentAssertions;
 using NSubstitute;
+using System.Reflection;
 using Xunit;
 
 namespace BuildingBlocks.Infrastructure.UnitTests.Caching;
@@ -96,5 +97,64 @@ public class CacheAsideServiceTests
 
         result.Should().Be("keep-me");
         await _cacheService.Received(1).SetAsync("key", "keep-me", Arg.Any<TimeSpan?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetOrAddAsync_ShouldCallFactoryExactlyOnce_WhenManyCallersRaceOnSameKey()
+    {
+        const string key = "stampede-key";
+
+        // Model a real cache: every caller sees a miss until the factory result is stored,
+        // after which subsequent (double-check) reads return the cached value.
+        string? stored = null;
+        var gate = new object();
+        _cacheService.GetAsync<string>(key, Arg.Any<CancellationToken>())
+            .Returns(_ => { lock (gate) { return stored; } });
+        _cacheService.SetAsync(key, Arg.Any<string>(), Arg.Any<TimeSpan?>(), Arg.Any<CancellationToken>())
+            .Returns(ci => { lock (gate) { stored = ci.ArgAt<string>(1); } return Task.CompletedTask; });
+
+        var factoryCalls = 0;
+        var start = new TaskCompletionSource();
+
+        async Task<string> Factory(CancellationToken _)
+        {
+            Interlocked.Increment(ref factoryCalls);
+            await Task.Delay(50); // hold the lock long enough for the herd to pile up
+            return "rebuilt-value";
+        }
+
+        var callers = Enumerable.Range(0, 20).Select(async _ =>
+        {
+            await start.Task;
+            return await _sut.GetOrAddAsync(key, Factory);
+        }).ToArray();
+
+        start.SetResult();
+        var results = await Task.WhenAll(callers);
+
+        factoryCalls.Should().Be(1, "only one caller should rebuild the value while the rest await it");
+        results.Should().OnlyContain(r => r == "rebuilt-value");
+        await _cacheService.Received(1).SetAsync(key, "rebuilt-value", Arg.Any<TimeSpan?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetOrAddAsync_ShouldNotLeakLocks_AfterCompletion()
+    {
+        const string key = "leak-check-key";
+        _cacheService.GetAsync<string>(key, Arg.Any<CancellationToken>()).Returns((string?)null);
+
+        await _sut.GetOrAddAsync(key, _ => Task.FromResult("value"));
+
+        GetLockCount(key).Should().Be(0, "the per-key lock must be removed once the last waiter releases it");
+    }
+
+    // Reads the static reference-counted lock dictionary via reflection to assert the
+    // key's SemaphoreSlim was removed (no thundering-herd lock leak for the singleton service).
+    private static int GetLockCount(string key)
+    {
+        var field = typeof(CacheAsideService).GetField("_locks", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var dict = field.GetValue(null)!;
+        var countProp = dict.GetType().GetProperty("Count")!;
+        return (int)countProp.GetValue(dict)!;
     }
 }

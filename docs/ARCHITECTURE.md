@@ -275,6 +275,8 @@ var (dtos, total) = await _repo.GetPagedAsync(..., FoodDto.Projection, ct);
 
 > **GÜVENLİK KURALI:** `CachingBehavior` pipeline'da handler'dan **önce** çalışır — cache hit olduğunda handler çalışmaz. Bu nedenle **user-scoped query'lerde** (OwnershipGuard içeren veya UserId ile filtreleyen) `ICacheableQuery` **kullanılmamalıdır**. Aksi halde cross-user data leak veya authorization bypass oluşur. Yalnızca **global, user-scope'suz** query'ler (örn: Exercises) cache'lenebilir.
 
+> **STAMPEDE / LOCK YAŞAM DÖNGÜSÜ KURALI:** Cache stampede (thundering herd) koruması yalnızca tek merkezi noktada — `CacheAsideService.GetOrAddAsync` — yapılır; tüm `ICacheableQuery`'ler `CachingBehavior` üzerinden buraya akar. Key bazlı in-process `SemaphoreSlim` ile aynı key expire olduğunda yalnızca **bir** çağıran factory'yi (DB query) çalıştırır, diğerleri sonucu bekler. **`CacheAsideService` singleton olduğundan, per-key lock'lar mutlaka reference-counted ve self-cleaning olmalıdır:** lock alındığında count artırılır, `finally`'de azaltılır ve **sıfıra düşünce entry kaldırılıp `SemaphoreSlim` dispose edilir**. Aksi halde yüksek-kardinaliteli key'lerde (paged/filtered global query key'leri) sınırsız semaphore birikir → bellek sızıntısı. Cancellation güvenliği için yalnızca gerçekten alınmış (`WaitAsync` tamamlanmış) lock release edilir; count ≥ 1 iken lock asla dispose edilmez (use-after-dispose imkânsız). **Bilinçli kapsam dışı:** `IdempotencyBehavior` ve `CacheInvalidationBehavior` doğrudan `ICacheService` kullanır ve rebuild/stampede pattern'i içermez → bu lock gerekmez (§13 gerekçeli istisna). Çok-instance ölçeklenmede in-process kilit yetmezse Redis distributed lock değerlendirilir.
+
 ### 5.8 Feature Klasör Yapısı
 
 ```
