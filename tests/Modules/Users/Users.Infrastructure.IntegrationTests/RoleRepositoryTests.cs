@@ -3,6 +3,7 @@ using BuildingBlocks.Infrastructure.Persistence.Interceptors;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using Users.Application.Dtos;
 using Users.Domain.Entity;
 using Users.Infrastructure.Persistence;
 using Users.Infrastructure.Repositories;
@@ -80,7 +81,7 @@ public class RoleRepositoryTests : IAsyncLifetime
         await _sut.AddAsync(Role.Create("Role2", "Desc2"));
         await _context.SaveChangesAsync();
 
-        var roles = await _sut.GetAllAsync();
+        var roles = await _sut.GetAllAsync(RoleDto.Projection);
 
         roles.Should().HaveCount(4); // 2 seeded (Admin, Member) + 2 added
         roles.Should().Contain(r => r.Name == "Role1");

@@ -1,4 +1,5 @@
-﻿using BodyMetrics.Domain.Entity;
+﻿using System.Linq.Expressions;
+using BodyMetrics.Domain.Entity;
 
 namespace BodyMetrics.Application.Dtos
 {
@@ -32,6 +33,32 @@ namespace BodyMetrics.Application.Dtos
                 Weight = entity.Weight?.Value,
                 Height = entity.Height?.Value,
                 BodyFatPercentage = entity.BodyFatPercentage?.Value,
+                MuscleMass = entity.MuscleMass,
+                WaistCircumference = entity.WaistCircumference,
+                ChestCircumference = entity.ChestCircumference,
+                ArmCircumference = entity.ArmCircumference,
+                HipCircumference = entity.HipCircumference,
+                ThighCircumference = entity.ThighCircumference,
+                NeckCircumference = entity.NeckCircumference,
+                ShoulderCircumference = entity.ShoulderCircumference,
+                Note = entity.Note,
+                IsActive = entity.IsActive,
+                IsDeleted = entity.IsDeleted,
+                CreatedDate = entity.CreatedDate
+            };
+
+        // SQL-translatable projection for list/paged queries (P3). Owned (nullable) value
+        // object'ler aynı tabloda kolon olarak saklandığından ?.Value EF tarafından SQL'e
+        // çevrilebilir; çeviri davranışı SQL-backed integration testiyle doğrulanmıştır.
+        public static readonly Expression<Func<BodyMetric, BodyMetricDto>> Projection = entity =>
+            new BodyMetricDto
+            {
+                Id = entity.Id,
+                UserId = entity.UserId,
+                Date = entity.Date,
+                Weight = entity.Weight != null ? entity.Weight.Value : (decimal?)null,
+                Height = entity.Height != null ? entity.Height.Value : (decimal?)null,
+                BodyFatPercentage = entity.BodyFatPercentage != null ? entity.BodyFatPercentage.Value : (decimal?)null,
                 MuscleMass = entity.MuscleMass,
                 WaistCircumference = entity.WaistCircumference,
                 ChestCircumference = entity.ChestCircumference,

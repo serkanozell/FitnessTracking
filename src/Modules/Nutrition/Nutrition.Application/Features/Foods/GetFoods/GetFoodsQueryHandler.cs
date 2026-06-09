@@ -12,11 +12,7 @@ namespace Nutrition.Application.Features.Foods.GetFoods
         {
             var userId = Guid.Parse(_currentUser.UserId!);
 
-            var (items, totalCount) = await _repository.GetPagedAsync(userId, request.PageNumber, request.PageSize, cancellationToken);
-
-            var dtos = items
-                .Select(FoodDto.FromEntity)
-                .ToList();
+            var (dtos, totalCount) = await _repository.GetPagedAsync(userId, request.PageNumber, request.PageSize, FoodDto.Projection, cancellationToken);
 
             return PagedResult<FoodDto>.Create(dtos, request.PageNumber, request.PageSize, totalCount);
         }

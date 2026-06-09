@@ -1,3 +1,4 @@
+﻿using BodyMetrics.Application.Dtos;
 using BodyMetrics.Domain.Entity;
 using BodyMetrics.Infrastructure.Persistence;
 using BodyMetrics.Infrastructure.Repositories;
@@ -150,7 +151,7 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
         }
         await _context.SaveChangesAsync();
 
-        var (items, totalCount) = await _sut.GetPagedByUserAsync(TestUserId, 1, 2);
+        var (items, totalCount) = await _sut.GetPagedByUserAsync(TestUserId, 1, 2, BodyMetricDto.Projection);
 
         items.Should().HaveCount(2);
         totalCount.Should().Be(5);
@@ -159,7 +160,7 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetPagedByUserAsync_ShouldReturnEmpty_WhenNoData()
     {
-        var (items, totalCount) = await _sut.GetPagedByUserAsync(Guid.NewGuid(), 1, 10);
+        var (items, totalCount) = await _sut.GetPagedByUserAsync(Guid.NewGuid(), 1, 10, BodyMetricDto.Projection);
 
         items.Should().BeEmpty();
         totalCount.Should().Be(0);
@@ -174,9 +175,37 @@ public class BodyMetricRepositoryTests : IAsyncLifetime
         await _context.BodyMetrics.AddRangeAsync(older, newer);
         await _context.SaveChangesAsync();
 
-        var (items, _) = await _sut.GetPagedByUserAsync(TestUserId, 1, 10);
+        var (items, _) = await _sut.GetPagedByUserAsync(TestUserId, 1, 10, BodyMetricDto.Projection);
 
         items[0].Date.Should().BeAfter(items[1].Date);
+    }
+
+    [Fact]
+    public async Task GetPagedByUserAsync_WithProjection_ShouldTranslateOwnedValueObjectsToSql()
+    {
+        // Owned (nullable) value object'lerin (BodyWeight/BodyHeight/Percentage) projeksiyonu
+        // gerçek SQL Server'da çalışmazsa bu sorgu query-time'da exception atar. Bu test
+        // hem SQL çevirisini hem de değerlerin doğru geldiğini kanıtlar.
+        var withValues = BodyMetric.Create(TestUserId, new DateTime(2025, 6, 1), 80.5m, 180m, 15.2m, 35m, null, null, null, null, null, null, null, "Full");
+        var withNulls = BodyMetric.Create(TestUserId, new DateTime(2025, 5, 1), null, null, null, null, null, null, null, null, null, null, null, null);
+
+        await _context.BodyMetrics.AddRangeAsync(withValues, withNulls);
+        await _context.SaveChangesAsync();
+
+        var (items, totalCount) = await _sut.GetPagedByUserAsync(TestUserId, 1, 10, BodyMetricDto.Projection);
+
+        totalCount.Should().Be(2);
+
+        var mapped = items.Single(x => x.Note == "Full");
+        mapped.Weight.Should().Be(80.5m);
+        mapped.Height.Should().Be(180m);
+        mapped.BodyFatPercentage.Should().Be(15.2m);
+        mapped.MuscleMass.Should().Be(35m);
+
+        var empty = items.Single(x => x.Date == new DateTime(2025, 5, 1));
+        empty.Weight.Should().BeNull();
+        empty.Height.Should().BeNull();
+        empty.BodyFatPercentage.Should().BeNull();
     }
 
     // --- Update ---

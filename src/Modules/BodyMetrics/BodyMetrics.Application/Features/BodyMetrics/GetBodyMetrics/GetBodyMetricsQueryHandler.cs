@@ -12,9 +12,7 @@ namespace BodyMetrics.Application.Features.BodyMetrics.GetBodyMetrics
         {
             var userId = Guid.Parse(_currentUser.UserId!);
 
-            var (items, totalCount) = await _repository.GetPagedByUserAsync(userId, request.PageNumber, request.PageSize, cancellationToken);
-
-            var dtos = items.Select(BodyMetricDto.FromEntity).ToList();
+            var (dtos, totalCount) = await _repository.GetPagedByUserAsync(userId, request.PageNumber, request.PageSize, BodyMetricDto.Projection, cancellationToken);
 
             return PagedResult<BodyMetricDto>.Create(dtos, request.PageNumber, request.PageSize, totalCount);
         }

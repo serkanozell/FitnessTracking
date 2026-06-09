@@ -240,6 +240,31 @@ public sealed class ExerciseDto
 }
 ```
 
+#### SQL Projeksiyonu (list/paged query'ler için)
+
+Listeleme/sayfalama query'lerinde tüm entity grafiğini çekip bellekte map etmek yerine **SQL projeksiyonu** kullanılır: yalnızca gereken kolonlar veritabanından çekilir. Bunun için DTO'ya `FromEntity`'ye ek olarak bir `static readonly Expression<Func<Entity, Dto>> Projection` eklenir ve repository'ye **generic selector-expression overload** verilir (repository Domain katmanında kalır, DTO coupling olmaz):
+
+```csharp
+// DTO — Expression olduğundan EF tarafından SQL'e çevrilir.
+public static readonly Expression<Func<Food, FoodDto>> Projection = entity => new FoodDto { ... };
+
+// Repository interface (Domain) — DTO'ya değil generic TResult'a bağımlı.
+Task<(IReadOnlyList<TResult> Items, int TotalCount)> GetPagedAsync<TResult>(
+    ..., Expression<Func<Food, TResult>> selector, CancellationToken ct = default);
+
+// Repository impl — .Select(selector) pagination'dan ÖNCE uygulanır.
+=> await _ctx.Foods.AsNoTracking().Where(...).OrderBy(...).Select(selector).ToPagedListAsync(...);
+
+// Handler — projeksiyonu doğrudan tüketir, bellekte ikinci bir map yok.
+var (dtos, total) = await _repo.GetPagedAsync(..., FoodDto.Projection, ct);
+```
+
+**Ne zaman uygulanır:** read-only, flat/scalar veya tek seviyeli alan map eden list handler'ları. `enum.ToString()` (EF `HasConversion<string>()` kolonu) ve owned/nullable value object `?.Value` (aynı tabloda kolon) SQL'e çevrilebilir.
+
+**Ne zaman uygulanmaz (FromEntity'de kalır):** nested koleksiyon map eden veya hesaplanan toplam içeren DTO'lar (ör. nested `Entries`/`Meals` + `Total*`), cross-module veri lookup'ı ile birleşen DTO'lar (ör. `IExerciseModule`), ve aggregate root zaten yüklenip child'ı map edilen senaryolar. Bu durumlar ayrı nested-projection/redesign gerektirir ve §13 gereği gerekçesiyle belgelenir.
+
+> **DOĞRULAMA KURALI:** `Projection` expression'ının gerçekten SQL'e çevrildiği **EF Core InMemory provider ile kanıtlanamaz**. Owned value object veya `enum.ToString()` içeren projeksiyonlar **mutlaka gerçek SQL Server'a karşı (Testcontainers MsSql) integration testiyle** doğrulanmalıdır.
+
 ### 5.7 Caching
 
 - Cache'lenecek query'ler `ICacheableQuery` interface'ini implement eder.

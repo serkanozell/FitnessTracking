@@ -7,11 +7,7 @@ namespace Exercises.Application.Features.Exercises.GetAllExercises
     {
         public async Task<Result<PagedResult<ExerciseDto>>> Handle(GetAllExercisesQuery request, CancellationToken cancellationToken)
         {
-            var (items, totalCount) = await _exerciseRepository.GetPagedAsync(request.PageNumber, request.PageSize, cancellationToken);
-
-            var dtos = items
-                .Select(ExerciseDto.FromEntity)
-                .ToList();
+            var (dtos, totalCount) = await _exerciseRepository.GetPagedAsync(request.PageNumber, request.PageSize, ExerciseDto.Projection, cancellationToken);
 
             return PagedResult<ExerciseDto>.Create(dtos, request.PageNumber, request.PageSize, totalCount);
         }

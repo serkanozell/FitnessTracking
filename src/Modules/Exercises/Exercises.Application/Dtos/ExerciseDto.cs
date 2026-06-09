@@ -1,4 +1,5 @@
-﻿using Exercises.Domain.Entity;
+﻿using System.Linq.Expressions;
+using Exercises.Domain.Entity;
 
 namespace Exercises.Application.Dtos
 {
@@ -25,6 +26,26 @@ namespace Exercises.Application.Dtos
                 Name = entity.Name,
                 PrimaryMuscleGroup = entity.PrimaryMuscleGroup.ToString(),
                 SecondaryMuscleGroup = entity.SecondaryMuscleGroup?.ToString(),
+                Description = entity.Description,
+                ImageUrl = entity.ImageUrl,
+                VideoUrl = entity.VideoUrl,
+                IsActive = entity.IsActive,
+                IsDeleted = entity.IsDeleted,
+                CreatedDate = entity.CreatedDate,
+                CreatedBy = entity.CreatedBy,
+                UpdatedDate = entity.UpdatedDate,
+                UpdatedBy = entity.UpdatedBy
+            };
+
+        // SQL-translatable projection for list/paged queries (P3). Enum'lar EF config'inde
+        // HasConversion<string>() ile string kolon olduğundan ToString() SQL'e çevrilebilir.
+        public static readonly Expression<Func<Exercise, ExerciseDto>> Projection = entity =>
+            new ExerciseDto
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                PrimaryMuscleGroup = entity.PrimaryMuscleGroup.ToString(),
+                SecondaryMuscleGroup = entity.SecondaryMuscleGroup.HasValue ? entity.SecondaryMuscleGroup.Value.ToString() : null,
                 Description = entity.Description,
                 ImageUrl = entity.ImageUrl,
                 VideoUrl = entity.VideoUrl,

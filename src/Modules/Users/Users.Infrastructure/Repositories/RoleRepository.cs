@@ -2,6 +2,7 @@
 using Users.Domain.Repositories;
 using Users.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Users.Infrastructure.Repositories
 {
@@ -20,8 +21,8 @@ namespace Users.Infrastructure.Repositories
         public async Task<Role?> GetByNameAsync(string name, CancellationToken cancellationToken = default) =>
             await _dbContext.Roles.FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
 
-        public async Task<IReadOnlyList<Role>> GetAllAsync(CancellationToken cancellationToken = default) =>
-            await _dbContext.Roles.AsNoTracking().ToListAsync(cancellationToken);
+        public async Task<IReadOnlyList<TResult>> GetAllAsync<TResult>(Expression<Func<Role, TResult>> selector, CancellationToken cancellationToken = default) =>
+            await _dbContext.Roles.AsNoTracking().Select(selector).ToListAsync(cancellationToken);
 
         public async Task AddAsync(Role role, CancellationToken cancellationToken = default) =>
             await _dbContext.Roles.AddAsync(role, cancellationToken);

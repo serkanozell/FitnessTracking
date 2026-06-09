@@ -3,6 +3,7 @@ using BodyMetrics.Domain.Entity;
 using BodyMetrics.Domain.Repositories;
 using BodyMetrics.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BodyMetrics.Infrastructure.Repositories
 {
@@ -17,12 +18,13 @@ namespace BodyMetrics.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<(IReadOnlyList<BodyMetric> Items, int TotalCount)> GetPagedByUserAsync(
-            Guid userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<(IReadOnlyList<TResult> Items, int TotalCount)> GetPagedByUserAsync<TResult>(
+            Guid userId, int pageNumber, int pageSize, Expression<Func<BodyMetric, TResult>> selector, CancellationToken cancellationToken = default)
         {
             var query = _context.BodyMetrics.AsNoTracking()
                                             .Where(x => x.UserId == userId)
-                                            .OrderByDescending(x => x.Date);
+                                            .OrderByDescending(x => x.Date)
+                                            .Select(selector);
 
             return await query.ToPagedListAsync(pageNumber, pageSize, cancellationToken);
         }

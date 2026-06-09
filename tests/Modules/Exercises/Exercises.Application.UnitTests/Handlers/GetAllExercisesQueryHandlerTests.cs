@@ -1,3 +1,5 @@
+﻿using System.Linq.Expressions;
+using Exercises.Application.Dtos;
 using Exercises.Application.Features.Exercises.GetAllExercises;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;
@@ -21,14 +23,14 @@ public class GetAllExercisesQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnPagedResult()
     {
-        var exercises = new List<Exercise>
+        var dtos = new List<ExerciseDto>
         {
-            Exercise.Create("Bench Press", MuscleGroup.Chest, MuscleGroup.Triceps, "Flat bench"),
-            Exercise.Create("Squat", MuscleGroup.Quadriceps, MuscleGroup.Glutes, "Barbell squat")
+            ExerciseDto.FromEntity(Exercise.Create("Bench Press", MuscleGroup.Chest, MuscleGroup.Triceps, "Flat bench")),
+            ExerciseDto.FromEntity(Exercise.Create("Squat", MuscleGroup.Quadriceps, MuscleGroup.Glutes, "Barbell squat"))
         };
         var query = new GetAllExercisesQuery(1, 10);
-        _exerciseRepository.GetPagedAsync(1, 10, Arg.Any<CancellationToken>())
-            .Returns(((IReadOnlyList<Exercise>)exercises, 2));
+        _exerciseRepository.GetPagedAsync(1, 10, Arg.Any<Expression<Func<Exercise, ExerciseDto>>>(), Arg.Any<CancellationToken>())
+            .Returns(((IReadOnlyList<ExerciseDto>)dtos, 2));
 
         var result = await _sut.Handle(query, CancellationToken.None);
 
@@ -46,8 +48,8 @@ public class GetAllExercisesQueryHandlerTests
     public async Task Handle_ShouldReturnEmptyPagedResult_WhenNoExercises()
     {
         var query = new GetAllExercisesQuery(1, 10);
-        _exerciseRepository.GetPagedAsync(1, 10, Arg.Any<CancellationToken>())
-            .Returns(((IReadOnlyList<Exercise>)new List<Exercise>(), 0));
+        _exerciseRepository.GetPagedAsync(1, 10, Arg.Any<Expression<Func<Exercise, ExerciseDto>>>(), Arg.Any<CancellationToken>())
+            .Returns(((IReadOnlyList<ExerciseDto>)new List<ExerciseDto>(), 0));
 
         var result = await _sut.Handle(query, CancellationToken.None);
 
@@ -57,19 +59,23 @@ public class GetAllExercisesQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldMapSecondaryMuscleGroupAsNull_WhenNotSet()
+    public void Projection_ShouldMapMuscleGroupsToString()
     {
-        var exercises = new List<Exercise>
-        {
-            Exercise.Create("Plank", MuscleGroup.Core, null, "Core exercise")
-        };
-        var query = new GetAllExercisesQuery(1, 10);
-        _exerciseRepository.GetPagedAsync(1, 10, Arg.Any<CancellationToken>())
-            .Returns(((IReadOnlyList<Exercise>)exercises, 1));
+        var exercise = Exercise.Create("Bench Press", MuscleGroup.Chest, MuscleGroup.Triceps, "Flat bench");
 
-        var result = await _sut.Handle(query, CancellationToken.None);
+        var dto = ExerciseDto.Projection.Compile().Invoke(exercise);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Data!.Items[0].SecondaryMuscleGroup.Should().BeNull();
+        dto.PrimaryMuscleGroup.Should().Be("Chest");
+        dto.SecondaryMuscleGroup.Should().Be("Triceps");
+    }
+
+    [Fact]
+    public void Projection_ShouldMapSecondaryMuscleGroupAsNull_WhenNotSet()
+    {
+        var exercise = Exercise.Create("Plank", MuscleGroup.Core, null, "Core exercise");
+
+        var dto = ExerciseDto.Projection.Compile().Invoke(exercise);
+
+        dto.SecondaryMuscleGroup.Should().BeNull();
     }
 }

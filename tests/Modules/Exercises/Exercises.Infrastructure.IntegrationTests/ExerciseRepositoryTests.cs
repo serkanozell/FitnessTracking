@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure.Persistence.Interceptors;
+using Exercises.Application.Dtos;
 using Exercises.Domain.Entity;
 using Exercises.Domain.Enums;
 using Exercises.Infrastructure.Persistence;
@@ -113,7 +114,7 @@ public class ExerciseRepositoryTests : IAsyncLifetime
             await _context.Exercises.AddAsync(Exercise.Create($"Exercise {i}", MuscleGroup.Chest, null, ""));
         await _context.SaveChangesAsync();
 
-        var (items, totalCount) = await _sut.GetPagedAsync(1, 2);
+        var (items, totalCount) = await _sut.GetPagedAsync(1, 2, ExerciseDto.Projection);
 
         items.Should().HaveCount(2);
         totalCount.Should().Be(5);
@@ -122,7 +123,7 @@ public class ExerciseRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task GetPagedAsync_ShouldReturnEmptyList_WhenNoData()
     {
-        var (items, totalCount) = await _sut.GetPagedAsync(1, 10);
+        var (items, totalCount) = await _sut.GetPagedAsync(1, 10, ExerciseDto.Projection);
 
         items.Should().BeEmpty();
         totalCount.Should().Be(0);

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Nutrition.Domain.Entity;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Persistence;
+using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Repositories
 {
@@ -28,13 +29,14 @@ namespace Nutrition.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<(IReadOnlyList<Food> Items, int TotalCount)> GetPagedAsync(
-            Guid? userId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<(IReadOnlyList<TResult> Items, int TotalCount)> GetPagedAsync<TResult>(
+            Guid? userId, int pageNumber, int pageSize, Expression<Func<Food, TResult>> selector, CancellationToken cancellationToken = default)
         {
             var query = _context.Foods
                 .AsNoTracking()
                 .Where(x => x.UserId == null || x.UserId == userId)
-                .OrderBy(x => x.Name);
+                .OrderBy(x => x.Name)
+                .Select(selector);
 
             return await query.ToPagedListAsync(pageNumber, pageSize, cancellationToken);
         }

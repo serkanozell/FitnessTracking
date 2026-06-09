@@ -7,9 +7,7 @@ namespace Users.Application.Features.Roles.GetAllRoles
     {
         public async Task<Result<IReadOnlyList<RoleDto>>> Handle(GetAllRolesQuery request, CancellationToken cancellationToken)
         {
-            var roles = await _roleRepository.GetAllAsync(cancellationToken);
-
-            var roleDtos = roles.Select(RoleDto.FromEntity).ToList() as IReadOnlyList<RoleDto>;
+            var roleDtos = await _roleRepository.GetAllAsync(RoleDto.Projection, cancellationToken);
 
             return Result<IReadOnlyList<RoleDto>>.Success(roleDtos);
         }
