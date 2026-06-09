@@ -2,7 +2,7 @@
 {
     public interface IWorkoutSessionModule
     {
-        Task<WorkoutSessionStatsInfo> GetStatsByUserAsync(Guid userId, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken = default);
+        Task<WorkoutStatsSummaryInfo> GetStatsSummaryAsync(Guid userId, DateTime currentPeriodStart, DateTime dateTo, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<WorkoutVolumePoint>> GetVolumeTrendAsync(Guid userId,
                                                                     DateTime dateFrom,

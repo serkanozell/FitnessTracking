@@ -32,8 +32,10 @@ public class DashboardQueryHandlerTests
         _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns(new ActiveProgramInfo(Guid.NewGuid(), "PPL", DateTime.Today.AddDays(-30), DateTime.Today.AddDays(60)));
 
-        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(new WorkoutSessionStatsInfo(4, 48, 480, 3));
+        _sessionModule.GetStatsSummaryAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutStatsSummaryInfo(
+                CurrentPeriod: new WorkoutSessionStatsInfo(2, 24, 240, 3),
+                AllTime: new WorkoutSessionStatsInfo(4, 48, 480, 3)));
 
         _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns(new LatestBodyMetricInfo(DateTime.Today, 80m, 15m, 65m));
@@ -45,7 +47,7 @@ public class DashboardQueryHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Data!.ActiveProgram.Should().NotBeNull();
         result.Data.ActiveProgram!.Name.Should().Be("PPL");
-        result.Data.WeeklyWorkouts.Completed.Should().Be(4);
+        result.Data.WeeklyWorkouts.Completed.Should().Be(2);
         result.Data.LatestBodyMetric!.Weight.Should().Be(80m);
         result.Data.Stats.TotalWorkouts.Should().Be(4);
     }
@@ -56,8 +58,10 @@ public class DashboardQueryHandlerTests
         _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns((ActiveProgramInfo?)null);
 
-        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(new WorkoutSessionStatsInfo(0, 0, 0, 0));
+        _sessionModule.GetStatsSummaryAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutStatsSummaryInfo(
+                CurrentPeriod: new WorkoutSessionStatsInfo(0, 0, 0, 0),
+                AllTime: new WorkoutSessionStatsInfo(0, 0, 0, 0)));
 
         _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns((LatestBodyMetricInfo?)null);
@@ -122,8 +126,10 @@ public class DashboardQueryHandlerTests
         _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns(new ActiveProgramInfo(Guid.NewGuid(), "Test", startDate, endDate));
 
-        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(new WorkoutSessionStatsInfo(0, 0, 0, 0));
+        _sessionModule.GetStatsSummaryAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutStatsSummaryInfo(
+                CurrentPeriod: new WorkoutSessionStatsInfo(0, 0, 0, 0),
+                AllTime: new WorkoutSessionStatsInfo(0, 0, 0, 0)));
 
         _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns((LatestBodyMetricInfo?)null);
@@ -144,8 +150,10 @@ public class DashboardQueryHandlerTests
         _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns(new ActiveProgramInfo(Guid.NewGuid(), "Ended", startDate, endDate));
 
-        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(new WorkoutSessionStatsInfo(0, 0, 0, 0));
+        _sessionModule.GetStatsSummaryAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutStatsSummaryInfo(
+                CurrentPeriod: new WorkoutSessionStatsInfo(0, 0, 0, 0),
+                AllTime: new WorkoutSessionStatsInfo(0, 0, 0, 0)));
 
         _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns((LatestBodyMetricInfo?)null);
@@ -167,8 +175,10 @@ public class DashboardQueryHandlerTests
         _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns(new ActiveProgramInfo(Guid.NewGuid(), "PPL", startDate, endDate));
 
-        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(new WorkoutSessionStatsInfo(0, 0, 0, 0));
+        _sessionModule.GetStatsSummaryAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutStatsSummaryInfo(
+                CurrentPeriod: new WorkoutSessionStatsInfo(0, 0, 0, 0),
+                AllTime: new WorkoutSessionStatsInfo(0, 0, 0, 0)));
 
         _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns((LatestBodyMetricInfo?)null);
@@ -186,8 +196,10 @@ public class DashboardQueryHandlerTests
         _programModule.GetActiveProgramByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns((ActiveProgramInfo?)null);
 
-        _sessionModule.GetStatsByUserAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(new WorkoutSessionStatsInfo(5, 60, 600, 4));
+        _sessionModule.GetStatsSummaryAsync(TestUserId, Arg.Any<DateTime>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(new WorkoutStatsSummaryInfo(
+                CurrentPeriod: new WorkoutSessionStatsInfo(2, 24, 240, 2),
+                AllTime: new WorkoutSessionStatsInfo(5, 60, 600, 4)));
 
         _bodyMetricModule.GetLatestByUserAsync(TestUserId, Arg.Any<CancellationToken>())
             .Returns((LatestBodyMetricInfo?)null);

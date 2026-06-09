@@ -4,4 +4,7 @@
                                           int TotalSets,
                                           int TotalReps,
                                           int StreakDays);
+
+    public record WorkoutStatsSummaryInfo(WorkoutSessionStatsInfo CurrentPeriod,
+                                          WorkoutSessionStatsInfo AllTime);
 }

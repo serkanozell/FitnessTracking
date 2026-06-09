@@ -8,15 +8,16 @@ namespace WorkoutSessions.Infrastructure.Services
     internal sealed class WorkoutSessionModuleService(WorkoutSessionsDbContext _context,
                                                       IWorkoutProgramModule _workoutProgramModule) : IWorkoutSessionModule
     {
-        public async Task<WorkoutSessionStatsInfo> GetStatsByUserAsync(Guid userId, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken = default)
+        public async Task<WorkoutStatsSummaryInfo> GetStatsSummaryAsync(Guid userId, DateTime currentPeriodStart, DateTime dateTo, CancellationToken cancellationToken = default)
         {
-            // Aggregate set/rep counts per session in SQL instead of loading the whole
-            // SessionExercises graph into memory. Only the per-session scalar projection
-            // (date + counts) is materialized; the streak is computed in memory because
-            // CalculateStreak cannot be translated to SQL.
+            // Single round-trip: fetch every session up to dateTo (the all-time window is a
+            // superset of the current-period window) and aggregate set/rep counts per session
+            // in SQL. The two buckets (current period + all time) are then split in memory.
+            // This replaces the previous two sequential GetStatsByUserAsync round-trips on the
+            // same scoped DbContext. The streak stays in memory (CalculateStreak is not SQL-translatable).
             var perSession = await _context.WorkoutSessions
                 .AsNoTracking()
-                .Where(x => x.UserId == userId && x.IsActive && !x.IsDeleted && x.Date >= dateFrom && x.Date <= dateTo)
+                .Where(x => x.UserId == userId && x.IsActive && !x.IsDeleted && x.Date <= dateTo)
                 .Select(s => new
                 {
                     s.Date,
@@ -25,10 +26,21 @@ namespace WorkoutSessions.Infrastructure.Services
                 })
                 .ToListAsync(cancellationToken);
 
-            var sessionCount = perSession.Count;
-            var totalSets = perSession.Sum(x => x.SetCount);
-            var totalReps = perSession.Sum(x => x.RepCount);
-            var streakDays = CalculateStreak(perSession.Select(x => x.Date).Distinct().OrderByDescending(d => d));
+            var allTime = ComputeStats(perSession.Select(x => (x.Date, x.SetCount, x.RepCount)));
+            var currentPeriod = ComputeStats(perSession
+                .Where(x => x.Date >= currentPeriodStart)
+                .Select(x => (x.Date, x.SetCount, x.RepCount)));
+
+            return new WorkoutStatsSummaryInfo(currentPeriod, allTime);
+        }
+
+        private static WorkoutSessionStatsInfo ComputeStats(IEnumerable<(DateTime Date, int SetCount, int RepCount)> rows)
+        {
+            var materialized = rows.ToList();
+            var sessionCount = materialized.Count;
+            var totalSets = materialized.Sum(x => x.SetCount);
+            var totalReps = materialized.Sum(x => x.RepCount);
+            var streakDays = CalculateStreak(materialized.Select(x => x.Date).Distinct().OrderByDescending(d => d));
 
             return new WorkoutSessionStatsInfo(sessionCount, totalSets, totalReps, streakDays);
         }

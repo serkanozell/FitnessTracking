@@ -40,7 +40,7 @@ public class WorkoutSessionModuleServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetStatsByUserAsync_ShouldAggregateSetsAndRepsInSql()
+    public async Task GetStatsSummaryAsync_ShouldSplitCurrentPeriodAndAllTimeInSql()
     {
         var userId = Guid.NewGuid();
 
@@ -62,30 +62,41 @@ public class WorkoutSessionModuleServiceTests : IAsyncLifetime
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
 
-        var stats = await _sut.GetStatsByUserAsync(userId, new DateTime(2025, 1, 1), new DateTime(2025, 12, 31));
+        // currentPeriodStart = 2025-06-02 → only s2 is in the current period; both are all-time.
+        var summary = await _sut.GetStatsSummaryAsync(userId, new DateTime(2025, 6, 2), new DateTime(2025, 12, 31));
 
-        stats.SessionCount.Should().Be(2);
-        stats.TotalSets.Should().Be(3);
-        stats.TotalReps.Should().Be(23);
+        summary.AllTime.SessionCount.Should().Be(2);
+        summary.AllTime.TotalSets.Should().Be(3);
+        summary.AllTime.TotalReps.Should().Be(23);
+
+        summary.CurrentPeriod.SessionCount.Should().Be(1);
+        summary.CurrentPeriod.TotalSets.Should().Be(1);
+        summary.CurrentPeriod.TotalReps.Should().Be(5);
     }
 
     [Fact]
-    public async Task GetStatsByUserAsync_ShouldReturnZeroes_WhenNoSessionsInRange()
+    public async Task GetStatsSummaryAsync_ShouldReturnZeroCurrentPeriod_WhenHistoryExistsButPeriodEmpty()
     {
         var userId = Guid.NewGuid();
 
-        var session = WorkoutSession.Create(userId, Guid.NewGuid(), Guid.NewGuid(), new DateTime(2024, 1, 1));
-        session.Activate();
-        session.AddEntry(Guid.NewGuid(), 1, 60m, 12);
-        await _context.WorkoutSessions.AddAsync(session);
+        var past = WorkoutSession.Create(userId, Guid.NewGuid(), Guid.NewGuid(), new DateTime(2024, 1, 1));
+        past.Activate();
+        past.AddEntry(Guid.NewGuid(), 1, 60m, 12);
+        await _context.WorkoutSessions.AddAsync(past);
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
 
-        var stats = await _sut.GetStatsByUserAsync(userId, new DateTime(2025, 1, 1), new DateTime(2025, 12, 31));
+        // currentPeriodStart = 2025-01-01 → the 2024 session is outside the current period
+        // but still counts toward all-time (Date <= dateTo).
+        var summary = await _sut.GetStatsSummaryAsync(userId, new DateTime(2025, 1, 1), new DateTime(2025, 12, 31));
 
-        stats.SessionCount.Should().Be(0);
-        stats.TotalSets.Should().Be(0);
-        stats.TotalReps.Should().Be(0);
-        stats.StreakDays.Should().Be(0);
+        summary.AllTime.SessionCount.Should().Be(1);
+        summary.AllTime.TotalSets.Should().Be(1);
+        summary.AllTime.TotalReps.Should().Be(12);
+
+        summary.CurrentPeriod.SessionCount.Should().Be(0);
+        summary.CurrentPeriod.TotalSets.Should().Be(0);
+        summary.CurrentPeriod.TotalReps.Should().Be(0);
+        summary.CurrentPeriod.StreakDays.Should().Be(0);
     }
 }
