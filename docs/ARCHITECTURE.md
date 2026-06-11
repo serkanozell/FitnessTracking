@@ -312,6 +312,8 @@ global using Microsoft.AspNetCore.Builder;
 - `OutboxInterceptor` domain event'leri Outbox tablosuna yazar (SaveChanges sırasında).
 - `AuditableEntityInterceptor` audit alanlarını EF Property API üzerinden otomatik doldurur.
 
+> **ZAMAN DAMGASI KURALI (yerel zaman — bilinçli mimari karar):** Tüm zaman damgaları **yerel sunucu zamanıyla** (`DateTime.Now` / `DateTime.Today`) üretilir; proje genelinde `DateTime.UtcNow` / `DateTimeOffset.UtcNow` **kullanılmaz** (audit alanları, outbox `OccurredOn`/`ProcessedOn`, JWT/refresh-token expiry, domain event `OccurredOn`, tüm analytics/dashboard tarih-aralığı filtreleri dahil). Uygulama tek zaman-dilimi bağlamında çalışır ve tüm tarih karşılaştırmaları yerel zamanla hizalıdır; UTC'ye geçiş **kasıtlı olarak yapılmaz** (bkz. ROADMAP P11). **Yeni kod yazarken `DateTime.UtcNow` eklenmemelidir.** Not: bazı kalıcılaştırılmış alanlar `...Utc` son ekiyle adlandırılmış olsa da (`OccurredOnUtc`, `ProcessedOnUtc`, `ExpiresOnUtc`) içerikleri yerel zamandır — bu yalnızca tarihsel bir isimlendirme tutarsızlığıdır, davranışsal etkisi yoktur.
+
 ### 6.2 Outbox Pattern
 
 - Domain event'ler `OutboxInterceptor` tarafından yakalanır ve `OutboxMessage` tablosuna serialize edilir.
