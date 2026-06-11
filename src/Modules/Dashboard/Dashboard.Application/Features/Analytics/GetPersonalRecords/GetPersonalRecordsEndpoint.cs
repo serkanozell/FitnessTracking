@@ -21,7 +21,8 @@ namespace Dashboard.Application.Features.Analytics.GetPersonalRecords
             .WithTags("Dashboard")
             .WithSummary("Gets top personal records (estimated 1RM) for the current user")
             .WithDescription("Returns the top N exercises by estimated 1RM (Epley formula)")
-            .Produces<IReadOnlyList<PersonalRecordDto>>(StatusCodes.Status200OK);
+            .Produces<IReadOnlyList<PersonalRecordDto>>(StatusCodes.Status200OK)
+            .RequireRateLimiting(RateLimitPolicies.Dashboard);
         }
     }
 }

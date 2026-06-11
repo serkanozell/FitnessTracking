@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using System.Threading.RateLimiting;
 using Asp.Versioning;
 using Asp.Versioning.Builder;
@@ -15,6 +16,7 @@ using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Users.Api;
@@ -28,6 +30,7 @@ using BodyMetrics.Infrastructure;
 using Dashboard.Api;
 using Nutrition.Api;
 using Nutrition.Infrastructure;
+using FitnessTracking.Api.Configuration;
 
 namespace FitnessTracking.Api.Extensions
 {
@@ -51,20 +54,26 @@ namespace FitnessTracking.Api.Extensions
             services.AddProblemDetails();
             services.AddExceptionHandler<GlobalExceptionHandler>();
 
+            services.Configure<RateLimitingOptions>(configuration.GetSection(RateLimitingOptions.SectionName));
+
             services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+                // Rules are resolved per request from IOptionsMonitor so configuration changes
+                // (and test overrides via PostConfigure) take effect without recompiling the limiter.
+                // Coarse per-IP backstop applied to every request.
                 options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                        factory: _ => new FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = 20,
-                            Window = TimeSpan.FromMinutes(1),
-                            QueueLimit = 5,
-                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst
-                        }));
+                    CreateFixedWindow(GetClientIp(context), GetRules(context).Global));
+
+                // Strict per-IP policy for auth endpoints (brute-force / enumeration protection).
+                options.AddPolicy(RateLimitPolicies.Authentication, context =>
+                    CreateFixedWindow(GetClientIp(context), GetRules(context).Authentication));
+
+                // Generous per-user policy for dashboard/analytics endpoints (high fan-out per page load).
+                // Falls back to IP when the request is unauthenticated.
+                options.AddPolicy(RateLimitPolicies.Dashboard, context =>
+                    CreateFixedWindow(GetUserPartitionKey(context), GetRules(context).Dashboard));
             });
 
             var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -218,6 +227,33 @@ namespace FitnessTracking.Api.Extensions
             });
 
             return app;
+        }
+
+        private static RateLimitPartition<string> CreateFixedWindow(string partitionKey, RateLimitRule rule) =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey,
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = rule.PermitLimit,
+                    Window = rule.Window,
+                    QueueLimit = rule.QueueLimit,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+                });
+
+        // Resolves the current rules from DI per request so configuration reloads and test overrides
+        // are honored, instead of capturing a snapshot at limiter-registration time.
+        private static RateLimitingOptions GetRules(HttpContext context) =>
+            context.RequestServices.GetRequiredService<IOptionsMonitor<RateLimitingOptions>>().CurrentValue;
+
+        private static string GetClientIp(HttpContext context) =>
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        // Partition authenticated requests by user id so one user's burst can't exhaust the limit
+        // for other users sharing the same IP (NAT/proxy); fall back to IP when anonymous.
+        private static string GetUserPartitionKey(HttpContext context)
+        {
+            var userId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return string.IsNullOrEmpty(userId) ? $"ip:{GetClientIp(context)}" : $"user:{userId}";
         }
     }
 }

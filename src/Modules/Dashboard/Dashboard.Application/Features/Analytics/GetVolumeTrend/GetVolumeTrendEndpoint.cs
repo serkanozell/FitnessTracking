@@ -30,7 +30,8 @@ namespace Dashboard.Application.Features.Analytics.GetVolumeTrend
             .WithTags("Dashboard")
             .WithSummary("Gets workout volume trend (sets × reps × weight) for the current user")
             .WithDescription("Returns aggregated volume per day/week/month over the specified period (default 30 days)")
-            .Produces<IReadOnlyList<VolumeTrendPointDto>>(StatusCodes.Status200OK);
+            .Produces<IReadOnlyList<VolumeTrendPointDto>>(StatusCodes.Status200OK)
+            .RequireRateLimiting(RateLimitPolicies.Dashboard);
         }
     }
 }

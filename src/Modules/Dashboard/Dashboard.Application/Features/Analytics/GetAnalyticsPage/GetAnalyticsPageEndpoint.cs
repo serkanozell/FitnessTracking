@@ -31,7 +31,8 @@ namespace Dashboard.Application.Features.Analytics.GetAnalyticsPage
             .WithTags("Dashboard")
             .WithSummary("Gets all analytics page data in a single response")
             .WithDescription("Aggregates exercises, programs, volume trend, muscle group distribution, personal records and selected exercise progress for the analytics page")
-            .Produces<AnalyticsPageDto>(StatusCodes.Status200OK);
+            .Produces<AnalyticsPageDto>(StatusCodes.Status200OK)
+            .RequireRateLimiting(RateLimitPolicies.Dashboard);
         }
     }
 }

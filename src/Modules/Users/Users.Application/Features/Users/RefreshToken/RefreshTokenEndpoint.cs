@@ -23,7 +23,8 @@ namespace Users.Application.Features.Users.RefreshToken
                 .Accepts<RefreshTokenRequest>("application/json")
                 .Produces<RefreshTokenResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .AllowAnonymous();
+                .AllowAnonymous()
+                .RequireRateLimiting(RateLimitPolicies.Authentication);
         }
 
         public sealed record RefreshTokenRequest(string RefreshToken);

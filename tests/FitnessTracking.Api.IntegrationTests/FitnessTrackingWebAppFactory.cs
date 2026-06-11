@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,7 +43,12 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
                 ["Jwt:Issuer"] = "FitnessTracking.Test",
                 ["Jwt:Audience"] = "FitnessTracking.Test",
                 ["Jwt:ExpirationMinutes"] = "60",
-                ["Jwt:RefreshTokenExpirationDays"] = "7"
+                ["Jwt:RefreshTokenExpirationDays"] = "7",
+                // Keep limits effectively unlimited for functional tests so they never throttle;
+                // RateLimitingTests overrides these with tiny limits to assert 429 behavior.
+                ["RateLimiting:Global:PermitLimit"] = "100000",
+                ["RateLimiting:Authentication:PermitLimit"] = "100000",
+                ["RateLimiting:Dashboard:PermitLimit"] = "100000"
             });
         });
 
@@ -113,7 +119,14 @@ public class FitnessTrackingWebAppFactory : WebApplicationFactory<Program>
             services.Remove(d);
 
         var dbName = "Test_" + typeof(TContext).Name + "_" + Guid.NewGuid().ToString("N");
-        services.AddDbContext<TContext>(o => o.UseInMemoryDatabase(dbName));
+        services.AddDbContext<TContext>((sp, o) =>
+        {
+            o.UseInMemoryDatabase(dbName);
+            // Preserve the SaveChanges interceptors (audit + outbox) so the in-memory
+            // host behaves like production. Without these, required audit fields such as
+            // WorkoutProgramSplit.CreatedDate are never populated and SaveChanges fails.
+            o.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+        });
     }
 
     private static void RemoveAllOfType<T>(IServiceCollection services)

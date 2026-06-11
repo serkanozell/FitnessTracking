@@ -24,7 +24,8 @@ namespace Users.Application.Features.Users.Login
                 .Accepts<LoginRequest>("application/json")
                 .Produces<LoginResponse>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .AllowAnonymous();
+                .AllowAnonymous()
+                .RequireRateLimiting(RateLimitPolicies.Authentication);
         }
 
         public sealed record LoginRequest(string Email, string Password);

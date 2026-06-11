@@ -24,7 +24,8 @@ namespace Users.Application.Features.Users.Register
                 .Accepts<RegisterRequest>("application/json")
                 .Produces<RegisterResponse>(StatusCodes.Status201Created)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
-                .AllowAnonymous();
+                .AllowAnonymous()
+                .RequireRateLimiting(RateLimitPolicies.Authentication);
         }
 
         public sealed record RegisterRequest(string Email, string Password, string FirstName, string LastName);

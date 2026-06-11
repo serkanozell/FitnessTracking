@@ -21,7 +21,8 @@ namespace Dashboard.Application.Features.Analytics.GetExerciseProgress
             .WithTags("Dashboard")
             .WithSummary("Gets progress (max weight, 1RM, volume) for a single exercise")
             .WithDescription("Returns daily best lift metrics for the specified exercise over the period (default 90 days)")
-            .Produces<IReadOnlyList<ExerciseProgressPointDto>>(StatusCodes.Status200OK);
+            .Produces<IReadOnlyList<ExerciseProgressPointDto>>(StatusCodes.Status200OK)
+            .RequireRateLimiting(RateLimitPolicies.Dashboard);
         }
     }
 }

@@ -21,7 +21,8 @@ namespace Dashboard.Application.Features.Dashboard.GetWeightTrend
             .WithTags("Dashboard")
             .WithSummary("Gets weight trend for the current user")
             .WithDescription("Returns weight measurements over the specified period (default 90 days)")
-            .Produces<IReadOnlyList<WeightTrendDto>>(StatusCodes.Status200OK);
+            .Produces<IReadOnlyList<WeightTrendDto>>(StatusCodes.Status200OK)
+            .RequireRateLimiting(RateLimitPolicies.Dashboard);
         }
     }
 }

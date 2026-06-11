@@ -21,7 +21,8 @@ namespace Dashboard.Application.Features.Analytics.GetMuscleGroupDistribution
             .WithTags("Dashboard")
             .WithSummary("Gets training volume distribution by primary muscle group")
             .WithDescription("Returns total volume, sets and reps grouped by primary muscle group over the period (default 30 days)")
-            .Produces<IReadOnlyList<MuscleGroupVolumeDto>>(StatusCodes.Status200OK);
+            .Produces<IReadOnlyList<MuscleGroupVolumeDto>>(StatusCodes.Status200OK)
+            .RequireRateLimiting(RateLimitPolicies.Dashboard);
         }
     }
 }

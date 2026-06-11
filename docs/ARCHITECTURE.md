@@ -428,9 +428,24 @@ Tekrarlanan create request'lerinde (örn: client timeout sonrası retry) duplica
 - **API Versioning**: `Asp.Versioning.Http` ile URL segment tabanlı (`/api/v1/...`). Varsayılan versiyon `v1.0`.
 - **OpenAPI & Scalar**: `Scalar.AspNetCore` ile interaktif API dokümanı (`/scalar/v1`).
 - **CORS**: MVC client için `WebClient` policy
-- **Rate Limiting**: IP tabanlı fixed window (20 request/dakika, 5 queue)
+- **Rate Limiting**: Config-driven global backstop + endpoint-bazlı named policy'ler (bkz. §7.5)
 - **Health Checks**: SQL Server, Redis, SMTP (`/health`, `/health/ready`, `/health/live`)
 - **Logging**: Serilog (configuration-based, Console + File sink)
+
+### 7.5 Rate Limiting
+
+Rate limiter, abuse/brute-force koruması ve adil kaynak kullanımı için **config-driven** ve **endpoint-bazlı** kurgulanmıştır. Tek merkezi nokta: `ProgramExtensions.AddApiConfiguration` (kayıt) + `UseApiMiddleware` (`UseRateLimiter`).
+
+- **Config modeli**: `RateLimitingOptions` (`Global`/`Authentication`/`Dashboard`) + `RateLimitRule` (`PermitLimit`, `WindowInSeconds`, `QueueLimit`). `"RateLimiting"` section'ından bind edilir; section yoksa kod varsayılanları uygulanır.
+- **Politikalar**:
+  - **Global backstop** — `GlobalLimiter`, her isteğe uygulanan kaba **IP-bazlı** fixed window. Named policy olsa bile çalışmaya devam eder.
+  - **`auth`** (`RateLimitPolicies.Authentication`) — login/register/refresh için **sıkı IP-bazlı** policy; brute-force ve hesap enumeration'a karşı. Anonim endpoint'lerde `AllowAnonymous().RequireRateLimiting(...)` ile uygulanır.
+  - **`dashboard`** (`RateLimitPolicies.Dashboard`) — dashboard/analytics için **cömert** policy; bir sayfa yüklemesinde çok sayıda endpoint fan-out ettiğinden yüksek limitli. **Authenticated user id (`ClaimTypes.NameIdentifier`) ile partition'lı**, anonim istekte IP fallback → paylaşımlı NAT arkasındaki kullanıcılar birbirini bloke etmez.
+- **Magic-string yok**: Policy adları `BuildingBlocks.Web/RateLimitPolicies` sabitlerinde merkezîdir; host kaydı ve endpoint `RequireRateLimiting(...)` çağrıları aynı sabiti kullanır.
+- **Middleware sırası (KRİTİK)**: Endpoint-bazlı policy kullanıldığında `UseRateLimiter`, routing'den **sonra** ve `dashboard` policy authenticated principal'a bağlı olduğundan `UseAuthentication`/`UseAuthorization`'dan **sonra** gelmelidir.
+- **Config-monitor pattern (KRİTİK)**: Partition factory'leri kuralları kayıt anında yakalamak yerine **request anında `IOptionsMonitor<RateLimitingOptions>.CurrentValue`** ile çözer. Bu, config reload'u ve testlerde `PostConfigure<RateLimitingOptions>` ile deterministik override'ı mümkün kılar; aksi halde yakalanan snapshot test/runtime'da değiştirilemez.
+- **Test edilebilirlik**: `RateLimitingTests`, `WebApplicationFactory` + `ConfigureTestServices` + `PostConfigure` ile bir policy'yi daraltıp gerçek pipeline üzerinde **429** davranışını doğrular. Fonksiyonel endpoint testlerinin sıkı default'ları miras almaması için `FitnessTrackingWebAppFactory` Testing ortamında çok yüksek limitler enjekte eder.
+- **Yeni endpoint eklerken**: Brute-force profili olan anonim auth endpoint'leri `auth`, fan-out yapan dashboard/analytics okuma endpoint'leri `dashboard` policy'sine bağlanmalıdır. Standart CRUD endpoint'leri yalnızca global backstop'a tabi kalabilir.
 
 ---
 

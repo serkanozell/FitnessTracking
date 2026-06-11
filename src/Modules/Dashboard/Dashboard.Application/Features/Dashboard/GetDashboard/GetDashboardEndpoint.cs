@@ -21,7 +21,8 @@ namespace Dashboard.Application.Features.Dashboard.GetDashboard
             .WithTags("Dashboard")
             .WithSummary("Gets dashboard summary for the current user")
             .WithDescription("Returns workout stats, active program, latest body metrics")
-            .Produces<DashboardDto>(StatusCodes.Status200OK);
+            .Produces<DashboardDto>(StatusCodes.Status200OK)
+            .RequireRateLimiting(RateLimitPolicies.Dashboard);
         }
     }
 }
